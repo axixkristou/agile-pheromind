@@ -294,12 +294,55 @@ graph TD
     4.  Produit un rapport (`system_optimization_suggestions_*.md`).
 *   **Résultat Attendu:** Des pistes concrètes pour améliorer l'efficacité d'AgilePheromind lui-même.
 
-## 9. Dépannage et Bonnes Pratiques
+## 9. Utilisation des Modes Personnalisés de Roo Code
+
+AgilePheromind utilise les modes personnalisés de Roo Code pour définir ses agents spécialisés. Cette fonctionnalité permet d'adapter le comportement du système à différentes tâches et rôles.
+
+### 9.1. Activation d'un Mode Spécifique
+
+Pour activer directement un agent spécifique :
+
+1. Ouvrez la barre latérale de Roo Code
+2. Cliquez sur l'onglet "Modes"
+3. Sélectionnez le mode souhaité dans la liste (par exemple, "💻 @developer-agent")
+
+Vous pouvez également demander à AgilePheromind de changer de mode pour vous :
+
+```
+AgilePheromind utilise le mode @developer-agent pour implémenter la tâche Azure#23223
+```
+
+### 9.2. Modes Disponibles et Leurs Usages
+
+Voici quelques-uns des modes principaux et quand les utiliser :
+
+* **🎩 @head-orchestrator** : Point d'entrée pour toutes les commandes initiales
+* **🧐 @uber-orchestrator** : Exécution des workflows et coordination des agents
+* **✍️ @orchestrator-pheromone-scribe** : Gestion de l'état du système
+* **💻 @developer-agent** : Implémentation de code, tests unitaires, analyse de dépendances
+* **🧪 @test-generator-agent** : Génération de tests unitaires
+* **📚 @documentation-writer-agent** : Création et mise à jour de documentation
+* **🧑‍💼 @po-assistant** : Analyse des besoins, rédaction d'US et de critères d'acceptation
+
+### 9.3. Restrictions de Fichiers
+
+Chaque mode a des restrictions sur les fichiers qu'il peut modifier :
+
+* **@developer-agent** : Limité aux fichiers de code source (.cs, .ts, etc.)
+* **@test-generator-agent** : Limité aux fichiers de test (.test.js, .spec.ts, Test.cs)
+* **@documentation-writer-agent** : Limité aux fichiers de documentation (.md, .txt)
+
+Ces restrictions garantissent que chaque agent ne peut modifier que les fichiers pertinents pour son rôle.
+
+## 10. Dépannage et Bonnes Pratiques
 
 *   **Soyez Spécifique:** Plus votre commande est précise (IDs d'US/tâches, noms de méthodes/classes), meilleurs seront les résultats.
 *   **Utilisez les IDs Azure DevOps:** Préfixez toujours les IDs d'US et de tâches par `Azure#` (ex: `Azure#12323`) pour aider le système à les identifier correctement.
 *   **Consultez `.pheromone` (avec précaution):** Si vous avez un accès en lecture, le fichier `.pheromone` peut vous donner un aperçu de l'état actuel et de la `memoryBank`. Ne le modifiez JAMAIS manuellement.
 *   **Itérer avec le Système:** Si une proposition d'AgilePheromind n'est pas parfaite, donnez-lui un feedback pour affiner. Par exemple, si un message de commit n'est pas idéal, demandez une modification.
 *   **Signaler les Erreurs:** Si AgilePheromind commet une erreur ou semble bloqué, signalez-le. Cela aidera à améliorer le système (via le workflow d'optimisation).
+*   **Utilisez le Mode Approprié:** Sélectionnez le mode Roo Code le plus adapté à votre tâche actuelle pour une efficacité maximale.
 
 Ce manuel d'utilisation est un point de départ. À mesure que vous utiliserez AgilePheromind, vous découvrirez de nouvelles façons de l'intégrer à votre travail quotidien. N'hésitez pas à expérimenter (sur des branches de test pour les opérations Git !) et à fournir du feedback pour son amélioration continue.
+
+Pour plus d'informations sur l'intégration avec Roo Code, consultez le document `02_AI-DOCS/Integration_Roo_Code.md`.

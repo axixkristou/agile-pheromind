@@ -48,8 +48,8 @@
     "parentId": null
   },
   "documentationRegistry": {
-    "coding_conventions.md": "/02_AI-DOCS/Conventions/coding_conventions.md",
-    "design_conventions.md": "/02_AI-DOCS/Conventions/design_conventions.md",
+"coding_conventions.md": "01_AI-RUN/Conventions/coding_conventions_template.md",
+"design_conventions.md": "01_AI-RUN/Conventions/design_conventions_template.md",
     "project_architecture_overview.md": "/02_AI-DOCS/Architecture/project_architecture_overview.md"
   },
   "systemHealth": {
@@ -63,6 +63,7 @@
     "errorCountToday": 0
   },
   "memoryBank": {
+    "agentActivityLog": [],
     "projectContext": {
       "techStack": [
         ".NET Core",

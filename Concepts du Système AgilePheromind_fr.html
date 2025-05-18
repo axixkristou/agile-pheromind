@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue d'ensemble du système AgilePheromind</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+        }
+        .agent-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .code-block {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #2d3748;
+            color: #f7fafc;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        .mermaid-container {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .section-divider {
+            border-top: 2px dashed #a0aec0;
+            margin: 2rem 0;
+        }
+        .pheromone-structure {
+            border-left: 4px solid #6b46c1;
+            padding-left: 1rem;
+        }
+        .version-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #48bb78;
+            color: white;
+            border-radius: 9999px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="gradient-bg text-white py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">AgilePheromind</h1>
+            <p class="text-xl md:text-2xl mb-8">Système d'Agents IA Collaboratifs pour les Équipes de Développement Agile</p>
+            <p class="max-w-3xl mx-auto text-lg opacity-90">
+                Un système d'assistance IA avancé conçu comme un système d'agents IA collaboratifs,
+                propulsé par le framework Pheromind et intégré à Roo Code.
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Section d'introduction -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-12 relative">
+            <div class="version-badge">v1.1</div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Introduction à AgilePheromind</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <p class="text-gray-700 mb-4">
+                        AgilePheromind est un système d'intelligence artificielle (IA) conçu comme un <span class="font-semibold text-purple-600">système d'agents IA collaboratifs</span>,
+                        propulsé par le <span class="font-semibold">framework Pheromind</span>. Son objectif principal est d'assister et d'améliorer les capacités des équipes de développement logiciel suivant les méthodologies Agiles.
+                    </p>
+                    <p class="text-gray-700 mb-4">
+                        Contrairement aux outils d'IA monolithiques, AgilePheromind fonctionne comme un écosystème où des agents spécialisés interagissent indirectement pour accomplir des tâches complexes,
+                        apprendre du contexte du projet et s'adapter aux besoins de l'équipe.
+                    </p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-2 text-gray-800">Fonctionnalités clés</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2 mt-1"><i class="fas fa-project-diagram"></i></span>
+                            <span>Intelligence via stigmergie (communication indirecte entre agents)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2 mt-1"><i class="fas fa-code-branch"></i></span>
+                            <span>Orchestration hiérarchique avec scripts de workflow</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2 mt-1"><i class="fas fa-database"></i></span>
+                            <span>Gestion d'état centralisée avec le fichier .pheromone</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2 mt-1"><i class="fas fa-plug"></i></span>
+                            <span>Intégration profonde avec la plateforme Roo Code</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-purple-500 mr-2 mt-1"><i class="fas fa-tools"></i></span>
+                            <span>Serveurs Model Context Protocol (MCP) pour l'intégration d'outils externes</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Architecture du Système -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Architecture du Système</h2>
+
+            <div class="mermaid-container mb-8">
+                <div class="flex justify-center">
+<div class="mermaid w-full max-w-full min-h-[400px] h-[400px]">
+                        graph TD
+                            User["Utilisateur (PO, Dev, Lead)"] -- Commande Initiale --> HO["🎩 @head-orchestrator"]
+                            HO -- Déclenche Workflow + Params --> UO["🧐 @uber-orchestrator"]
+
+                            subgraph Pheromind Core Engine
+                                UO -- Lit --> AIRUN["Scripts 01_AI-RUN/*.md"]
+                                AIRUN -- Définit Phases & Logique --> UO
+                                UO -- Consulte/Informe via Scribe --> PheromoneDB[".pheromone (État + MemoryBank + DocRegistry)"]
+                                PheromoneDB -- Fournit Contexte --> UO
+                                UO -- Délègue Tâche de Phase + Contexte --> SA["Agent Spécialisé (ex: @developer-agent)"]
+                                SA -- Utilise --> MCPs["Model Context Protocol Servers (Azure DevOps, Git, Context7, MSSQL, etc.)"]
+                                MCPs -- Interagit avec --> ExternalTools["Outils Externes (Azure DevOps, Repo Git, SQL DB, APIs Docs)"]
+                                SA -- Produit Résultat + Résumé NL --> Scribe["✍️ @orchestrator-pheromone-scribe"]
+                                Scribe -- Lit --> ConfigFile[".configFile (InterpretationLogic)"]
+                                Scribe -- Met à jour --> PheromoneDB
+                            end
+
+                            style PheromoneDB fill:#f9f,stroke:#333,stroke-width:2px
+                            style AIRUN fill:#ccf,stroke:#333,stroke-width:2px
+                            style ConfigFile fill:#e6e6fa,stroke:#333,stroke-width:1px
+                            style MCPs fill:#add8e6,stroke:#333,stroke-width:1px
+                            style ExternalTools fill:#fafad2,stroke:#333,stroke-width:1px
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-2 text-purple-800">🎩 @head-orchestrator</h3>
+                    <p class="text-gray-700">Reçoit les commandes initiales de l'utilisateur et active le workflow approprié.</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-2 text-blue-800">🧐 @uber-orchestrator</h3>
+                    <p class="text-gray-700">Interprète les scripts de workflow et délègue les tâches aux agents spécialisés.</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-2 text-green-800">✍️ @orchestrator-pheromone-scribe</h3>
+                    <p class="text-gray-700">Met à jour le fichier .pheromone en fonction des résultats des agents et de la logique du système.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Composants Clés -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Composants Clés du Système</h2>
+
+            <!-- Fichier .pheromone -->
+            <div class="mb-8 pheromone-structure">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <span class="bg-purple-100 text-purple-800 p-2 rounded-full mr-3">
+                        <i class="fas fa-file-code"></i>
+                    </span>
+                    Le Fichier d'État .pheromone
+                </h3>
+                <p class="text-gray-700 mb-4">
+                    C'est le "cerveau" et la mémoire collective du système. Sa structure bien définie est cruciale pour le fonctionnement du système.
+                </p>
+
+                <div class="code-block mb-4">
+                    <pre>{
+  "systemVersion": "1.1",
+  "lastUpdated": "2025-05-15T14:30:00Z",
+  "currentUser": {
+    "id": "user123",
+    "name": "John Doe",
+    "roles": ["Developer", "Scrum Master"],
+    "preferences": {...}
+  },
+  "currentProject": {
+    "adoProject": "Plateforme E-commerce",
+    "gitRepo": "https://github.com/company/ecommerce"
+  },
+  "currentSprint": {
+    "id": "Sprint-12",
+    "goal": "Optimisation du processus de paiement",
+    "userStories": ["US-123", "US-124"]
+  },
+  "memoryBank": {
+    "projectContext": {...},
+    "userStories": {
+      "US-123": {
+        "title": "Paiement en un clic",
+        "status": "En cours",
+        "tasks": ["T-456", "T-457"],
+        "analysis": {...},
+        "decisions": [...],
+        "commits": ["a1b2c3d"]
+      }
+    },
+    "technicalDebtItems": [...],
+    "riskRegister": [...]
+  }
+}</pre>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold mb-2 text-gray-800">Sections Principales</h4>
+                        <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                            <li><span class="font-medium">systemVersion</span> : Suivi de version</li>
+                            <li><span class="font-medium">currentUser</span> : Contexte utilisateur actif</li>
+                            <li><span class="font-medium">currentProject/Sprint</span> : Focus du projet</li>
+                            <li><span class="font-medium">activeWorkflow/Task</span> : Opérations en cours</li>
+                            <li><span class="font-medium">documentationRegistry</span> : Index des artefacts</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold mb-2 text-gray-800">Banque de Mémoire</h4>
+                        <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                            <li><span class="font-medium">projectContext</span> : Stack technique, conventions</li>
+                            <li><span class="font-medium">userStories</span> : Historique détaillé et statut</li>
+                            <li><span class="font-medium">tasks</span> : Détails d'implémentation</li>
+                            <li><span class="font-medium">technicalDebtItems</span> : Problèmes suivis</li>
+                            <li><span class="font-medium">riskRegister</span> : Problèmes potentiels</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Fichiers de Configuration -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <span class="bg-blue-100 text-blue-800 p-2 rounded-full mr-3">
+                        <i class="fas fa-cog"></i>
+                    </span>
+                    Fichiers de Configuration
+                </h3>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-lg mb-2 text-gray-800">.roomodes</h4>
+                        <p class="text-gray-700 mb-3">
+                            Définit chaque agent IA spécialisé en utilisant le format de modes personnalisés de Roo Code.
+                        </p>
+                        <div class="code-block">
+                            <pre>{
+  "developer-agent": {
+    "name": "💻 @developer-agent",
+    "roleDefinition": "Spécialisé dans le codage .NET et Angular...",
+    "customInstructions": "Lors de l'écriture du code, suivre les principes SOLID...",
+    "groups": ["read", "edit", "mcp"],
+    "whenToUse": "Pour les tâches d'implémentation..."
+  }
+}</pre>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-lg mb-2 text-gray-800">.configFile</h4>
+                        <p class="text-gray-700 mb-3">
+                            Contient la logique d'interprétation pour que le Scribe mette à jour le fichier .pheromone.
+                        </p>
+                        <div class="code-block">
+                            <pre>{
+  "interpretationLogic": [
+    {
+      "condition": "summary contains 'Commit réussi'",
+      "actions": [
+        "extract commitHash",
+        "update memoryBank.userStories.{activeUS}.commits"
+      ]
+    }
+  ]
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Scripts de Workflow -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <span class="bg-green-100 text-green-800 p-2 rounded-full mr-3">
+                        <i class="fas fa-project-diagram"></i>
+                    </span>
+                    Scripts de Workflow (01_AI-RUN/*.md)
+                </h3>
+                <p class="text-gray-700 mb-4">
+                    Ces fichiers Markdown sont les "programmes" que l'@uber-orchestrator exécute. Chaque script correspond à une fonctionnalité de haut niveau d'AgilePheromind.
+                </p>
+
+                <div class="mermaid-container mb-6">
+                    <div class="flex justify-center">
+                        <div class="mermaid w-full max-w-3xl">
+                            graph TD
+                                subgraph Workflow Execution
+                                    UO["🧐 @uber-orchestrator"] -- Lit Instructions de --> ScriptMD["01_AI-RUN/script_X.md"]
+                                    ScriptMD -- Décrit Phase A --> UO
+                                    UO -- Délègue Phase A à --> AgentX["@agent-X"]
+                                    AgentX -- Execute Tâches de Phase A --> ResultA["Résultat & Résumé NL (Phase A)"]
+                                    ResultA -- Envoyé à --> Scribe["✍️ @orchestrator-pheromone-scribe"]
+                                    Scribe -- Met à jour --> PheromoneDB[".pheromone"]
+                                    ScriptMD -- Décrit Phase B (après Phase A) --> UO
+                                    UO -- Lit état mis à jour --> PheromoneDB
+                                    UO -- Délègue Phase B à --> AgentY["@agent-Y"]
+                                    AgentY -- Execute Tâches de Phase B --> ResultB["Résultat & Résumé NL (Phase B)"]
+                                    ResultB -- Envoyé à --> Scribe
+                                    Scribe -- Met à jour --> PheromoneDB
+                                end
+
+                                style UO fill:#ccf,stroke:#333,stroke-width:1px
+                                style ScriptMD fill:#fafad2,stroke:#333,stroke-width:1px
+                                style AgentX fill:#d4f8e8,stroke:#333,stroke-width:1px
+                                style AgentY fill:#d4f8e8,stroke:#333,stroke-width:1px
+                                style Scribe fill:#f9e6ff,stroke:#333,stroke-width:1px
+                                style PheromoneDB fill:#f9f,stroke:#333,stroke-width:2px
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold mb-2 text-gray-800">Exemple de Structure de Script de Workflow</h4>
+                    <div class="code-block">
+                        <pre># 01_AI-RUN/demarrer_user_story.md
+
+## Objectif
+Assister au démarrage du développement d'une nouvelle User Story.
+
+## Agents Clés Impliqués
+- @po-assistant
+- @developer-agent
+- @task-estimator
+
+## MCPs Potentiellement Utilisés
+- Azure DevOps MCP
+- Git Tools MCP
+- Context7 MCP
+
+## Phases du Workflow
+
+### Phase 1 : Comprendre les Exigences
+**Agent :** @po-assistant
+**Entrées :**
+- ID de l'US depuis les paramètres
+- Contexte du sprint actuel depuis .pheromone
+**Actions :**
+- Utiliser Azure DevOps MCP pour obtenir les détails de l'US
+- Analyser les critères d'acceptation
+**Sortie :**
+- Résumé des exigences
+- Mise à jour de .pheromone avec l'analyse de l'US
+
+### Phase 2 : Décomposition en Tâches
+**Agent :** @task-estimator
+**Entrées :**
+- Analyse de l'US de la Phase 1
+- Tâches similaires passées depuis memoryBank
+**Actions :**
+- Décomposer en tâches techniques
+- Estimer l'effort
+**Sortie :**
+- Liste des tâches avec estimations
+- Mise à jour de .pheromone avec la décomposition des tâches</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agents Spécialisés -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Agents IA Spécialisés</h2>
+            <p class="text-gray-700 mb-6">
+                Chaque agent est un LLM configuré avec des rôles et instructions spécifiques dans .roomodes. Ils sont conçus pour exceller dans des domaines particuliers.
+            </p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Carte Agent 1 -->
+                <div class="agent-card bg-purple-50 p-6 rounded-lg transition-all duration-300 ease-in-out">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-purple-100 text-purple-800 p-3 rounded-full mr-4">
+                            <i class="fas fa-user-tie text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-purple-800">@po-assistant</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        Spécialisé dans l'analyse des exigences, la rédaction de user stories et de critères d'acceptation.
+                    </p>
+                    <div class="bg-white p-3 rounded-lg">
+                        <h4 class="font-medium text-sm text-gray-600 mb-1">MCPs Utilisés :</h4>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">Azure DevOps</span>
+                            <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">Sequential Thinking</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carte Agent 2 -->
+                <div class="agent-card bg-blue-50 p-6 rounded-lg transition-all duration-300 ease-in-out">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-blue-100 text-blue-800 p-3 rounded-full mr-4">
+                            <i class="fas fa-code text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-blue-800">@developer-agent</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        Spécialisé dans le codage .NET et Angular, la création de tests unitaires et les opérations Git.
+                    </p>
+                    <div class="bg-white p-3 rounded-lg">
+                        <h4 class="font-medium text-sm text-gray-600 mb-1">MCPs Utilisés :</h4>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Context7</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">MSSQL</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Git Tools</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carte Agent 3 -->
+                <div class="agent-card bg-green-50 p-6 rounded-lg transition-all duration-300 ease-in-out">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-green-100 text-green-800 p-3 rounded-full mr-4">
+                            <i class="fas fa-search text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-green-800">@code-reviewer-assistant</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        Spécialisé dans l'analyse de la qualité du code, les conventions et la coordination de la sécurité.
+                    </p>
+                    <div class="bg-white p-3 rounded-lg">
+                        <h4 class="font-medium text-sm text-gray-600 mb-1">MCPs Utilisés :</h4>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Git Tools</span>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Context7</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carte Agent 4 -->
+                <div class="agent-card bg-yellow-50 p-6 rounded-lg transition-all duration-300 ease-in-out">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-yellow-100 text-yellow-800 p-3 rounded-full mr-4">
+                            <i class="fas fa-server text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-yellow-800">@deployment-agent-aks</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        Spécialisé dans la gestion des déploiements AKS avec Docker et Kubernetes.
+                    </p>
+                    <div class="bg-white p-3 rounded-lg">
+                        <h4 class="font-medium text-sm text-gray-600 mb-1">MCPs Utilisés :</h4>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Docker</span>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Kubernetes</span>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Azure DevOps</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carte Agent 5 -->
+                <div class="agent-card bg-red-50 p-6 rounded-lg transition-all duration-300 ease-in-out">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-red-100 text-red-800 p-3 rounded-full mr-4">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-red-800">@workflow-optimizer-agent</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        Analyse les performances du système et suggère des améliorations de workflow.
+                    </p>
+                    <div class="bg-white p-3 rounded-lg">
+                        <h4 class="font-medium text-sm text-gray-600 mb-1">MCPs Utilisés :</h4>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Azure DevOps</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carte Agent 6 -->
+                <div class="agent-card bg-indigo-50 p-6 rounded-lg transition-all duration-300 ease-in-out">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-indigo-100 text-indigo-800 p-3 rounded-full mr-4">
+                            <i class="fas fa-shield-alt text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-indigo-800">@security-reviewer</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        Se concentre sur l'analyse de sécurité et la détection de vulnérabilités dans le code.
+                    </p>
+                    <div class="bg-white p-3 rounded-lg">
+                        <h4 class="font-medium text-sm text-gray-600 mb-1">MCPs Utilisés :</h4>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded">Git Tools</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded">Context7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Serveurs MCP -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Serveurs Model Context Protocol (MCP)</h2>
+            <p class="text-gray-700 mb-6">
+                Services externes qui exposent des fonctionnalités spécifiques via des API structurées que les agents Pheromind peuvent appeler.
+            </p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-blue-500 text-white p-2 rounded-lg mr-4">
+                            <i class="fab fa-microsoft"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold">Azure DevOps MCP</h3>
+                    </div>
+                    <p class="text-gray-700 mb-3">
+                        Interactions avec Azure Boards (US, tâches), Azure Repos (PRs) et Azure Pipelines.
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <span class="font-medium">Utilisé par :</span> @po-assistant, @developer-agent, @deployment-agent-aks
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-orange-500 text-white p-2 rounded-lg mr-4">
+                            <i class="fab fa-git-alt"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold">Git Tools MCP</h3>
+                    </div>
+                    <p class="text-gray-700 mb-3">
+                        Opérations Git locales (commit, branch, diff, etc.) et gestion de dépôt.
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <span class="font-medium">Utilisé par :</span> @developer-agent, @code-reviewer-assistant
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-green-500 text-white p-2 rounded-lg mr-4">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold">Context7 MCP</h3>
+                    </div>
+                    <p class="text-gray-700 mb-3">
+                        Accès à la documentation à jour pour les bibliothèques et frameworks (.NET, Angular).
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <span class="font-medium">Utilisé par :</span> @developer-agent, @code-reviewer-assistant
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-red-500 text-white p-2 rounded-lg mr-4">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold">MSSQL MCP</h3>
+                    </div>
+                    <p class="text-gray-700 mb-3">
+                        Interaction avec les bases de données SQL Server (lecture des schémas, validation/exécution de requêtes).
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <span class="font-medium">Utilisé par :</span> @developer-agent
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-purple-500 text-white p-2 rounded-lg mr-4">
+                            <i class="fas fa-sitemap"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold">Sequential Thinking MCP</h3>
+                    </div>
+                    <p class="text-gray-700 mb-3">
+                        Aide les agents à structurer leur réflexion pour des tâches complexes (décomposition, planification).
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <span class="font-medium">Utilisé par :</span> @po-assistant, @task-estimator
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-yellow-500 text-white p-2 rounded-lg mr-4">
+                            <i class="fas fa-anchor"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold">Docker/Kubernetes MCP</h3>
+                    </div>
+                    <p class="text-gray-700 mb-3">
+                        (Conceptuel/Futur) Gestion des conteneurs et orchestration pour les déploiements AKS.
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <span class="font-medium">Utilisé par :</span> @deployment-agent-aks
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flux d'Information -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Flux d'Information et Cycle de Vie des Tâches</h2>
+            <p class="text-gray-700 mb-6">
+                Le diagramme suivant illustre le cycle de vie typique d'une commande utilisateur traitée par AgilePheromind.
+            </p>
+
+            <div class="mermaid-container">
+                <div class="flex justify-center">
+                    <div class="mermaid w-full max-w-4xl">
+                        sequenceDiagram
+                            participant User as Utilisateur
+                            participant HO as @head-orchestrator
+                            participant UO as @uber-orchestrator
+                            participant Script as Script MD
+                            participant SA as Agent Spécialisé
+                            participant Scribe as @scribe
+                            participant Pheromone as .pheromone
+                            participant MCP as MCP
+                            participant Config as .configFile
+
+                            User->>HO: Commande (Démarre US Azure#123)
+                            HO->>UO: Délègue (Script + Params)
+                            UO->>Pheromone: Lit état Actuel
+                            Pheromone-->>UO: état Actuel
+                            UO->>Script: Lit Phase 1
+                            UO->>SA: Délègue Tâche Phase 1
+                            SA->>MCP: Appel MCP
+                            MCP-->>SA: Réponse MCP
+                            SA-->>Scribe: Résumé NL Phase 1
+                            Note over SA,Scribe: Agent envoie résumé
+                            Scribe->>Pheromone: Lit état Actuel
+                            Pheromone-->>Scribe: état Actuel
+                            Scribe->>Config: Lit InterpretationLogic
+                            Config-->>Scribe: Logique
+                            Scribe->>Pheromone: Met à jour état
+                            Pheromone-->>Scribe: Confirmation
+                            Scribe-->>HO: Active HO
+                            Note over Scribe,HO: Réactive UO avec état frais
+                            UO->>Pheromone: Lit Nouvel état
+                            Pheromone-->>UO: Nouvel état
+                            UO->>Script: Lit Phase 2
+                            UO->>SA: Délègue Tâche Phase 2
+                            Note over SA: Cycle continue...
+                            SA-->>Scribe: Résumé NL Final
+                            Scribe->>Pheromone: Mise à jour Finale
+                            UO-->>HO: Fin du Workflow
+                            HO-->>User: Confirmation/Résultat
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 mt-8">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-2 text-blue-800">1. Initiation de la Commande</h3>
+                    <p class="text-gray-700">
+                        L'utilisateur émet une commande (ex : "Démarre US Azure#123") au @head-orchestrator.
+                    </p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-2 text-purple-800">2. Activation du Workflow</h3>
+                    <p class="text-gray-700">
+                        @uber-orchestrator lit le script de workflow approprié et délègue les phases aux agents spécialisés.
+                    </p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-2 text-green-800">3. Mises à Jour d'État</h3>
+                    <p class="text-gray-700">
+                        @scribe interprète les sorties des agents et met à jour .pheromone avec des informations structurées.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Banque de Mémoire -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">La Banque de Mémoire : Le Cœur d'Apprentissage</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <p class="text-gray-700 mb-4">
+                        La <span class="font-semibold">memoryBank</span> dans .pheromone est plus qu'un simple journal. C'est une base de connaissances structurée qui permet au système de :
+                    </p>
+                    <ul class="list-disc pl-5 space-y-2 text-gray-700 mb-6">
+                        <li><span class="font-medium">Maintenir un contexte à long terme :</span> Se souvenir des décisions architecturales passées, des estimations de tâches similaires et des solutions aux problèmes récurrents.</li>
+                        <li><span class="font-medium">Apprendre des interactions :</span> Les agents peuvent affiner les estimations futures en comparant les estimations passées avec le temps réellement passé.</li>
+                        <li><span class="font-medium">Fournir un contexte riche aux agents :</span> Avant de commencer une tâche, un agent peut consulter les informations pertinentes sur l'US, les tâches connexes, les conventions, etc.</li>
+                        <li><span class="font-medium">Assurer la cohérence :</span> Les conventions de codage et de conception sont référencées ici, garantissant que tous les agents (et humains) travaillent selon les mêmes standards.</li>
+                        <li><span class="font-medium">Suivre l'évolution :</span> Historique des statuts, des revues et des déploiements.</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-3 text-gray-800">Structure de la Banque de Mémoire</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <div class="bg-blue-100 text-blue-800 p-2 rounded-full mr-3">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">projectContext</h4>
+                                <p class="text-sm text-gray-600">Stack technique, liens vers les conventions, nom du projet ADO</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-purple-100 text-purple-800 p-2 rounded-full mr-3">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">userStories</h4>
+                                <p class="text-sm text-gray-600">Historique détaillé, statuts, tâches liées, analyses</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-green-100 text-green-800 p-2 rounded-full mr-3">
+                                <i class="fas fa-code-branch"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">commits & pullRequests</h4>
+                                <p class="text-sm text-gray-600">Suivi des modifications de code et historique des revues</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-red-100 text-red-800 p-2 rounded-full mr-3">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">riskRegister</h4>
+                                <p class="text-sm text-gray-600">Risques identifiés et stratégies d'atténuation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personnalisation -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Personnalisation et Évolution</h2>
+            <p class="text-gray-700 mb-6">
+                AgilePheromind est conçu pour s'adapter aux besoins évolutifs de votre équipe :
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-5 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-3 text-gray-800">Extension des Agents</h3>
+                    <p class="text-gray-700 mb-4">
+                        Ajoutez de nouveaux agents ou modifiez les existants dans <span class="font-mono bg-gray-200 px-1 rounded">.roomodes</span> :
+                    </p>
+                    <div class="code-block">
+                        <pre>{
+  "new-agent": {
+    "name": "🛡️ @security-agent",
+    "roleDefinition": "Spécialisé dans l'analyse de sécurité...",
+    "customInstructions": "Analyser le code pour les vulnérabilités OWASP top 10...",
+    "groups": ["read", "mcp"]
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-5 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-3 text-gray-800">Création de Workflows</h3>
+                    <p class="text-gray-700 mb-4">
+                        Ajoutez de nouveaux scripts de workflow dans <span class="font-mono bg-gray-200 px-1 rounded">01_AI-RUN/</span> :
+                    </p>
+                    <div class="code-block">
+                        <pre># 01_AI-RUN/nouveau_workflow.md
+
+## Objectif
+Automatiser l'analyse de sécurité pour les nouvelles pull requests.
+
+## Agents Clés
+- @security-agent
+- @code-reviewer-assistant
+
+## Phases
+1. Analyse de Code (@security-agent)
+2. Rapport de Vulnérabilités (@code-reviewer-assistant)</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h3 class="font-semibold text-lg mb-3 text-blue-800">Intégration avec Roo Code</h3>
+                <p class="text-gray-700 mb-4">
+                    AgilePheromind exploite plusieurs fonctionnalités avancées de Roo Code :
+                </p>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-medium mb-2 text-gray-800">Orchestration des Tâches</h4>
+                        <p class="text-sm text-gray-700">
+                            Utilise le mode Orchestrateur de Roo Code (Boomerang) pour coordonner des workflows complexes.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium mb-2 text-gray-800">Changement de Mode</h4>
+                        <p class="text-sm text-gray-700">
+                            Les agents peuvent changer de mode selon les besoins pour différentes exigences de tâches.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium mb-2 text-gray-800">Modèles Persistants</h4>
+                        <p class="text-sm text-gray-700">
+                            Chaque agent peut utiliser un modèle d'IA différent optimisé pour ses tâches spécifiques.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="font-medium mb-2 text-gray-800">Contrôle d'Accès aux Fichiers</h4>
+                        <p class="text-sm text-gray-700">
+                            Les permissions dans .roomodes limitent l'accès des agents à certains types de fichiers pour la sécurité.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pied de page -->
+    <footer class="gradient-bg text-white py-8 px-4 sm:px-6 lg:px-8 mt-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold mb-4">AgilePheromind</h2>
+                <p class="max-w-3xl mx-auto mb-6">
+                    Une approche sophistiquée d'assistance IA pour les équipes Agile, combinant une architecture d'agents IA collaboratifs avec une intégration profonde des outils.
+                </p>
+                <div class="flex justify-center space-x-6">
+                    <a href="#" class="text-white hover:text-gray-200">
+                        <i class="fab fa-github text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-white hover:text-gray-200">
+                        <i class="fab fa-microsoft text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-white hover:text-gray-200">
+                        <i class="fas fa-book text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-gray-700 text-center text-sm">
+                <p>© 2025 Système AgilePheromind. Version 1.1. Dernière mise à jour : 15 mai 2025.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Interactivité simple pour les cartes d'agents
+        document.querySelectorAll('.agent-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const agentName = card.querySelector('h3').textContent;
+                alert(`Vous avez cliqué sur ${agentName}. Cet agent serait activé pour une tâche spécialisée.`);
+            });
+        });
+
+        // Bascule pour les blocs de code (conceptuel - dans une vraie application, afficherait/masquerait)
+        document.querySelectorAll('.code-block').forEach(block => {
+            block.addEventListener('click', () => {
+                block.classList.toggle('bg-gray-900');
+            });
+        });
+    </script>
+
+    <!-- Script Mermaid pour les diagrammes -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            mermaid.initialize({
+                startOnLoad: true,
+                theme: 'default',
+                flowchart: {
+                    useMaxWidth: true,
+                    htmlLabels: true,
+                    curve: 'basis'
+                },
+                securityLevel: 'loose',
+                fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
+            });
+        });
+    </script>
+</body>
+</html>

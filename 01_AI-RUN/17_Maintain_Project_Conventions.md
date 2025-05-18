@@ -1,113 +1,93 @@
 # Workflow: Maintenance des Conventions de Codage et de Design du Projet (17_Maintain_Project_Conventions.md)
 
-**Objectif:** Assurer que les documents de conventions de codage (`coding_conventions.md`) et de design (`design_conventions.md`) du projet sont à jour, reflètent les meilleures pratiques actuelles, les décisions de l'équipe, et les standards de la stack technologique (.NET, Angular). Ce workflow peut être déclenché suite à des rétrospectives, des changements technologiques majeurs, ou sur demande du Tech Lead/Architecte.
+**Objectif:** Assurer que les documents de conventions de codage (`coding_conventions.md`) et de design (`design_conventions.md`) du projet sont à jour. L'agent analyse les conventions actuelles, les feedbacks de l'équipe (via `memoryBank`), les bonnes pratiques (via `Context7 MCP`), propose des modifications justifiées (avec "chaîne de pensée"), et après validation humaine, applique et commite ces changements.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@architecture-advisor-agent`, `@code-reviewer-assistant` (pour identifier les déviations récurrentes).
+**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@architecture-advisor-agent`, `@code-reviewer-assistant` (en tant que source de feedback sur les déviations), `@clarification-agent`.
 
-**MCPs Utilisés:** Context7 MCP (pour rechercher les dernières bonnes pratiques et conventions pour .NET/Angular), Git Tools MCP (pour commiter les changements aux fichiers de conventions).
+**MCPs Utilisés:** Context7 MCP, Git Tools MCP, Sequential Thinking MCP.
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:**
-    *   L'utilisateur (Tech Lead/Architecte) demande une revue et mise à jour des conventions (ex: `"AgilePheromind màj conventions de codage .NET"` ou `"AgilePheromind révise design_conventions.md pour intégrer les nouveaux tokens de couleur"`).
-    *   Peut être déclenché par `@workflow-optimizer-agent` si des problèmes récurrents liés aux conventions sont détectés.
+1.  **Initiation:** Par utilisateur (Tech Lead/Architecte: `"AgilePheromind màj conventions de codage .NET"`) ou déclenché par `@workflow-optimizer-agent`.
 2.  **`🧐 @uber-orchestrator`** prend le contrôle.
-    *   **Phase 1: Collecte des Informations et Identification des Besoins de Mise à Jour.**
-        *   UO délègue à `@architecture-advisor-agent`. L'agent lit les fichiers de conventions actuels, les suggestions de la `memoryBank` (ex: issues de rétrospectives, rapports de `@code-reviewer-assistant`), et recherche les bonnes pratiques à jour.
-    *   **Phase 2: Proposition des Modifications aux Conventions.**
-        *   UO délègue à `@architecture-advisor-agent`. L'agent rédige les propositions de changement.
-    *   **Phase 3: Validation Humaine des Modifications (Cruciale).**
-        *   UO présente les propositions au Tech Lead/Architecte via `ask_followup_question` pour validation.
+    *   **Phase 1: Collecte d'Informations et Identification des Besoins de MàJ (avec Injection de Contexte).**
+        *   UO **injecte contexte** à `@architecture-advisor-agent`: conventions actuelles (via `documentationRegistry` & **Git Tools MCP**), `memoryBank` (rétrospectives, dette technique liée aux conventions, décisions architecturales).
+        *   `@architecture-advisor-agent` recherche bonnes pratiques à jour (via **Context7 MCP**).
+        *   **onError:** Si les fichiers de conventions sont introuvables ou Context7 MCP échoue, le signaler.
+    *   **Phase 2: Proposition Structurée des Modifications aux Conventions (avec "Chaîne de Pensée").**
+        *   UO délègue à `@architecture-advisor-agent`. L'agent utilise **Sequential Thinking MCP** pour structurer ses propositions. **Doit documenter la "chaîne de pensée"** justifiant chaque changement majeur.
+        *   Si des informations manquent pour justifier un changement (ex: impact d'une nouvelle règle pas clair), l'agent le signale à l'UO pour clarification potentielle avec l'équipe via `@clarification-agent`.
+    *   **Phase 3: Validation Humaine des Modifications Proposées.**
+        *   UO présente les propositions (avec justifications) au Tech Lead/Architecte via `ask_followup_question`.
     *   **Phase 4: Application des Modifications et Versionnement.**
-        *   Si validé, UO délègue à `@architecture-advisor-agent` pour mettre à jour les fichiers .md.
-        *   L'agent utilise **Git Tools MCP** pour commiter les changements.
+        *   Si validé, UO délègue à `@architecture-advisor-agent` pour màj des fichiers .md et commit via **Git Tools MCP**.
+        *   **onError (Git Commit):** Si échec, logguer, notifier.
     *   **Phase 5: Mise à Jour de `.pheromone` et Communication.**
-        *   Scribe met à jour la version des conventions dans `memoryBank.projectContext` et `documentationRegistry`.
+        *   Scribe met à jour versions des conventions dans `memoryBank.projectContext` et `documentationRegistry`.
 
 ## Détails des Phases:
 
-### Phase 1: Collecte des Informations et Identification des Besoins de Mise à Jour
-*   **Agent Responsable:** `@architecture-advisor-agent`
-*   **Inputs:** Type de convention à réviser (codage, design, ou les deux). Accès à `.pheromone`.
-*   **Actions & Tooling:**
-    1.  **Lire les Fichiers de Conventions Actuels:**
-        *   Récupérer les chemins de `coding_conventions.md` et `design_conventions.md` depuis `.pheromone.documentationRegistry`.
-        *   Utiliser **Git Tools MCP** (`get_file_contents`) pour lire leur contenu.
-    2.  **Analyser la `MemoryBank` pour des Indicateurs:**
-        *   Consulter `memoryBank.sprintRetrospectivesSummaries` pour des points liés aux conventions.
-        *   Consulter `memoryBank.technicalDebtItems` ou les rapports de `@code-reviewer-assistant` (via `documentationRegistry`) pour des déviations fréquentes aux conventions actuelles ou des "code smells" qui pourraient être adressés par de nouvelles conventions.
-        *   Consulter `memoryBank.architecturalDecisions` pour des décisions récentes impactant les conventions.
-    3.  **Rechercher les Bonnes Pratiques Actuelles:**
-        *   Utiliser **Context7 MCP** (`get_library_docs`) pour :
-            *   Les guides de style officiels .NET (Microsoft) et C#.
-            *   Les guides de style officiels Angular et TypeScript.
-            *   Les meilleures pratiques pour Tailwind CSS, ou la librairie UI (ex: Angular Material) utilisée.
-            *   Les tendances en design systems (pour `design_conventions.md`).
-    4.  Identifier les sections des conventions actuelles qui sont obsolètes, manquantes, ou qui nécessitent des clarifications/améliorations.
-*   **Memory Bank Interaction:**
-    *   Lecture: `documentationRegistry`, `memoryBank.sprintRetrospectivesSummaries`, `memoryBank.technicalDebtItems`, `memoryBank.architecturalDecisions`.
-*   **Output (interne à `@architecture-advisor-agent`):** Liste des points et sections des conventions nécessitant une mise à jour, avec justification et références aux bonnes pratiques.
+### Phase 1: Collecte d'Informations et Identification des Besoins de MàJ (avec Injection de Contexte)
+*   **Agent Responsable:** `@architecture-advisor-agent`.
+*   **Inputs (Injectés par l'UO):**
+    *   Type de convention à réviser.
+    *   Contenu des fichiers `coding_conventions.md` / `design_conventions.md` actuels (lus via **Git Tools MCP** `get_file_contents` à partir des chemins dans `documentationRegistry`).
+    *   Extraits pertinents de `memoryBank`: `sprintRetrospectivesSummaries` (points sur conventions), `technicalDebtItems` (déviations aux conventions), `architecturalDecisions` (impactant conventions), `commonIssuesAndSolutions` (si liés à des manques dans les conventions).
+*   **Actions & Tooling (`@architecture-advisor-agent`):**
+    1.  Analyser les conventions actuelles et les inputs de la `memoryBank`.
+    2.  Rechercher via **Context7 MCP** (`get_library_docs`): guides de style officiels .NET/C#, Angular/TypeScript, bonnes pratiques Tailwind/librairie UI, tendances design systems.
+    3.  Identifier sections obsolètes, manquantes, ou nécessitant clarification/amélioration.
+*   **onError (Git Tools / Context7 MCP):**
+    *   Si fichiers de conventions non trouvés ou MCP Context7 inaccessible/ne retourne rien d'utile :
+        *   `@architecture-advisor-agent` signale à l'UO: "Impossible de [lire conventions actuelles / récupérer bonnes pratiques à jour pour X]. Erreur: [Détail]. Analyse limitée."
+        *   L'UO peut décider de continuer avec une analyse limitée ou d'arrêter et demander une intervention.
+*   **Output (interne):** Liste des points de convention à mettre à jour, avec justification et références.
 
-### Phase 2: Proposition des Modifications aux Conventions
-*   **Agent Responsable:** `@architecture-advisor-agent`
-*   **Inputs:** Analyse de la Phase 1. Fichiers de conventions actuels.
-*   **Actions & Tooling:**
-    1.  Pour chaque point identifié, rédiger une proposition de modification claire et concise.
-    2.  **Pour `coding_conventions.md`:**
-        *   Suggérer de nouvelles règles de nommage, de formatage, d'utilisation des fonctionnalités de langage (.NET Linq, C# async/await, TypeScript types/interfaces, décorateurs Angular).
-        *   Proposer des patrons de conception recommandés ou à éviter.
-        *   Clarifier les règles pour la gestion des erreurs, le logging, les commentaires.
-        *   Mettre à jour les configurations recommandées pour les linters (ESLint, StyleCop).
-    3.  **Pour `design_conventions.md`:**
-        *   Suggérer des mises à jour pour la palette de couleurs, la typographie, les grilles de mise en page, l'espacement.
-        *   Proposer de nouveaux composants UI standards ou des variations de composants existants.
-        *   Affiner les principes d'interaction design, d'accessibilité (A11Y).
-        *   Mettre à jour les directives pour l'utilisation de Tailwind CSS ou de la librairie UI.
-    4.  Préparer un document de "changements proposés" (diff ou version annotée des fichiers .md) pour faciliter la revue humaine.
-*   **Memory Bank Interaction:**
-    *   Aucune écriture directe.
-*   **Output (vers `🧐 @uber-orchestrator`):** Un document ou un texte clair présentant les modifications proposées pour `coding_conventions.md` et/ou `design_conventions.md`, avec justifications.
+### Phase 2: Proposition Structurée des Modifications aux Conventions (avec "Chaîne de Pensée")
+*   **Agent Responsable:** `@architecture-advisor-agent`, UO, `@clarification-agent`.
+*   **Inputs:** Analyse Phase 1. Fichiers de conventions actuels.
+*   **Actions (`@architecture-advisor-agent`):**
+    1.  Utiliser **Sequential Thinking MCP** pour chaque section majeure à modifier:
+        *   `set_goal`: "Proposer une mise à jour pour la section '[NomSection]' des conventions [Codage/Design]."
+        *   `add_step`: "État actuel de la convention: [Extrait convention actuelle]."
+        *   `add_step`: "Problème identifié / Opportunité d'amélioration: [Basé sur Phase 1]."
+        *   `add_step`: "Bonne pratique/Référence (Context7/Autre): [Référence]."
+        *   `add_step`: "Proposition de nouvelle convention / modification: [Nouveau texte]."
+        *   `add_step`: "Justification / Chaîne de Pensée: [Expliquer pourquoi ce changement est bénéfique, comment il résout le problème, son alignement avec les bonnes pratiques]."
+        *   `run_sequence`.
+    2.  Compiler toutes les propositions (avec leur "chaîne de pensée") dans un document de "changements proposés" (diff ou version annotée).
+    3.  **Gestion d'Ambiguïté/Information Manquante:** Si pour une proposition, l'impact sur un aspect du projet n'est pas clair ou si un consensus d'équipe serait préférable (ex: choix entre deux styles de nommage valides):
+        *   L'agent formule le point et la question. Ex: "Pour la convention de nommage des services Angular, deux options sont viables: `XService` ou `XDataService`. Quel est le consensus de l'équipe ou la préférence du Tech Lead ?".
+        *   Signaler à l'UO pour potentielle clarification via `@clarification-agent` avant de finaliser cette proposition spécifique.
+*   **Output (vers UO):** Document des modifications proposées (avec justifications/"chaînes de pensée").
 
-### Phase 3: Validation Humaine des Modifications (Cruciale)
-*   **Agent Responsable:** `🧐 @uber-orchestrator`
-*   **Inputs:** Propositions de modifications de `@architecture-advisor-agent`.
-*   **Actions & Tooling:**
-    1.  Utiliser `ask_followup_question` pour présenter les changements proposés au Tech Lead/Architecte (ou à l'équipe désignée) :
-        *   "L'agent `@architecture-advisor-agent` a analysé les conventions du projet et propose les mises à jour suivantes pour [coding_conventions.md / design_conventions.md]:\n\n[Résumé des propositions majeures OU lien vers le document des changements proposés]\n\nVoulez-vous approuver ces changements ? (approuver / rejeter / demander modifications)"
-    2.  Si "demander modifications", transmettre le feedback à `@architecture-advisor-agent` pour une nouvelle itération (retour à Phase 2).
-    3.  Si "rejeter", le workflow s'arrête pour ces propositions. Le Scribe peut enregistrer la décision.
-    4.  Si "approuver", passer à la Phase 4.
-*   **Memory Bank Interaction (via Scribe si rejet ou modifications demandées):**
-    *   Enregistrer la décision dans `memoryBank.architecturalDecisions` ou une section `conventionUpdateHistory`.
-*   **Output (vers `@architecture-advisor-agent` si approuvé):** Confirmation d'approbation.
+### Phase 3: Validation Humaine des Modifications Proposées
+*   **Agent Responsable:** `🧐 @uber-orchestrator`.
+*   **Inputs:** Propositions de `@architecture-advisor-agent`.
+*   **Actions (UO):**
+    1.  `ask_followup_question` au Tech Lead/Architecte: "Mises à jour proposées pour conventions [Codage/Design] (avec justifications et chaîne de pensée pour chaque point majeur). Rapport des changements: `[lien_vers_doc_changements_proposés]`. Approuver ? (approuver / rejeter / demander modifs)".
+    2.  Gérer la réponse (itération avec `@architecture-advisor-agent` si "demander modifs", arrêt si "rejeter").
+*   **Output (vers `@architecture-advisor-agent` si approuvé):** Confirmation.
 
 ### Phase 4: Application des Modifications et Versionnement
-*   **Agent Responsable:** `@architecture-advisor-agent`
-*   **Inputs:** Confirmation d'approbation de l'UO. Propositions de modifications validées.
-*   **Actions & Tooling:**
-    1.  Appliquer les modifications approuvées aux fichiers `coding_conventions.md` et/LOU `design_conventions.md` dans le répertoire `02_AI-DOCS/Conventions/`.
-    2.  Mettre à jour le numéro de version dans les documents (ex: `Version: 1.1`, `Date de mise à jour: {{timestamp}}`).
-    3.  Utiliser **Git Tools MCP**:
-        *   `add_files {filePaths: ["02_AI-DOCS/Conventions/coding_conventions.md", "02_AI-DOCS/Conventions/design_conventions.md"]}` (selon les fichiers modifiés).
-        *   `commit_files {message: "docs(conventions): update coding and design conventions v1.1\n\n[Résumé des changements clés approuvés]"}`.
-        *   (Optionnel, selon workflow Git) `push_commits`.
-*   **Memory Bank Interaction (via Scribe):**
-    *   Le Scribe enregistrera le nouveau hash de commit et mettra à jour les versions des conventions.
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe`):** Résumé NL: "Conventions de projet mises à jour. `coding_conventions.md` (vX.Y) et/ou `design_conventions.md` (vZ.A) modifiés et commité (Commit: `{{commitHash}}`). Principaux changements: [Liste]."
+*   **Agent Responsable:** `@architecture-advisor-agent`.
+*   **Inputs:** Confirmation d'approbation. Propositions validées.
+*   **Actions:**
+    1.  Appliquer modifs aux fichiers `.md` dans `02_AI-DOCS/Conventions/`.
+    2.  Mettre à jour version et date dans les documents.
+    3.  **Git Tools MCP**: `add_files`, `commit_files {message: "docs(conventions): update [coding/design] conventions v[NewVersion]\n\n[Résumé des changements clés]"}`, (optionnel) `push_commits`.
+*   **onError (Git Commit):** Si échec, `@architecture-advisor-agent` signale à l'UO. UO loggue via Scribe, notifie utilisateur.
+*   **Output (vers Scribe):** Résumé NL: "Conventions [Codage/Design] màj (v[NewVersion]). Commit: `{{commitHash}}`. Changements: [Liste]."
 
 ### Phase 5: Mise à Jour de `.pheromone` et Communication
-*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe`
+*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe`.
 *   **Inputs:** Résumé NL de `@architecture-advisor-agent`.
-*   **Actions & Tooling:**
-    1.  Interpréter le résumé via `.swarmConfig`.
-    2.  Mettre à jour `.pheromone`:
-        *   `memoryBank.projectContext.codingConventionsVersion`: Mettre à jour avec la nouvelle version.
-        *   `memoryBank.projectContext.designConventionsVersion`: Mettre à jour avec la nouvelle version.
-        *   `documentationRegistry`: S'assurer que les entrées pour `coding_conventions.md` et `design_conventions.md` sont correctes et que leur `lastModified` timestamp est à jour.
-        *   `memoryBank.architecturalDecisions` ou `conventionUpdateHistory`: Enregistrer un item pour cette mise à jour, avec lien vers le commit et résumé des changements.
-    3.  (Optionnel) L'UO peut être instruit de notifier l'équipe des mises à jour des conventions via un canal approprié.
-*   **Memory Bank Interaction:**
-    *   Écriture: Mise à jour des versions des conventions et de l'historique des décisions.
-*   **Output:** `.pheromone` mis à jour. L'équipe est informée (ou peut consulter) des nouvelles conventions.
+*   **Actions:**
+    1.  Mettre à jour `.pheromone`:
+        *   `memoryBank.projectContext.codingConventionsVersion` / `designConventionsVersion`.
+        *   `documentationRegistry`: Vérifier `lastModified` pour les fichiers de conventions.
+        *   `memoryBank.architecturalDecisions` ou `conventionUpdateHistory`: Enregistrer la mise à jour (commit, résumé, lien vers diff si possible, et lien vers la "chaîne de pensée" si le rapport des propositions est stocké).
+    2.  (Optionnel) UO notifie l'équipe.
+*   **Output:** `.pheromone` à jour. Conventions du projet maintenues.
 
 ---

@@ -1,102 +1,87 @@
 # Workflow: Finaliser une Tâche et Préparer le Commit (06_Finalize_Task_Commit.md)
 
-**Objectif:** Guider le développeur à travers les étapes de finalisation d'une tâche technique. Cela inclut la vérification que tous les tests unitaires et d'intégration passent, la préparation d'un message de commit conforme aux normes "Conventional Commits", l'exécution du commit, et la mise à jour du statut de la tâche dans `.pheromone` et Azure DevOps.
+**Objectif:** Guider le développeur à travers les étapes de finalisation d'une tâche technique. Cela inclut la vérification rigoureuse que tous les tests (unitaires, intégration) passent et que les linters sont satisfaits. Ensuite, préparer un message de commit conforme "Conventional Commits", exécuter le commit, et mettre à jour les statuts dans `.pheromone` et Azure DevOps, avec une gestion des erreurs pour chaque étape.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@developer-agent`, `@commit-pr-formatter`, `@devops-connector`.
+**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@developer-agent`, `@commit-pr-formatter`, `@devops-connector`, `@clarification-agent`.
 
 **MCPs Utilisés:** Git Tools MCP, Azure DevOps MCP.
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** Le développeur (Dev) signale la fin d'une tâche et l'US associée (ex: `"AgilePheromind: La tâche Azure#23223 est terminée. Prépare le commit pour l'US Azure#12323."`).
+1.  **Initiation:** Le développeur (Dev) signale la fin d'une tâche et l'US associée (ex: `"AgilePheromind: Tâche Azure#23223 est terminée. Prépare commit pour US Azure#12323."`).
 2.  **`🧐 @uber-orchestrator`** prend le contrôle.
-    *   **Phase 1: Vérification Pré-Commit (Tests et Linters).**
-        *   UO délègue à `@developer-agent` pour exécuter les vérifications locales.
+    *   **Phase 1: Vérification Pré-Commit Approfondie (Tests et Linters).**
+        *   UO délègue à `@developer-agent`.
+        *   **onError:** Si échecs, notifier le dev, stocker les détails de l'échec dans `memoryBank.tasks.{{activeTask.id}}.lastVerificationFailure`, arrêter le workflow pour cette action.
     *   **Phase 2: Génération du Message de Commit.**
-        *   UO délègue à `@commit-pr-formatter` pour proposer un message standardisé.
+        *   UO **injecte contexte** (titres US/tâche depuis `.pheromone`) à `@commit-pr-formatter`.
     *   **Phase 3: Validation Utilisateur et Exécution du Commit.**
-        *   UO présente le message au développeur pour validation via `ask_followup_question`.
-        *   Si validé, UO ordonne à `@developer-agent` (ou `@commit-pr-formatter`) d'utiliser **Git Tools MCP** pour commiter.
+        *   UO présente le message au dev via `ask_followup_question`.
+        *   Si validé, UO ordonne à `@developer-agent` (ou `@commit-pr-formatter`) d'utiliser **Git Tools MCP**.
+        *   **onError (Git Commit):** Si `commit_files` échoue (ex: hook pre-commit échoue, conflit de fusion non géré localement), logguer l'erreur, notifier le dev, suggérer des actions (ex: `git status`, résoudre conflits). Le workflow s'arrête jusqu'à résolution.
     *   **Phase 4: Mise à Jour des Statuts (Azure DevOps et `.pheromone`).**
-        *   UO délègue à `@devops-connector` pour Azure DevOps.
-        *   Scribe met à jour `.pheromone` basé sur les résumés.
+        *   UO délègue à `@devops-connector` pour ADO.
+        *   **onError (ADO Update):** Si la mise à jour ADO échoue, logguer l'erreur. `.pheromone` sera mis à jour, mais une note indiquera l'échec de synchro ADO. L'UO peut suggérer une nouvelle tentative ou une màj manuelle.
+        *   Scribe met à jour `.pheromone`.
 
 ## Détails des Phases:
 
-### Phase 1: Vérification Pré-Commit (Tests et Linters)
+### Phase 1: Vérification Pré-Commit Approfondie (Tests et Linters)
 *   **Agent Responsable:** `@developer-agent`
-*   **Inputs:** Contexte de `activeTask` et `activeUserStory` depuis `.pheromone`. Accès au code source local.
+*   **Inputs:** Contexte de `activeTask`, `activeUserStory` depuis `.pheromone`. Accès code local.
 *   **Actions & Tooling:**
-    1.  **Exécuter les Linters:** Lancer les analyseurs statiques configurés pour le projet (.NET Roslyn Analyzers/StyleCop, Angular ESLint) sur les fichiers modifiés pour la tâche.
-    2.  **Exécuter les Tests Unitaires et d'Intégration:**
-        *   Identifier les tests pertinents pour `activeTask` et `activeUserStory` (peut consulter `memoryBank.tasks.{{activeTask.id}}.testCasesGenerated`).
-        *   Exécuter ces tests (ex: `dotnet test` pour .NET, `ng test --code-coverage` pour Angular).
-    3.  **Rapporter les Résultats:**
-        *   Si des erreurs de linting ou des échecs de tests sont détectés:
-            *   Soumettre un résumé à l'UO/Scribe: "Vérification pré-commit pour Tâche Azure#{{activeTask.id}} ÉCHOUÉE. Erreurs de Linter: [Nombre/Détails]. Tests Échoués: [Nombre/Noms]. Veuillez corriger avant de commiter."
-            *   Le workflow s'arrête ici pour cette action, en attente de correction par le développeur.
-        *   Si tout est OK:
-            *   Soumettre un résumé à l'UO/Scribe: "Vérification pré-commit pour Tâche Azure#{{activeTask.id}} RÉUSSIE. Linters OK. Tous les tests pertinents passent."
-*   **Memory Bank Interaction (via Scribe):**
-    *   En cas d'échec, une note peut être ajoutée à `memoryBank.tasks.{{activeTask.id}}.developerNotes`.
-    *   En cas de succès, le Scribe peut enregistrer le log de test dans `documentationRegistry` si pertinent.
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe` et UO):** Résumé NL indiquant le succès ou l'échec des vérifications pré-commit.
+    1.  Exécuter linters (.NET, Angular) via `memoryBank.toolingConfigurations.linters`.
+    2.  Exécuter tests unitaires/intégration pertinents (identifiés via `memoryBank.tasks.{{activeTask.id}}.testCasesGenerated` et tests auto-découverts).
+*   **onError Strategy (pour `@developer-agent` à remonter à UO):**
+    1.  Si erreurs de linting ou échecs de tests :
+        *   Compiler un rapport d'échec détaillé (quels linters/tests, messages d'erreur).
+        *   Soumettre à l'UO/Scribe: "Vérification pré-commit Tâche Azure#{{activeTask.id}} ÉCHOUÉE. Rapport: `pre_commit_check_failure_{{activeTask.id}}_{{timestamp}}.md`. Corrigez avant commit." (Rapport dans `03_SPECS/Verification_Failures/`).
+        *   Scribe enregistre le lien vers le rapport dans `memoryBank.tasks.{{activeTask.id}}.lastVerificationFailure`.
+        *   UO arrête le workflow pour cette action.
+*   **Output (vers UO/Scribe si succès):** "Vérification pré-commit Tâche Azure#{{activeTask.id}} RÉUSSIE. Linters OK. Tests OK. Log: `pre_commit_check_success_{{activeTask.id}}_{{timestamp}}.log`." (Log dans `03_SPECS/Verification_Logs/`).
 
 ### Phase 2: Génération du Message de Commit
 *   **Agent Responsable:** `@commit-pr-formatter`
-*   **Inputs:** `activeTask`, `activeUserStory` depuis `.pheromone`. Information que les vérifications pré-commit sont OK (de l'UO).
+*   **Inputs (Injectés par l'UO):**
+    *   Confirmation que Phase 1 OK.
+    *   `activeTask.title` et `activeUserStory.title` (depuis `.pheromone`).
+    *   (Optionnel) Résumé des changements clés si `@developer-agent` l'a fourni.
 *   **Actions & Tooling:**
-    1.  Utiliser **Git Tools MCP** (`get_changed_files_staged` ou `git status --porcelain` via `command_line_tool` si MCP plus direct non dispo) pour identifier les fichiers modifiés et prêts à être commité (staged).
-    2.  Consulter `memoryBank.tasks.{{activeTask.id}}.title` et `memoryBank.userStories.{{activeUserStory.id}}.title`.
-    3.  Proposer un message de commit structuré selon "Conventional Commits":
-        *   **Type:** `feat` (nouvelle fonctionnalité pour l'utilisateur), `fix` (correction de bug), `build` (affecte le système de build ou dépendances externes), `chore` (pas de changement de code de prod), `ci` (changements CI/CD), `docs` (documentation uniquement), `perf` (amélioration de performance), `refactor` (ni fix ni feat), `style` (formatage), `test` (ajout/correction de tests).
-        *   **Scope (Optionnel):** Le module ou la partie de l'application impactée (ex: `auth`, `order-processing`, `product-details-ui`). Peut être dérivé du nom de la tâche/US.
-        *   **Description:** Sujet concis en impératif présent.
-        *   **Body (Optionnel):** Motivation du changement et contraste avec le comportement précédent.
-        *   **Footer (Optionnel):** `BREAKING CHANGE: description`, ou `Resolves: Azure#{{activeUserStory.id}}`, `Closes: Azure#{{activeTask.id}}`.
-        *   *Exemple:* `feat(auth): implement Google sign-in for user registration\n\nAllows new users to register quickly using their existing Google account, reducing friction in the onboarding process.\n\nResolves: Azure#12323\nCloses: Azure#23223`
-*   **Memory Bank Interaction:**
-    *   Lecture: Titres/descriptions de l'US et de la tâche depuis la `memoryBank`.
-*   **Output (vers `🧐 @uber-orchestrator`):** Le message de commit formaté.
+    1.  **Git Tools MCP** (`get_changed_files_staged`) pour la liste des fichiers.
+    2.  Proposer message "Conventional Commit" (type, scope, description, body, footer avec `Resolves Azure#...`, `Closes Azure#...`).
+*   **Output (vers UO):** Message de commit formaté.
 
 ### Phase 3: Validation Utilisateur et Exécution du Commit
-*   **Agent Responsable:** `🧐 @uber-orchestrator` (pour l'interaction), puis `@developer-agent` (ou `@commit-pr-formatter` pour l'exécution du commit).
-*   **Inputs:** Message de commit proposé par `@commit-pr-formatter`.
-*   **Actions & Tooling (`🧐 @uber-orchestrator`):**
-    1.  Utiliser `ask_followup_question` pour présenter le message au développeur: "Les vérifications pré-commit sont OK. Voici le message de commit proposé pour la tâche Azure#{{activeTask.id}}:\n```\n{{proposedCommitMessage}}\n```\nConfirmez-vous pour commiter ces changements ? (oui/non/modifier)"
-*   **Si l'utilisateur confirme "oui" (`@developer-agent` ou `@commit-pr-formatter`):**
-    1.  Utiliser **Git Tools MCP**:
-        *   `add_all_changes` (ou `add_specific_files` si une liste est maintenue et plus précise).
-        *   `commit_files {message: validatedCommitMessage}`.
-        *   (Optionnel, peut être une action séparée) `push_commits {remoteName: 'origin', branchName: currentBranch}`.
-*   **Si l'utilisateur demande à "modifier":**
-    1.  UO demande au développeur de fournir le message modifié.
-    2.  UO redéclenche l'action de commit avec le message fourni par l'utilisateur.
-*   **Output (`@developer-agent` ou `@commit-pr-formatter` vers `✍️ @orchestrator-pheromone-scribe`):** Résumé NL: "Commit effectué avec succès pour Tâche Azure#{{activeTask.id}}. Hash du commit: `{{commitHash}}`. [Optionnel: Push vers 'origin/{{currentBranch}}' effectué.]"
+*   **Agent Responsable:** `🧐 @uber-orchestrator` (interaction), `@developer-agent` (exécution).
+*   **Inputs:** Message de commit proposé.
+*   **Actions & Tooling (UO):**
+    1.  `ask_followup_question` pour validation du message par le dev.
+*   **Si utilisateur confirme "oui" (`@developer-agent`):**
+    1.  Utiliser **Git Tools MCP**: `add_all_changes`, `commit_files {message: validatedCommitMessage}`.
+    2.  **onError (Git Commit):** Si `commit_files` échoue:
+        *   `@developer-agent` remonte l'erreur Git exacte à l'UO.
+        *   UO notifie le dev: "Échec du commit pour Tâche Azure#{{activeTask.id}}. Erreur Git: [Message Erreur]. Veuillez vérifier `git status` et résoudre les problèmes (conflits, hooks ?)."
+        *   Scribe loggue l'échec dans `memoryBank.tasks.{{activeTask.id}}.commitHistory`.
+        *   Workflow arrêté jusqu'à résolution manuelle ou nouvelle tentative.
+    3.  Si commit OK, (Optionnel) `push_commits`.
+*   **Output (`@developer-agent` vers Scribe si succès):** Résumé NL: "Commit Tâche Azure#{{activeTask.id}} OK. Hash: `{{commitHash}}`. [Push OK/Non effectué]."
 
 ### Phase 4: Mise à Jour des Statuts (Azure DevOps et `.pheromone`)
-*   **Agent Responsable:** `@devops-connector` (pour Azure DevOps), `✍️ @orchestrator-pheromone-scribe` (pour `.pheromone`).
-*   **Inputs:** Confirmation que le commit a été effectué (de la Phase 3). `activeTask.id` et `activeUserStory.id`.
+*   **Agent Responsable:** `@devops-connector`, Scribe.
+*   **Inputs:** Confirmation commit OK (Phase 3). `activeTask.id`, `activeUserStory.id`, `commitHash`.
 *   **Actions & Tooling (`@devops-connector`):**
-    1.  Utiliser **Azure DevOps MCP**:
-        *   `update_work_item_status {id: activeTask.id, status: "Done" (ou "Resolved", ou "Closed" - selon le workflow Azure DevOps du projet), comment: "Implémentation terminée et commité. Commit: {{commitHash}}"}`.
-*   **Output (`@devops-connector` vers `✍️ @orchestrator-pheromone-scribe`):** Résumé NL: "Statut de la tâche Azure#{{activeTask.id}} mis à jour à 'Done' dans Azure DevOps avec référence au commit {{commitHash}}."
-*   **Actions & Tooling (`✍️ @orchestrator-pheromone-scribe`):**
-    1.  Interpréter les résumés de la phase de commit et de la mise à jour Azure DevOps.
-    2.  Mettre à jour `.pheromone`:
-        *   `activeUserStory.tasks` (pour la tâche concernée): `status: "DoneByPheromind"`.
-        *   `activeTask`: Mettre à `null` ou indiquer la complétion.
-        *   `memoryBank.tasks.{{activeTask.id}}`:
-            *   `status`: "Done".
-            *   `statusHistory`: Ajouter { `status`: "Done", `timestamp`: "{{timestamp}}", `actor`: "AgilePheromindSystem", `details`: "Commit {{commitHash}}" }.
-            *   `relatedCommit`: "{{commitHash}}".
-        *   `memoryBank.commits.{{commitHash}}`: { `message`: "{{validatedCommitMessage}}", `author`: "{{currentUser.azureDevOpsUsername}}", `timestamp`: "{{timestamp}}", `relatedTask`: "Azure#{{activeTask.id}}", `relatedUS`: "Azure#{{activeUserStory.id}}" }.
-    3.  **Vérification de complétion de l'US:**
-        *   Vérifier si toutes les tâches dans `memoryBank.userStories.{{activeUserStory.id}}.tasks` sont maintenant "Done".
-        *   Si oui, mettre à jour `memoryBank.userStories.{{activeUserStory.id}}.status` à "ReadyForReview" (ou "ReadyForTesting").
-        *   Notifier l'UO ou le PO/Tech Lead de la complétion de l'US et de la disponibilité pour la revue/PR.
-*   **Memory Bank Interaction (via Scribe):**
-    *   Mise à jour détaillée du statut de la tâche, enregistrement du commit, et potentiellement mise à jour du statut de l'US.
-*   **Outcome:** Le code est commité avec un message standardisé. La tâche est marquée comme terminée dans `.pheromone` et synchronisée avec Azure DevOps. Si l'US est complétée, le système le signale.
+    1.  **Azure DevOps MCP**: `update_work_item_status {id: activeTask.id, status: "Done", comment: "Implémentation commité. Commit: {{commitHash}}"}`.
+*   **onError Strategy (pour l'UO si `@devops-connector` signale échec ADO Update):**
+    1.  Scribe loggue l'erreur dans `activeWorkflow.lastError` et note l'échec de synchro ADO dans `memoryBank.tasks.{{activeTask.id}}.syncIssues`.
+    2.  UO notifie le dev: "Commit {{commitHash}} réussi, mais la mise à jour du statut de la Tâche Azure#{{activeTask.id}} dans Azure DevOps a échoué: [Erreur MCP]. Le statut local est 'Done'. Veuillez vérifier ADO ou relancer la synchro."
+    3.  Le workflow continue pour la mise à jour `.pheromone`.
+*   **Output (`@devops-connector` vers Scribe):** Résumé NL: "Statut Tâche Azure#{{activeTask.id}} màj à 'Done' dans ADO (Commit: {{commitHash}})." ou "Échec màj statut Tâche Azure#{{activeTask.id}} dans ADO."
+*   **Actions & Tooling (Scribe):**
+    1.  Mettre à jour `.pheromone`:
+        *   `activeUserStory.tasks` (pour la tâche): `status: "DoneByPheromind"`. `activeTask` -> `null`.
+        *   `memoryBank.tasks.{{activeTask.id}}`: `status: "Done"`, `statusHistory` màj, `relatedCommit: "{{commitHash}}"`. Si échec synchro ADO, ajouter à `syncIssues`.
+        *   `memoryBank.commits.{{commitHash}}`: { `message`, `author`, `timestamp`, `relatedTask`, `relatedUS` }.
+    2.  **Vérifier complétion US:** Si toutes tâches `Done`, màj `memoryBank.userStories.{{activeUserStory.id}}.status` -> "ReadyForReview". Notifier UO.
+*   **Output:** `.pheromone` mis à jour. UO informé pour notifier dev/prochaines étapes.
 
 ---

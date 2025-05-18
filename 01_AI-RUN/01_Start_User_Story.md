@@ -1,8 +1,8 @@
 # Workflow: Démarrer une User Story (01_Start_User_Story.md)
 
-**Objectif:** Initialiser le travail sur une User Story (US) spécifique d'Azure DevOps. Cela inclut l'identification de l'utilisateur, la récupération des détails de l'US, sa décomposition en tâches techniques estimées (si ce n'est pas déjà fait ou si une révision est nécessaire), la mise à jour de la Memory Bank dans `.pheromone`, et la préparation de la première tâche pour le développement.
+**Objectif:** Initialiser le travail sur une User Story (US) spécifique d'Azure DevOps. Ce processus implique l'identification de l'utilisateur, la récupération des détails complets de l'US, l'injection de contexte pertinent de la `memoryBank`, la décomposition de l'US en tâches techniques estimées (avec journalisation de la "chaîne de pensée"), la synchronisation avec Azure DevOps, la gestion des erreurs et ambiguïtés, et la préparation de la première tâche pour le développement.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator`, `✍️ @orchestrator-pheromone-scribe`, `@devops-connector`, `@task-breakdown-estimator`, `@developer-agent`.
+**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@devops-connector`, `@task-breakdown-estimator`, `@developer-agent`, `@clarification-agent`.
 
 **MCPs Utilisés:** Azure DevOps MCP, Git Tools MCP, Sequential Thinking MCP, Context7 MCP, MSSQL MCP.
 
@@ -10,90 +10,87 @@
 
 1.  **Initiation:** L'utilisateur (Dev) fournit l'ID de l'US Azure DevOps (ex: `"AgilePheromind commence US Azure#12323"`).
 2.  **`🧐 @uber-orchestrator`** (UO) prend le contrôle.
-    *   **Phase 1: Identification Utilisateur & Récupération des Détails de l'US.**
+    *   **Phase 1: Identification Utilisateur & Récupération des Détails Complets de l'US.**
         *   UO délègue à `@devops-connector`.
-    *   **Phase 2: Mise à Jour Initiale de `.pheromone` (État Actif & Memory Bank).**
-        *   Le `✍️ @orchestrator-pheromone-scribe` (Scribe) met à jour `.pheromone` avec `currentUser` et `activeUserStory`.
-    *   **Phase 3: Décomposition en Tâches Techniques & Estimation (Analyse et Planification).**
-        *   UO évalue si une (re)décomposition est nécessaire en consultant `.pheromone.activeUserStory.tasks` et `memoryBank.userStories[ID_US].tasks`.
-        *   Si oui, UO délègue à `@task-breakdown-estimator`. Cet agent utilise **Sequential Thinking MCP** pour l'analyse, **Context7 MCP** pour la documentation des librairies .NET/Angular, et **MSSQL MCP** pour l'analyse de schéma si des modifications DB sont envisagées. Les tâches et estimations sont ensuite synchronisées avec Azure DevOps via `@devops-connector`.
+        *   **onError:** Si ADO MCP échoue, logguer l'erreur, notifier l'utilisateur, et arrêter le workflow.
+    *   **Phase 2: Mise à Jour Initiale de `.pheromone` et Validation de Clarté de l'US.**
+        *   Scribe met à jour `.pheromone` (`currentUser`, `activeUserStory`).
+        *   UO évalue la clarté de la description de l'US. Si ambiguë, UO engage `@clarification-agent` pour demander des précisions au PO/demandeur via `ask_followup_question`. Le workflow attend la réponse (traitée par `01_AI-RUN/XX_Handle_Clarification_Response.md`).
+    *   **Phase 3: Décomposition en Tâches Techniques & Estimation (Analyse et Planification Détaillée).**
+        *   UO évalue si une (re)décomposition est nécessaire (basé sur `.pheromone.activeUserStory.tasks` et `memoryBank.userStories[ID_US].tasks`).
+        *   Si oui, UO **injecte un contexte ciblé** (ex: US similaires passées, conventions .NET/Angular pertinentes depuis `memoryBank`) et délègue à `@task-breakdown-estimator`. L'agent utilise **Sequential Thinking MCP**, **Context7 MCP**, **MSSQL MCP**, et doit **détailler sa "chaîne de pensée"** dans son rapport.
+        *   Les tâches/estimations sont synchronisées avec Azure DevOps via `@devops-connector`.
+        *   **onError:** Si `@task-breakdown-estimator` échoue ou signale une ambiguïté persistante, UO loggue l'erreur et peut re-solliciter `@clarification-agent` ou notifier le Tech Lead.
     *   **Phase 4: Préparation de la Première Tâche & Environnement de Développement.**
-        *   UO délègue à `@developer-agent` pour initialiser la première tâche `ToDo`, créer une branche Git, et mettre à jour `.pheromone`.
+        *   UO délègue à `@developer-agent` pour initialiser la tâche, créer branche Git.
+        *   **onError:** Si création de branche échoue, logguer et notifier.
 
 ## Détails des Phases:
 
-### Phase 1: Identification Utilisateur & Récupération des Détails de l'US
+### Phase 1: Identification Utilisateur & Récupération des Détails Complets de l'US
 *   **Agent Responsable:** `@devops-connector`
-*   **Inputs:** ID de l'US (ex: `Azure#12323`) fourni par l'UO. Contexte de l'utilisateur (depuis `.pheromone.currentUser` si déjà identifié, sinon l'agent tente l'identification).
+*   **Inputs:** ID de l'US (ex: `Azure#12323`) fourni par l'UO.
 *   **Actions & Tooling:**
     1.  Utiliser **Azure DevOps MCP**:
-        *   `get_user_identity`: Confirmer/Identifier l'utilisateur Azure DevOps. Si l'ID de l'utilisateur Pheromind (`.pheromone.currentUser.id`) n'est pas encore mappé à un `azureDevOpsUsername`, tenter de le faire ou demander clarification à l'UO.
-        *   `get_work_item_details {id: ID_US}`: Récupérer titre, description complète, état actuel dans Azure DevOps, priorité, tags, et tout autre champ pertinent de l'US.
-*   **Memory Bank Interaction (via Scribe après résumé):**
-    *   Le Scribe mettra à jour `.pheromone.currentUser` si une nouvelle identification a eu lieu.
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe`):** Résumé NL: "Utilisateur '[NomUtilisateurAzure]' (ID Pheromind: '{{currentUser.id}}') confirmé/identifié. Détails pour US 'Azure#{{usId}}' ('{{usTitle}}') récupérés. Description: '{{usDescription}}'. État Azure: '{{usAzureStatus}}'. Priorité: {{usPriority}}. Détails complets loggés dans `azure_wi_{{usId}}_{{timestamp}}.json`." (Log enregistré dans `03_SPECS/AzureDevOps_Logs/`).
+        *   `get_user_identity`: Confirmer/Identifier l'utilisateur.
+        *   `get_work_item_details {id: ID_US}`: Récupérer titre, description **complète**, état, priorité, ACs (si dans un champ dédié), etc.
+*   **onError Strategy (pour l'UO si `@devops-connector` signale échec MCP):**
+    1.  Scribe loggue l'erreur dans `activeWorkflow.lastError` et `memoryBank.agentActivityLog`.
+    2.  UO notifie l'utilisateur: "Impossible de récupérer les détails de l'US Azure#{{usId}} depuis Azure DevOps. Erreur MCP: [Message d'erreur]. Veuillez vérifier la connexion ou l'ID de l'US."
+    3.  Arrêter ce workflow.
+*   **Output (vers `✍️ @orchestrator-pheromone-scribe` si succès):** Résumé NL: "Utilisateur '[NomUtilisateurAzure]' confirmé. Détails complets pour US 'Azure#{{usId}}' ('{{usTitle}}') récupérés. Description: '{{usDescription}}'. État Azure: '{{usAzureStatus}}'. Priorité: {{usPriority}}. ACs: '{{usAcceptanceCriteria}}'. Log: `azure_wi_{{usId}}_{{timestamp}}.json`."
 
-### Phase 2: Mise à Jour Initiale de `.pheromone` (État Actif & Memory Bank)
-*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe`
+### Phase 2: Mise à Jour Initiale de `.pheromone` et Validation de Clarté de l'US
+*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe`, `🧐 @uber-orchestrator`, `@clarification-agent`
 *   **Inputs:** Résumé NL de `@devops-connector`.
-*   **Actions & Tooling:**
-    1.  Interpréter le résumé via `.swarmConfig`.
-    2.  Mettre à jour `.pheromone`:
-        *   `currentUser`: Mettre à jour `id` et `azureDevOpsUsername` si modifié/identifié.
-        *   `activeUserStory`: { `id`: "Azure#{{usId}}", `title`: "{{usTitle}}", `status`: "InProgressByPheromind", `descriptionFromAzure`: "{{usDescription}}", `azureStatus`: "{{usAzureStatus}}", `priority`: {{usPriority}}, `tasks`: [] (sera peuplé plus tard) }.
-        *   `memoryBank.userStories.{{usId}}`:
-            *   Créer ou mettre à jour l'entrée pour l'US.
-            *   `title`: "{{usTitle}}".
-            *   `descriptionFull`: "{{usDescription}}".
-            *   `azureStatus`: "{{usAzureStatus}}".
-            *   `priority`: {{usPriority}}.
-            *   `statusHistory`: Ajouter { `status`: "InProgressByPheromind", `timestamp`: "{{timestamp}}", `actor`: "AgilePheromindSystem", `developer`: "{{currentUser.id}}" }.
-            *   `tasks`: Initialiser à `[]` si nouvelle.
-        *   `documentationRegistry`: Ajouter une entrée pour `azure_wi_{{usId}}_{{timestamp}}.json`.
-*   **Memory Bank Interaction:**
-    *   Écriture: Création/Mise à jour extensive de l'entrée de l'US dans `memoryBank.userStories`.
-*   **Output:** `.pheromone` mis à jour. UO est informé pour passer à la phase suivante.
+*   **Actions & Tooling (Scribe):**
+    1.  Mettre à jour `.pheromone` avec `currentUser`, `activeUserStory` (incluant `descriptionFull`, `acceptanceCriteriaFromAzure`), et enrichir `memoryBank.userStories.{{usId}}`.
+*   **Actions & Tooling (UO):**
+    1.  Analyser `activeUserStory.descriptionFull` et `activeUserStory.acceptanceCriteriaFromAzure` pour évaluer leur clarté et leur exploitabilité pour la décomposition.
+    2.  **Si ambiguïté détectée** (ex: ACs vagues, description manquant de détails critiques):
+        *   Stocker l'état actuel du workflow dans `.pheromone.activeWorkflow` (ex: `status: 'PendingClarification'`).
+        *   Préparer le contexte pour `@clarification-agent`: l'US ID, la description/ACs problématiques, et la question spécifique à poser (ex: "Pour l'US Azure#{{usId}}, le critère d'acceptation 'L'interface doit être intuitive' nécessite plus de détails. Pouvez-vous spécifier 2-3 aspects clés de cette intuitivité attendue ?").
+        *   Déléguer à `@clarification-agent`.
+        *   Le workflow `01_Start_User_Story.md` est mis en pause. La réponse de l'utilisateur sera traitée par `01_AI-RUN/XX_Handle_Clarification_Response.md`, qui réactivera ensuite ce workflow si la clarification est obtenue.
+*   **Output:** `.pheromone` mis à jour. Si clarification demandée, workflow en pause. Sinon, UO passe à Phase 3.
 
-### Phase 3: Décomposition en Tâches Techniques & Estimation (Analyse et Planification)
-*   **Agent Responsable:** `@task-breakdown-estimator`
-*   **Inputs:** `activeUserStory` depuis `.pheromone`. Accès à `memoryBank.projectContext.techStack`.
-*   **Actions & Tooling:**
-    1.  Analyser `activeUserStory.descriptionFromAzure` et les ACs (si disponibles dans la description ou une section liée).
-    2.  Utiliser **Sequential Thinking MCP** pour structurer l'analyse de décomposition:
-        *   Identifier les modules/couches impactés (API .NET, services .NET, composants Angular, base de données MSSQL, etc.).
-        *   Pour chaque module, lister les actions de haut niveau.
-        *   Affiner chaque action en tâches techniques spécifiques et granulaires.
-    3.  Pour chaque tâche potentielle nécessitant des connaissances techniques spécifiques:
-        *   Consulter **Context7 MCP** (`get_library_docs`) pour la documentation des librairies .NET/Angular pertinentes afin d'évaluer la complexité ou les approches d'implémentation.
-        *   Si des modifications de schéma DB ou des requêtes complexes sont envisagées, utiliser **MSSQL MCP** (`get_schema_details`, `get_stored_procedure_definition`) pour analyser les tables/procs impactées et s'assurer de la faisabilité.
-    4.  Pour chaque tâche technique définie:
-        *   Rédiger une description claire.
-        *   Estimer l'effort (en points ou heures, selon la convention du projet dans `memoryBank.projectContext.estimationUnit`).
-        *   Identifier les dépendances entre tâches.
-    5.  Consulter `@devops-connector` pour utiliser **Azure DevOps MCP**:
-        *   `get_child_work_items {parentId: activeUserStory.id}`: Récupérer les tâches existantes pour cette US.
-        *   Comparer les tâches générées avec celles existantes. Proposer des créations, mises à jour (d'estimation, description) ou suppressions (si une tâche existante n'est plus pertinente).
-        *   Utiliser `create_work_item` ou `update_work_item` pour synchroniser les tâches dans Azure DevOps, en les liant à l'US parente.
-*   **Memory Bank Interaction:**
-    *   Lecture: `memoryBank.projectContext.techStack`, `memoryBank.projectContext.estimationUnit`.
-    *   Écriture (via Scribe): Les tâches (avec ID Azure, titre, description, estimation, statut `ToDo`) sont ajoutées à `memoryBank.tasks` et leurs IDs sont listés dans `memoryBank.userStories.{{usId}}.tasks`. L'historique d'estimation est aussi stocké.
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe`):** Résumé NL: "Analyse et décomposition de l'US 'Azure#{{usId}}' terminées. [N_total] tâches techniques identifiées/mises à jour, pour un total estimé de [TotalEstimation] {{estimationUnit}}. [N_new] nouvelles tâches créées dans Azure DevOps, [N_updated] tâches mises à jour. Rapport détaillé de décomposition : `us_{{usId}}_task_breakdown_{{timestamp}}.md`." (Rapport enregistré dans `03_SPECS/Task_Breakdowns/`).
+### Phase 3: Décomposition en Tâches Techniques & Estimation (Analyse et Planification Détaillée)
+*   **Agent Responsable:** `@task-breakdown-estimator` (coordonnant avec `@devops-connector`)
+*   **Inputs (Injectés par l'UO):**
+    *   `activeUserStory` (avec description et ACs clarifiés si Phase 2 a eu lieu).
+    *   **Contexte de la `memoryBank`:**
+        *   `memoryBank.projectContext` (techStack, conventions, estimationUnit).
+        *   (Optionnel) Exemples de décompositions d'US similaires passées (`memoryBank.userStories` où `story.type == activeUserStory.type`).
+        *   (Optionnel) Décisions architecturales pertinentes (`memoryBank.architecturalDecisions`).
+*   **Actions & Tooling (`@task-breakdown-estimator`):**
+    1.  Utiliser **Sequential Thinking MCP** pour planifier la décomposition.
+    2.  **Détailler la "Chaîne de Pensée":** Documenter explicitement dans le rapport de décomposition (`us_{{usId}}_task_breakdown_{{timestamp}}.md`) :
+        *   Comment les ACs ont été traduits en besoins techniques.
+        *   Pourquoi certains choix de décomposition ont été faits (ex: création d'un service .NET séparé vs modification d'un existant).
+        *   Quelles documentations (issues de **Context7 MCP**) ou analyses de schéma (**MSSQL MCP**) ont influencé les tâches proposées.
+        *   La base de chaque estimation.
+    3.  Proposer tâches techniques, estimations, dépendances.
+    4.  Consulter `@devops-connector` pour synchroniser avec Azure DevOps (**Azure DevOps MCP**).
+*   **onError Strategy (pour l'UO si `@task-breakdown-estimator` signale échec ou ambiguïté):**
+    1.  Scribe loggue l'erreur.
+    2.  Si ambiguïté, UO peut relancer Phase 2 avec `@clarification-agent` en ciblant le point d'ambiguïté soulevé par `@task-breakdown-estimator`.
+    3.  Si échec MCP ou autre, notifier le Tech Lead/PO. Arrêter ou proposer une alternative.
+*   **Output (vers `✍️ @orchestrator-pheromone-scribe`):** Résumé NL: "Décomposition US 'Azure#{{usId}}' [terminée/mise à jour]. [N_total] tâches, total [TotalEstimation] {{estimationUnit}}. Synchronisé avec ADO. Rapport (avec chaîne de pensée): `us_{{usId}}_task_breakdown_{{timestamp}}.md`." (Rapport dans `03_SPECS/Task_Breakdowns/`).
 
 ### Phase 4: Préparation de la Première Tâche & Environnement de Développement
 *   **Agent Responsable:** `@developer-agent`
-*   **Inputs:** `activeUserStory` (avec ses tâches synchronisées et estimées) depuis `.pheromone`. `currentUser.id` pour l'assignation.
+*   **Inputs (Injectés par l'UO):**
+    *   `activeUserStory` (avec tâches peuplées et estimées).
+    *   Première tâche `ToDo` identifiée.
+    *   Contexte de la `memoryBank`: `projectContext.defaultGitBranchingStrategy`.
 *   **Actions & Tooling:**
-    1.  Identifier la première tâche avec le statut `ToDo` (ou la plus prioritaire non bloquée) dans `activeUserStory.tasks`. Si aucune tâche `ToDo` n'est disponible, le signaler à l'UO.
-    2.  Utiliser **Git Tools MCP**:
-        *   `get_current_branch`.
-        *   `create_branch {branchName: feature/US{{usId}}-{{taskShortNameOrId}}}` (si pas déjà sur une branche appropriée pour l'US).
-        *   `checkout_branch {branchName}`.
-    3.  Mettre à jour la tâche identifiée dans `.pheromone.activeUserStory.tasks` et `memoryBank.tasks.[ID_Tache]` :
-        *   `status`: "InProgress"
-        *   `assignee`: `currentUser.id` (ou `currentUser.azureDevOpsUsername`)
-        *   `startTime`: `{{timestamp}}`
-*   **Memory Bank Interaction:**
-    *   Écriture (via Scribe): Mettre à jour le statut, l'assigné, et l'heure de début de la tâche dans `memoryBank.tasks`. Ajouter une entrée dans `statusHistory` de la tâche.
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe`):** Résumé NL: "Préparation pour la tâche 'Azure#{{taskId}}' ('{{taskTitle}}') de l'US 'Azure#{{usId}}' terminée. Assignée à '{{currentUser.azureDevOpsUsername}}'. Branche Git '{{branchName}}' est active/créée. Prêt à commencer le développement."
+    1.  Identifier la première tâche `ToDo`.
+    2.  Utiliser **Git Tools MCP**: `create_branch`, `checkout_branch`.
+    3.  Mettre à jour la tâche dans `.pheromone` (via Scribe): `status: "InProgress"`, `assignee: currentUser.id`.
+*   **onError Strategy (pour l'UO si `@developer-agent` signale échec Git Tools MCP):**
+    1.  Scribe loggue l'erreur.
+    2.  UO notifie le développeur: "Erreur lors de la création/checkout de la branche Git pour la tâche Azure#{{taskId}}. Erreur MCP: [Message]. Veuillez vérifier votre configuration Git."
+    3.  Le workflow peut s'arrêter ou attendre une action manuelle.
+*   **Output (vers `✍️ @orchestrator-pheromone-scribe`):** Résumé NL: "Prêt pour tâche 'Azure#{{taskId}}' ('{{taskTitle}}') de l'US 'Azure#{{usId}}'. Assignée à '{{currentUser.azureDevOpsUsername}}'. Branche Git '{{branchName}}' active/créée."
 
 ---

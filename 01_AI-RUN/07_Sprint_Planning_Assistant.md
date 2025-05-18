@@ -1,85 +1,87 @@
 # Workflow: Assistance à la Planification de Sprint (07_Sprint_Planning_Assistant.md)
 
-**Objectif:** Aider le Product Owner (PO) et l'équipe de développement à planifier un sprint. Le système récupère les User Stories (US) candidates, aide à leur estimation (si nécessaire), et propose un plan de sprint basé sur la capacité de l'équipe et les priorités.
+**Objectif:** Aider le Product Owner (PO) et l'équipe de développement à planifier un sprint. Le système récupère les User Stories (US) candidates, s'assure qu'elles sont correctement décomposées et estimées (en injectant du contexte et en demandant des clarifications si besoin), et propose un plan de sprint en fonction de la capacité de l'équipe, des priorités, et des dépendances identifiées. La "chaîne de pensée" pour la sélection est documentée.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@devops-connector`, `@task-breakdown-estimator`, `@scrum-facilitator-agent`.
+**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@devops-connector`, `@task-breakdown-estimator`, `@scrum-facilitator-agent`, `@clarification-agent`.
 
-**MCPs Utilisés:** Azure DevOps MCP, Sequential Thinking MCP.
+**MCPs Utilisés:** Azure DevOps MCP, Sequential Thinking MCP, Context7 MCP, MSSQL MCP.
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** L'utilisateur (PO/Scrum Master) fournit une liste d'IDs d'US candidates pour le sprint et la capacité de l'équipe (ex: `"AgilePheromind planifie sprint. US candidates: Azure#123, Azure#456, Azure#789. Capacité: 40 points."`).
+1.  **Initiation:** L'utilisateur (PO/Scrum Master) fournit une liste d'IDs d'US candidates et la capacité de l'équipe (ex: `"AgilePheromind planifie sprint. US: Azure#123, Azure#456. Capacité: 40 points."`).
 2.  **`🧐 @uber-orchestrator`** prend le contrôle.
-    *   **Phase 1: Récupération des Détails des US Candidates.**
-        *   UO délègue à `@devops-connector` pour obtenir les informations de chaque US candidate depuis Azure DevOps.
-    *   **Phase 2: Vérification des Estimations et Décomposition (si nécessaire).**
-        *   UO délègue à `@task-breakdown-estimator`. Pour chaque US, l'agent vérifie si une estimation existe et si une décomposition en tâches est présente et à jour (dans `.pheromone.memoryBank` ou Azure DevOps). Si non, il procède à l'estimation/décomposition.
-    *   **Phase 3: Proposition du Plan de Sprint.**
-        *   UO délègue à `@scrum-facilitator-agent` pour sélectionner les US/tâches en fonction de la capacité, des priorités et des dépendances.
+    *   **Phase 1: Récupération et Validation Initiale des Détails des US Candidates.**
+        *   UO délègue à `@devops-connector` pour obtenir les infos de chaque US depuis Azure DevOps.
+        *   UO évalue la clarté des US récupérées. Si une US candidate est trop vague pour une estimation fiable, UO peut engager `@clarification-agent` pour demander des précisions au PO.
+        *   **onError:** Si ADO MCP échoue, logguer, notifier, et potentiellement arrêter ou continuer avec les US pour lesquelles les infos ont été récupérées.
+    *   **Phase 2: Vérification/Finalisation des Estimations et Décomposition en Tâches.**
+        *   UO, pour chaque US candidate (clarifiée si besoin):
+            *   **Injecte un contexte ciblé** (infos de `memoryBank` sur estimations passées, complexité de modules similaires, conventions techniques) à `@task-breakdown-estimator`.
+            *   `@task-breakdown-estimator` vérifie/effectue l'estimation et la décomposition. Doit **détailler sa "chaîne de pensée"**.
+            *   Synchronise avec Azure DevOps via `@devops-connector`.
+        *   **onError:** Si estimation impossible ou MCP échoue, l'US peut être exclue du scope de planification avec une note, ou une clarification demandée.
+    *   **Phase 3: Proposition du Plan de Sprint avec Analyse de Dépendances/Risques.**
+        *   UO **injecte contexte** (liste des US estimées, capacité équipe, priorités, `memoryBank.riskRegister`) à `@scrum-facilitator-agent`.
+        *   `@scrum-facilitator-agent` sélectionne les US/tâches. Utilise **Sequential Thinking MCP** pour analyser les dépendances et les risques du plan. **Détaille sa "chaîne de pensée"** pour la sélection.
     *   **Phase 4: Enregistrement du Plan et Rapport.**
-        *   Scribe enregistre le plan proposé dans `.pheromone` et `documentationRegistry`.
+        *   Scribe enregistre le plan proposé et le rapport (incluant la chaîne de pensée) dans `.pheromone`.
 
 ## Détails des Phases:
 
-### Phase 1: Récupération des Détails des US Candidates
-*   **Agent Responsable:** `@devops-connector`
-*   **Inputs:** Liste des IDs d'US candidates fournie par l'UO.
-*   **Actions & Tooling:**
-    1.  Pour chaque ID d'US candidate:
-        *   Utiliser **Azure DevOps MCP** (`get_work_item_details {id: ID_US_Candidate}`): Récupérer titre, description, priorité actuelle dans Azure DevOps, état, et estimation existante (si champ d'estimation est utilisé dans Azure DevOps).
-*   **Memory Bank Interaction (via Scribe après résumé):**
-    *   Le Scribe mettra à jour/créera des entrées pour ces US dans `memoryBank.userStories` avec les informations récupérées d'Azure DevOps.
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe` et UO):** Résumé NL: "Détails récupérés pour [Nombre] US candidates: [Liste des IDs et Titres]. Informations enregistrées pour analyse d'estimation." Pour chaque US, un log `azure_wi_{{usId}}_{{timestamp}}.json` peut être créé.
+### Phase 1: Récupération et Validation Initiale des Détails des US Candidates
+*   **Agent Responsable:** `@devops-connector`, UO, `@clarification-agent`.
+*   **Inputs:** Liste IDs US candidates, `currentUser`.
+*   **Actions (`@devops-connector`):** Pour chaque ID d'US, **Azure DevOps MCP** `get_work_item_details` (titre, desc, priorité, état, estimation ADO).
+*   **onError (ADO MCP):** UO loggue via Scribe, notifie utilisateur, peut décider d'arrêter ou de continuer avec les US récupérées.
+*   **Output (`@devops-connector` -> Scribe):** Résumé NL: "Détails pour [N] US candidates récupérés: [Liste IDs/Titres]. Log: `sprint_planning_us_fetch_{{timestamp}}.json`." Scribe met à jour `memoryBank.userStories`.
+*   **Actions (UO):** Pour chaque US récupérée, évaluer la clarté de la description et des ACs (si présents).
+    *   **Si ambiguïté majeure** empêchant l'estimation:
+        *   UO met workflow en pause (`activeWorkflow.status: 'PendingClarification_SprintPlanUS'`).
+        *   UO délègue à `@clarification-agent` avec l'ID de l'US, le texte ambigu, et une question pour le PO (ex: "L'US Azure#{{usId}} '[Titre]' a une description vague concernant [aspect]. Pour l'estimer, pouvez-vous préciser [question spécifique] ?").
+        *   Attendre réponse via `01_AI-RUN/XX_Handle_Clarification_Response.md`.
 
-### Phase 2: Vérification des Estimations et Décomposition (si nécessaire)
-*   **Agent Responsable:** `@task-breakdown-estimator`
-*   **Inputs:** Liste des US candidates (avec leurs détails chargés dans `.pheromone.memoryBank.userStories` par le Scribe). `memoryBank.projectContext.estimationUnit`.
-*   **Actions & Tooling:**
-    1.  Pour chaque US candidate (lue depuis `memoryBank.userStories`):
-        *   **Vérifier Estimation Existante:** Contrôler si `memoryBank.userStories.{{usId}}.estimationPoints` (ou un champ équivalent) est déjà renseigné et considéré comme fiable/récent.
-        *   **Vérifier Décomposition en Tâches:** Contrôler si `memoryBank.userStories.{{usId}}.tasks` contient une liste de tâches techniques avec leurs propres estimations.
-        *   **Si Estimation ou Décomposition Manquante/Obsolète:**
-            *   Engager le processus de décomposition et d'estimation comme décrit dans `01_AI-RUN/01_Start_User_Story.md` (Phase 3), utilisant **Sequential Thinking MCP**, **Context7 MCP**, **MSSQL MCP** si nécessaire.
-            *   Consulter `@devops-connector` pour synchroniser les nouvelles tâches/estimations avec Azure DevOps (via **Azure DevOps MCP** `create_work_item` / `update_work_item`).
-            *   Assurer que chaque tâche a une estimation. L'estimation de l'US sera la somme des estimations de ses tâches.
-    2.  Compiler une liste des US candidates avec leurs estimations finales (en points ou heures).
-*   **Memory Bank Interaction:**
-    *   Lecture: `memoryBank.userStories` pour les détails des US. `memoryBank.projectContext.estimationUnit`.
-    *   Écriture (via Scribe): Mettre à jour `memoryBank.userStories.{{usId}}` avec `estimationPoints`, `tasks` (liste d'IDs de tâches), et `memoryBank.tasks` avec les détails et estimations de chaque tâche.
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe` et UO):** Résumé NL: "Estimations et décompositions vérifiées/effectuées pour toutes les US candidates. [Nombre] US ont été (ré)estimées. Détails mis à jour dans la Memory Bank et synchronisés avec Azure DevOps. Prêt pour la sélection du sprint."
+### Phase 2: Vérification/Finalisation des Estimations et Décomposition en Tâches
+*   **Agent Responsable:** `@task-breakdown-estimator` (coordonne avec `@devops-connector`).
+*   **Inputs (Injectés par l'UO pour chaque US):**
+    *   Détails de l'US (clarifiée si besoin).
+    *   Contexte `memoryBank`: `projectContext` (stack, estimationUnit), estimations/décompositions d'US similaires passées, `technicalDebtItems` ou `architecturalDecisions` pouvant impacter l'effort.
+*   **Actions (`@task-breakdown-estimator`):**
+    1.  Vérifier si `memoryBank.userStories.{{usId}}` a une estimation fiable et une décomposition en tâches à jour.
+    2.  Si non, ou si révision demandée:
+        *   Engager processus de décomposition/estimation (comme dans `01_Start_User_Story.md` Phase 3), utilisant **Sequential Thinking MCP**, **Context7 MCP**, **MSSQL MCP**.
+        *   **Documenter la "Chaîne de Pensée"** dans son rapport : expliquer la logique de décomposition, les hypothèses pour l'estimation, l'impact des infos contextuelles injectées.
+    3.  Synchroniser tâches/estimations avec ADO via `@devops-connector` (**Azure DevOps MCP**).
+*   **onError (Estimation/Décomposition):** Si l'agent ne peut estimer (même après clarification), il le signale à l'UO. L'UO peut exclure l'US de ce cycle de planification, en notant la raison, ou demander une nouvelle clarification. Si MCP échoue, gestion d'erreur similaire à Phase 1.
+*   **Output (`@task-breakdown-estimator` -> Scribe):** Résumé NL: "Estimations/décompositions finalisées pour US candidates. [N] US traitées. Rapports individuels (avec chaîne de pensée): `us_{{usId}}_task_breakdown_{{timestamp}}.md`." Scribe met à jour `memoryBank.userStories` et `memoryBank.tasks`.
 
-### Phase 3: Proposition du Plan de Sprint
-*   **Agent Responsable:** `@scrum-facilitator-agent`
-*   **Inputs:** Liste des US candidates avec leurs estimations (depuis `.pheromone.memoryBank.userStories`). Capacité de l'équipe pour le sprint (fournie par l'UO). Priorités des US (depuis `memoryBank.userStories.{{usId}}.priority` ou Azure DevOps).
-*   **Actions & Tooling:**
-    1.  **Trier les US:** Ordonner les US candidates par priorité (la plus haute en premier).
-    2.  **Sélection Itérative:**
-        *   Initialiser `pointsChargesDuSprint = 0`.
-        *   Pour chaque US triée :
-            *   Si `pointsChargesDuSprint + us.estimationPoints <= capaciteEquipe`:
-                *   Ajouter l'US au plan de sprint proposé.
-                *   `pointsChargesDuSprint += us.estimationPoints`.
-            *   Sinon, passer à l'US suivante (ou arrêter si une option "ne pas découper les US" est active).
-    3.  **Identifier Dépendances et Risques:**
-        *   Pour les US sélectionnées, vérifier `memoryBank.userStories.{{usId}}.dependencies` (si cette information est tracée).
-        *   Signaler si des US sélectionnées ont des dépendances non satisfaites ou si des US de haute priorité n'ont pas pu être incluses.
-        *   Utiliser **Sequential Thinking MCP** pour analyser les risques potentiels du plan proposé (ex: trop d'US dépendantes d'un seul développeur, estimations trop optimistes sur des US complexes).
-    4.  Formuler le plan de sprint proposé (liste d'IDs d'US, total de points).
-*   **Memory Bank Interaction:**
-    *   Lecture: `memoryBank.userStories` (estimations, priorités, dépendances). `memoryBank.riskRegister` (pour voir si des risques existants impactent les US).
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe` et UO):** Résumé NL: "Proposition de plan pour Sprint [Nom/ID Sprint à définir]: [Liste des IDs d'US sélectionnées]. Total estimé: [TotalPoints] / [CapaciteEquipe] {{estimationUnit}}. Risques/Dépendances notables: [Liste]. Rapport détaillé: `sprint_plan_proposal_{{timestamp}}.md`." (Rapport enregistré dans `02_AI-DOCS/Sprint_Plans/`).
+### Phase 3: Proposition du Plan de Sprint avec Analyse de Dépendances/Risques
+*   **Agent Responsable:** `@scrum-facilitator-agent`.
+*   **Inputs (Injectés par l'UO):**
+    *   Liste des US candidates avec estimations finales (depuis `memoryBank.userStories`).
+    *   Capacité de l'équipe pour le sprint.
+    *   Priorités des US.
+    *   Contenu de `memoryBank.riskRegister`.
+*   **Actions (`@scrum-facilitator-agent`):**
+    1.  Trier US par priorité.
+    2.  Sélectionner itérativement les US jusqu'à atteindre la capacité.
+    3.  **Analyse de Dépendances/Risques (Sequential Thinking MCP):**
+        *   `set_goal`: "Analyser la faisabilité et les risques du plan de sprint proposé."
+        *   `add_step`: "Pour les US sélectionnées, identifier les dépendances internes (entre tâches de l'US) et externes (autres US, équipes - si info dispo dans `memoryBank.userStories.{{usId}}.dependencies`)."
+        *   `add_step`: "Vérifier si des risques du `memoryBank.riskRegister` sont directement liés aux US sélectionnées."
+        *   `add_step`: "Évaluer si des US hautement prioritaires ont été exclues et pourquoi (capacité, dépendances)."
+        *   `run_sequence`.
+    4.  **Documenter la "Chaîne de Pensée":** Expliquer la logique de sélection et les conclusions de l'analyse de risques/dépendances dans le rapport final.
+*   **Output (`@scrum-facilitator-agent` -> Scribe):** Résumé NL: "Proposition plan Sprint [ID/Nom à définir]: [Liste IDs US]. Total [Points]/[Capacité] {{estimationUnit}}. Risques/Dépendances: [Résumé]. Rapport (avec chaîne de pensée): `sprint_plan_proposal_{{timestamp}}.md`." (Rapport dans `02_AI-DOCS/Sprint_Plans/`).
 
 ### Phase 4: Enregistrement du Plan et Rapport
-*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe`
+*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe`.
 *   **Inputs:** Résumé NL de `@scrum-facilitator-agent`.
-*   **Actions & Tooling:**
-    1.  Interpréter le résumé via `.swarmConfig`.
-    2.  Mettre à jour `.pheromone`:
-        *   `currentSprint`: { `id` (généré ou fourni), `name` (généré ou fourni), `goal` (à définir par le PO/équipe), `userStories`: [Liste des IDs d'US du plan proposé], `plannedPoints`: TotalPoints, `capacityPoints`: CapaciteEquipe }.
-        *   `documentationRegistry`: Ajouter le chemin vers `sprint_plan_proposal_{{timestamp}}.md`.
-        *   Pour chaque US incluse dans le sprint, mettre à jour `memoryBank.userStories.{{usId}}.sprintAssignment = currentSprint.id`.
-*   **Memory Bank Interaction:**
-    *   Écriture: Stockage des informations du sprint planifié, mise à jour des US assignées.
-*   **Output:** `.pheromone` mis à jour. L'UO peut ensuite présenter ce plan à l'équipe pour validation finale et engagement. L'UO peut utiliser `ask_followup_question` pour demander au PO/Scrum Master de nommer le sprint et de définir son objectif.
+*   **Actions:**
+    1.  Mettre à jour `.pheromone`:
+        *   `currentSprint`: infos du plan (IDs US, points planifiés, capacité). Le nom/ID et l'objectif du sprint peuvent être demandés au PO/SM par l'UO via `ask_followup_question` avant cette mise à jour.
+        *   `documentationRegistry`: Ajouter chemin vers `sprint_plan_proposal_{{timestamp}}.md`.
+        *   `memoryBank.userStories.{{usId}}.sprintAssignment = currentSprint.id` pour les US incluses.
+        *   `memoryBank.sprints.{{currentSprint.id}}.reasoningChainLink.planning`: Lier au rapport.
+*   **Output:** `.pheromone` mis à jour. UO présente le plan à l'équipe.
 
 ---

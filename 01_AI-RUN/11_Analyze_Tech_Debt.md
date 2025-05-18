@@ -1,111 +1,100 @@
 # Workflow: Analyse de la Dette Technique et des "Code Smells" (11_Analyze_Tech_Debt.md)
 
-**Objectif:** Effectuer une analyse du codebase du projet pour identifier la dette technique, les "code smells", et les zones potentielles de refactoring. Le système doit produire un rapport avec des suggestions priorisées pour améliorer la maintenabilité, la lisibilité et la robustesse du code.
+**Objectif:** Effectuer une analyse approfondie du codebase du projet (ou d'un module spécifique) pour identifier la dette technique, les "code smells", et les zones nécessitant un refactoring. Le système doit produire un rapport détaillé avec des suggestions priorisées et la "chaîne de pensée" justifiant les principales conclusions. Une gestion des erreurs d'accès au code ou aux outils d'analyse est prévue.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@code-reviewer-assistant`.
+**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@code-reviewer-assistant`, `@clarification-agent`.
 
-**MCPs Utilisés:** Git Tools MCP (pour accéder au code), potentiellement un MCP d'analyse statique dédié (ex: SonarQube si un MCP existe ou si l'agent peut interagir avec son API/CLI), Context7 MCP (pour comprendre les bonnes pratiques des librairies utilisées dans les zones analysées).
+**MCPs Utilisés:** Git Tools MCP, potentiellement un MCP d'analyse statique dédié (ex: SonarQube), Context7 MCP, Sequential Thinking MCP.
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** L'utilisateur (Tech Lead/Architecte) demande une analyse de la dette technique, potentiellement pour tout le projet ou un module spécifique (ex: `"AgilePheromind analyse dette technique du projet"` ou `"AgilePheromind analyse dette technique module AuthenticationService"`). Peut aussi être une tâche planifiée.
+1.  **Initiation:** L'utilisateur (Tech Lead/Architecte) demande une analyse (ex: `"AgilePheromind analyse dette technique projet"`). Peut être planifié.
 2.  **`🧐 @uber-orchestrator`** prend le contrôle.
-    *   **Phase 1: Définition du Périmètre et Collecte du Code.**
-        *   UO délègue à `@code-reviewer-assistant` pour identifier les fichiers/modules à analyser et les récupérer.
-    *   **Phase 2: Analyse Statique Approfondie et Identification des "Code Smells".**
-        *   UO délègue à `@code-reviewer-assistant`. Utilisation d'outils d'analyse (linters avancés, MCP SonarQube conceptuel) et d'heuristiques.
-    *   **Phase 3: Identification des Zones de Dette Technique et Priorisation.**
-        *   UO délègue à `@code-reviewer-assistant`.
-    *   **Phase 4: Génération du Rapport et des Suggestions de Refactoring.**
+    *   **Phase 1: Définition du Périmètre, Collecte du Code, et Injection de Contexte.**
+        *   UO délègue à `@code-reviewer-assistant` pour identifier et récupérer les fichiers cibles via **Git Tools MCP**.
+        *   UO **injecte un contexte pertinent** de `memoryBank` (conventions, historique de dette, décisions architecturales) à `@code-reviewer-assistant`.
+        *   **onError (Accès Code):** Si code inaccessible, logguer, notifier, arrêter.
+    *   **Phase 2: Planification de l'Analyse et Analyse Statique/Heuristique (avec "Chaîne de Pensée").**
+        *   UO délègue à `@code-reviewer-assistant`. L'agent utilise **Sequential Thinking MCP** pour planifier son analyse.
+        *   Exécute linters, analyseurs, et heuristiques pour "code smells". Utilise **Context7 MCP** pour bonnes pratiques librairies.
+        *   **Doit documenter la "chaîne de pensée"** pour l'identification des principaux "smells" ou zones de dette.
+        *   **onError (Outils d'Analyse):** Si un outil d'analyse (ex: MCP SonarQube) échoue, noter et continuer avec les autres méthodes si possible.
+    *   **Phase 3: Identification des Zones de Dette Technique, Priorisation et Suggestions (avec "Chaîne de Pensée").**
+        *   UO délègue à `@code-reviewer-assistant`. Évalue impact, priorise.
+        *   **Doit documenter la "chaîne de pensée"** pour la priorisation et les suggestions de refactoring.
+        *   Si des zones de code sont trop obscures pour une analyse de dette pertinente, l'agent peut le signaler à l'UO pour une clarification potentielle via `@clarification-agent` (demandant au dev d'expliquer la section).
+    *   **Phase 4: Génération du Rapport Détaillé.**
         *   UO délègue à `@code-reviewer-assistant`.
     *   **Phase 5: Enregistrement dans `.pheromone`.**
-        *   Scribe enregistre le rapport et met à jour la section `technicalDebtItems` de la Memory Bank.
+        *   Scribe enregistre rapport et met à jour `memoryBank.technicalDebtItems`.
 
 ## Détails des Phases:
 
-### Phase 1: Définition du Périmètre et Collecte du Code
-*   **Agent Responsable:** `@code-reviewer-assistant`
-*   **Inputs:** Périmètre d'analyse (projet entier ou module spécifique) fourni par l'UO. `memoryBank.currentProject.repositoryUrl`.
-*   **Actions & Tooling:**
-    1.  **Définir les Fichiers Cibles:**
-        *   Si "projet entier": Identifier tous les répertoires de code source .NET et Angular.
-        *   Si "module spécifique": Identifier les fichiers appartenant à ce module.
-    2.  **Récupérer le Code Source:**
-        *   Utiliser **Git Tools MCP** (`clone_repository` ou `get_file_contents` pour les fichiers ciblés) pour obtenir la version la plus récente de la branche par défaut (ex: `develop` ou `main` depuis `.pheromone.currentProject.defaultBranch`).
-*   **Memory Bank Interaction:**
-    *   Lecture: `memoryBank.currentProject.repositoryUrl`, `memoryBank.currentProject.defaultBranch`.
-*   **Output (interne à `@code-reviewer-assistant`):** Code source prêt pour analyse.
+### Phase 1: Définition du Périmètre, Collecte du Code, et Injection de Contexte
+*   **Agent Responsable:** `@code-reviewer-assistant`, UO.
+*   **Inputs:** Périmètre d'analyse. `memoryBank.currentProject.repositoryUrl` et `defaultBranch`.
+*   **Actions & Tooling (UO et `@code-reviewer-assistant`):**
+    1.  Définir fichiers cibles.
+    2.  `@code-reviewer-assistant` récupère code via **Git Tools MCP**.
+    3.  **onError (Git Tools MCP):** Si échec, UO loggue via Scribe, notifie utilisateur, arrête workflow.
+    4.  UO injecte contexte de `memoryBank` à `@code-reviewer-assistant`:
+        *   `projectContext.codingConventionsLink`, `designConventionsLink`.
+        *   `technicalDebtItems` existants (pour éviter doublons ou voir évolution).
+        *   `architecturalDecisions` pertinentes.
+        *   (Optionnel) Configuration spécifique pour outils d'analyse statique (si stockée).
+*   **Output:** Code source et contexte injecté prêts pour `@code-reviewer-assistant`.
 
-### Phase 2: Analyse Statique Approfondie et Identification des "Code Smells"
-*   **Agent Responsable:** `@code-reviewer-assistant`
-*   **Inputs:** Code source à analyser. `memoryBank.projectContext.codingConventionsLink`.
+### Phase 2: Planification de l'Analyse et Analyse Statique/Heuristique (avec "Chaîne de Pensée")
+*   **Agent Responsable:** `@code-reviewer-assistant`.
+*   **Inputs:** Code source, contexte injecté.
 *   **Actions & Tooling:**
-    1.  **Exécuter les Linters et Analyseurs Statiques Standards:**
-        *   Appliquer les linters .NET (Roslyn Analyzers + StyleCop) et Angular (ESLint) configurés dans `memoryBank.toolingConfigurations.linters`.
-    2.  **Analyse Heuristique des "Code Smells":**
-        *   **Duplication de Code:** Rechercher des blocs de code identiques ou très similaires.
-        *   **Complexité Cyclomatique Élevée:** Identifier les méthodes/fonctions avec de nombreux chemins d'exécution.
-        *   **Longues Méthodes/Classes/Composants:** Détecter les unités de code excessivement volumineuses.
-        *   **Couplage Fort / Faible Cohésion:** Analyser les dépendances entre classes/modules.
-        *   **Variables/Méthodes Inutilisées ("Dead Code").**
-        *   **Commentaires Obsolètes ou TODO/FIXME Anciens.**
-        *   **Non-Respect des Principes SOLID (pour .NET notamment).**
-        *   **Utilisation Inappropriée des API de Frameworks/Librairies:** Consulter **Context7 MCP** pour les bonnes pratiques des librairies .NET/Angular utilisées dans les sections de code suspectes.
-    3.  **(Conceptuel) Utilisation d'un MCP d'Analyse Statique Avancée:**
-        *   Si un **MCP SonarQube** (ou équivalent) est disponible et configuré, l'utiliser pour une analyse plus approfondie. L'agent interpréterait les résultats de ce MCP.
-*   **Memory Bank Interaction:**
-    *   Lecture: `memoryBank.toolingConfigurations.linters`, `memoryBank.projectContext.codingConventionsLink`.
-*   **Output (interne à `@code-reviewer-assistant`):** Liste des "code smells" et problèmes de qualité identifiés, avec leur localisation.
+    1.  **Planification (Sequential Thinking MCP):**
+        *   `set_goal`: "Analyser le code [périmètre] pour la dette technique."
+        *   `add_step`: "Exécuter linters et analyseurs standards."
+        *   `add_step`: "Rechercher duplications de code."
+        *   `add_step`: "Analyser complexité cyclomatique (méthodes/fonctions)."
+        *   `add_step`: "Identifier longues méthodes/classes/composants."
+        *   `add_step`: "Évaluer couplage/cohésion."
+        *   `add_step`: "Rechercher 'dead code'."
+        *   `add_step`: "Vérifier TODO/FIXME."
+        *   `add_step`: "Consulter Context7 pour bonnes pratiques sur librairies utilisées dans zones suspectes."
+        *   `run_sequence`. **Conserver ce plan comme partie de la "chaîne de pensée".**
+    2.  Exécuter les étapes du plan.
+    3.  **"Chaîne de Pensée":** Pour chaque "code smell" ou zone de dette majeure identifiée, documenter dans le rapport comment elle a été détectée et pourquoi elle est considérée comme de la dette (ex: "La méthode X dépasse 100 lignes et a une complexité de Y, indiquant une violation de la convention Z et un risque de maintenabilité." ).
+*   **onError (Outils d'Analyse):**
+    *   Si un outil externe (ex: MCP SonarQube) échoue, `@code-reviewer-assistant` le note, informe l'UO, et continue l'analyse avec les autres méthodes. Le rapport final mentionnera l'outil défaillant.
+*   **Output (interne):** Liste de "code smells", problèmes de qualité, avec localisation et début de "chaîne de pensée".
 
-### Phase 3: Identification des Zones de Dette Technique et Priorisation
-*   **Agent Responsable:** `@code-reviewer-assistant`
-*   **Inputs:** Liste des "code smells" et problèmes (Phase 2).
+### Phase 3: Identification des Zones de Dette Technique, Priorisation et Suggestions (avec "Chaîne de Pensée")
+*   **Agent Responsable:** `@code-reviewer-assistant`.
+*   **Inputs:** Liste des "code smells" (Phase 2).
 *   **Actions & Tooling:**
-    1.  **Regrouper les Problèmes:** Associer les "code smells" à des zones spécifiques du code (fichiers, modules, classes).
-    2.  **Évaluer l'Impact de Chaque Zone de Dette:**
-        *   **Maintenabilité:** Complexité pour comprendre et modifier.
-        *   **Risque de Bugs:** Probabilité d'introduire des erreurs.
-        *   **Performance:** Impact potentiel sur les performances (si applicable).
-        *   **Extensibilité:** Difficulté à ajouter de nouvelles fonctionnalités.
-    3.  **Prioriser la Dette Technique:**
-        *   Attribuer une sévérité (Critique, Élevée, Moyenne, Faible) à chaque élément de dette technique identifié.
-        *   Se concentrer sur la dette qui a le plus d'impact négatif ou qui bloque des évolutions futures.
-*   **Memory Bank Interaction:**
-    *   Aucune lecture directe.
-*   **Output (interne à `@code-reviewer-assistant`):** Liste priorisée d'éléments de dette technique.
+    1.  Regrouper problèmes, évaluer impact (maintenabilité, risque bugs, perf, extensibilité).
+    2.  Prioriser la dette (Critique, Élevée, Moyenne, Faible).
+    3.  Pour les items prioritaires, suggérer des refactorings ou actions.
+    4.  **"Chaîne de Pensée":** Documenter dans le rapport la justification de la priorisation pour les items critiques/élevés et la logique derrière les suggestions de refactoring (ex: "Refactoriser X en utilisant le pattern Y améliorera la lisibilité et réduira le couplage, comme suggéré par la bonne pratique Z de Context7 pour cette librairie.").
+    5.  **Gestion d'Ambiguïté:** Si une zone de code est si obscure qu'il est impossible d'évaluer la dette ou de suggérer un refactoring pertinent:
+        *   Signaler à l'UO: "Impossible d'analyser la dette pour [fichier Z ligne A]. Code obscur. Suggestion de question pour dev: 'Pouvez-vous expliquer l'objectif et la structure de cette section pour évaluer son refactoring ?'".
+        *   L'UO peut initier clarification via `@clarification-agent`. L'analyse de cette section spécifique est mise en pause.
+*   **Output (interne):** Liste priorisée d'items de dette technique avec suggestions et justifications.
 
-### Phase 4: Génération du Rapport et des Suggestions de Refactoring
-*   **Agent Responsable:** `@code-reviewer-assistant`
-*   **Inputs:** Liste priorisée de la dette technique (Phase 3).
+### Phase 4: Génération du Rapport Détaillé
+*   **Agent Responsable:** `@code-reviewer-assistant`.
+*   **Inputs:** Liste priorisée de dette technique, justifications ("chaînes de pensée").
 *   **Actions & Tooling:**
-    1.  Rédiger un rapport Markdown (`tech_debt_analysis_[scope]_[timestamp].md`) dans `03_SPECS/Tech_Debt_Reports/`.
-    2.  Le rapport doit inclure:
-        *   **Périmètre de l'Analyse.**
-        *   **Résumé des Principales Zones de Dette Technique.**
-        *   **Détail de Chaque Élément de Dette Prioritaire:**
-            *   Description du problème ("code smell").
-            *   Localisation (fichier(s), ligne(s)).
-            *   Impact évalué.
-            *   Sévérité.
-            *   Suggestion(s) de refactoring ou d'action corrective (ex: "Extraire la méthode X", "Simplifier la condition Y", "Créer une classe Z pour encapsuler cette logique").
-        *   **(Optionnel) Métriques Globales:** (ex: % de duplication de code, complexité moyenne).
-    3.  Pour les suggestions de refactoring les plus critiques, envisager de créer des ébauches de tâches techniques.
-*   **Memory Bank Interaction (via Scribe):**
-    *   Le chemin du rapport sera stocké, et les items de dette seront ajoutés à `memoryBank.technicalDebtItems`.
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe`):** Résumé NL: "Analyse de la dette technique pour '[Périmètre]' terminée. [N_total] problèmes identifiés, dont [N_critiques] critiques et [N_eleves] élevés. Des suggestions de refactoring sont incluses. Rapport détaillé: `tech_debt_analysis_[scope]_[timestamp].md`."
+    1.  Rédiger rapport MD (`tech_debt_analysis_[scope]_[timestamp].md`) dans `03_SPECS/Tech_Debt_Reports/`.
+    2.  Structure: Périmètre, Résumé zones de dette, Détail items prioritaires (description, localisation, impact, sévérité, **raisonnement/chaîne de pensée**, suggestion refactoring), Métriques (optionnel).
+    3.  Si des sections n'ont pu être analysées faute de clarté (et que la clarification n'a pas eu lieu ou n'a pas résolu), le mentionner clairement.
+*   **Output (vers Scribe):** Résumé NL: "Analyse dette technique '[Périmètre]' terminée. [N_total] problèmes, dont [N_crit] critiques. Suggestions refactoring incluses. Rapport (avec chaîne de pensée): `tech_debt_analysis_[scope]_[timestamp].md`."
 
 ### Phase 5: Enregistrement dans `.pheromone`
-*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe`
+*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe`.
 *   **Inputs:** Résumé NL de `@code-reviewer-assistant`.
-*   **Actions & Tooling:**
-    1.  Interpréter le résumé via `.swarmConfig`.
-    2.  Mettre à jour `.pheromone`:
-        *   `documentationRegistry`: Ajouter le chemin vers `tech_debt_analysis_[scope]_[timestamp].md`.
-        *   `memoryBank.technicalDebtItems`: Pour chaque item de dette critique/élevé identifié dans le rapport (le Scribe devrait pouvoir extraire une liste structurée du rapport ou du résumé de l'agent):
-            *   Ajouter un nouvel objet: `{ id: "TD_UUID_Example", description: "[Description du problème]", severity: "[Critique/Élevée]", location: "[Fichier:Ligne]", status: "Identified", suggestedAction: "[Brève suggestion]", linkToReportSection: "[CheminDuRapport#SectionID]", dateIdentified: "{{timestamp}}" }`.
-        *   Mettre à jour `memoryBank.projectContext.lastTechDebtAnalysisTimestamp = "{{timestamp}}"`.
-*   **Memory Bank Interaction:**
-    *   Écriture: Ajout structuré des éléments de dette technique.
-*   **Output:** `.pheromone` mis à jour. L'UO est informé de la disponibilité du rapport d'analyse de la dette technique.
+*   **Actions:**
+    1.  Mettre à jour `.pheromone`:
+        *   `documentationRegistry`: Ajouter chemin vers `tech_debt_analysis...md`.
+        *   `memoryBank.technicalDebtItems`: Ajouter/Mettre à jour des objets structurés pour chaque item de dette critique/élevé identifié, incluant un lien vers la section pertinente du rapport (`reasoningChainLink`).
+        *   `memoryBank.projectContext.lastTechDebtAnalysisTimestamp = "{{timestamp}}"`.
+*   **Output:** `.pheromone` mis à jour. UO informé.
 
 ---

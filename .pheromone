@@ -1,69 +1,99 @@
 {
-  "systemVersion": "AgilePheromind-1.0.0",
-  "lastUpdated": "2023-10-28T10:00:00Z",
+  "systemVersion": "AgilePheromind-1.1.0",
+  "lastUpdated": "2023-10-29T11:00:00Z",
   "currentUser": {
-    "id": null,
-    "azureDevOpsUsername": null,
-    "roles": [],
+    "id": "dev_user_001",
+    "azureDevOpsUsername": "developpeur.un@example.com",
+    "roles": ["Developer"],
     "preferences": {
-      "communicationStyle": "concise",
-      "expertiseLevel": "intermediate"
+      "communicationStyle": "technical_detailed",
+      "expertiseLevel": "senior"
     },
-    "currentContext": null,
-    "activeSessionId": "session_uuid_example"
+    "currentContext": "Reviewing PR Azure#789",
+    "activeSessionId": "session_uuid_12345"
   },
   "currentProject": {
-    "id": "azure_project_id_example",
-    "name": "NomProjetAzureDevOps",
-    "defaultBranch": "main",
-    "azureDevOpsOrgUrl": "https://dev.azure.com/VotreOrganisation",
-    "repositoryUrl": "https://VotreOrganisation@dev.azure.com/VotreOrganisation/NomProjetAzureDevOps/_git/NomProjetAzureDevOps"
+    "id": "azure_project_id_XYZ",
+    "name": "SuperAppNextGen",
+    "defaultBranch": "develop",
+    "azureDevOpsOrgUrl": "https://dev.azure.com/MaSuperOrganisation",
+    "repositoryUrl": "https://MaSuperOrganisation@dev.azure.com/MaSuperOrganisation/SuperAppNextGen/_git/SuperAppNextGen"
   },
   "currentSprint": {
-    "id": null,
-    "name": null,
-    "goal": null,
-    "startDate": null,
-    "endDate": null,
-    "capacityPoints": 0,
-    "userStories": []
+    "id": "Sprint-23B",
+    "name": "Sprint 23B - Finalisation Inscription Sociale",
+    "goal": "Livrer les fonctionnalités d'inscription Google et Facebook avec tests et documentation.",
+    "startDate": "2023-10-23T00:00:00Z",
+    "endDate": "2023-11-03T23:59:59Z",
+    "capacityPoints": 38,
+    "userStories": ["Azure#12323", "Azure#12324"]
   },
   "activeWorkflow": {
-    "scriptPath": null,
-    "currentPhase": null,
-    "status": "idle",
-    "startTime": null,
-    "history": []
+    "scriptPath": "01_AI-RUN/05_Review_Pull_Request.md",
+    "currentPhase": "Phase 3: Analyse Statique, Heuristique et de Sécurité du Code.",
+    "status": "InProgress",
+    "startTime": "2023-10-29T10:55:00Z",
+    "lastError": null,
+    "retryAttempts": 0,
+    "history": [
+      {
+        "phase": "Phase 1: Récupération des Informations de la PR et Création du Répertoire de Revue.",
+        "agent": "@devops-connector",
+        "status": "Completed",
+        "timestamp": "2023-10-29T10:56:00Z",
+        "durationMs": 3500
+      },
+      {
+        "phase": "Phase 2: Récupération et Préparation des Modifications de Code.",
+        "agent": "@code-reviewer-assistant",
+        "status": "Completed",
+        "timestamp": "2023-10-29T10:57:00Z",
+        "durationMs": 2000
+      }
+    ]
   },
   "activeUserStory": {
-    "id": null,
-    "title": null,
-    "status": null,
-    "tasks": []
+    "id": "Azure#78901",
+    "title": "Consolider les rapports d'analyse",
+    "status": "InReview",
+    "tasks": ["Azure#89012"]
   },
   "activeTask": {
-    "id": null,
-    "title": null,
-    "status": null,
-    "parentId": null
+    "id": "Azure#89012",
+    "title": "Implémenter la section résumé dans le rapport de PR",
+    "status": "InReview",
+    "parentId": "Azure#78901"
+  },
+  "clarificationContext": {
+    "pendingClarificationId": null,
+    "originalAgent": null,
+    "originalPrompt": null,
+    "clarificationQuestion": null,
+    "timestampRequested": null
   },
   "documentationRegistry": {
-"coding_conventions.md": "01_AI-RUN/Conventions/coding_conventions_template.md",
-"design_conventions.md": "01_AI-RUN/Conventions/design_conventions_template.md",
-    "project_architecture_overview.md": "/02_AI-DOCS/Architecture/project_architecture_overview.md"
+    "coding_conventions.md": "/02_AI-DOCS/Conventions/coding_conventions.md",
+    "design_conventions.md": "/02_AI-DOCS/Conventions/design_conventions.md",
+    "project_architecture_overview.md": "/02_AI-DOCS/Architecture/project_architecture_overview.md",
+    "pr_Azure#456_review_report_20231028153000.md": "/04_PR_REVIEWS/feature-branch-example/pr_Azure#456_review_report_20231028153000.md"
   },
   "systemHealth": {
-    "lastCheck": "2023-10-28T09:55:00Z",
+    "lastCheck": "2023-10-29T10:50:00Z",
     "status": "OK",
     "mcpStatus": {
       "azureDevOpsMCP": "OK",
       "gitToolsMCP": "OK",
-      "context7MCP": "OK"
+      "context7MCP": "OK",
+      "mssqlMCP": "OK",
+      "sequentialThinkingMCP": "OK",
+      "browserToolsMCP": "OK",
+      "fetchMCP": "OK"
     },
-    "errorCountToday": 0
+    "errorCountToday": 0,
+    "lastPheromoneWriteSuccess": true,
+    "pheromoneBackupTimestamp": "2023-10-29T10:59:00Z"
   },
   "memoryBank": {
-    "agentActivityLog": [],
     "projectContext": {
       "techStack": [
         ".NET Core",
@@ -78,19 +108,79 @@
       ],
       "codingConventionsVersion": "1.0",
       "designConventionsVersion": "1.0",
-      "defaultGitBranchingStrategy": "GitFlow-like (feature -> develop -> main)"
+      "defaultGitBranchingStrategy": "GitFlow-like (feature -> develop -> main)",
+      "azureDevOpsProject": "SuperAppNextGen",
+      "azureContainerRegistryUrl": "mysuperappacr.azurecr.io",
+      "azurePipelines": {
+        "aksDeploymentPipelineId": "pipeline-id-for-aks"
+      },
+      "estimationUnit": "points"
     },
     "userProfiles": {
-      "user_id_example": {
-        "azureDevOpsUsername": "user.name@example.com",
+      "dev_user_001": {
+        "azureDevOpsUsername": "developpeur.un@example.com",
         "roles": ["Developer", "TechLead"],
         "expertiseAreas": [".NET", "Angular"],
-        "interactionHistorySummary": "Frequently works on backend features, involved in PR reviews."
+        "interactionHistorySummary": "Frequently works on backend features, involved in PR reviews.",
+        "preferencesPheromind": {
+          "detailLevelInSummaries": "high"
+        }
       }
     },
-    "userStories": {},
-    "tasks": {},
-    "pullRequests": {},
+    "userStories": {
+      "Azure#12323": {
+        "title": "Implement Google Login",
+        "descriptionSummary": "Allow users to sign up/in with Google.",
+        "descriptionFull": "Users have requested a faster way to sign up... (full description)",
+        "statusHistory": [
+          { "status": "New", "timestamp": "2023-10-26T10:00:00Z", "actor": "ADO_Sync" },
+          { "status": "InProgressByPheromind", "timestamp": "2023-10-28T14:00:00Z", "actor": "AgilePheromindSystem", "developer": "dev_user_001" }
+        ],
+        "tasks": ["Azure#23223", "Azure#23224"],
+        "acceptanceCriteria": [
+          "Given I am on the signup page, When I click 'Sign up with Google', Then I am redirected to Google auth flow."
+        ],
+        "analysisSummaries": [
+          { "type": "PO_NeedAnalysis", "summary": "Client wants faster social login. Proposal: Add Google/FB login.", "link": "/02_AI-DOCS/PO_Analyses/po_need_analysis_20231027.md", "timestamp": "2023-10-27T11:00:00Z", "reasoningChainLink": "/03_SPECS/Reasoning_Logs/po_analysis_20231027_reasoning.log" }
+        ],
+        "keyDecisions": [
+          { "decision": "Prioritize Google login over Facebook for MVP.", "reason": "Higher user request volume for Google.", "timestamp": "2023-10-27T15:00:00Z", "actor": "ProductOwnerX" }
+        ],
+        "relatedCommits": [],
+        "sprintAssignment": "Sprint-23B",
+        "estimationPoints": 8
+      }
+    },
+    "tasks": {
+      "Azure#23223": {
+        "title": "Develop Google Auth Service (.NET)",
+        "parentId": "Azure#12323",
+        "statusHistory": [
+           { "status": "ToDo", "timestamp": "2023-10-28T14:05:00Z", "actor": "AgilePheromindSystem" },
+           { "status": "InProgressByPheromind", "timestamp": "2023-10-29T09:00:00Z", "actor": "AgilePheromindSystem", "developer": "dev_user_001" }
+        ],
+        "estimationHistory": [ { "points": 5, "timestamp": "2023-10-28T14:05:00Z", "estimator": "@task-breakdown-estimator" } ],
+        "developerNotes": [ { "note": "Initial API endpoint structure defined. Need to handle token validation.", "timestamp": "2023-10-29T10:30:00Z", "developer": "dev_user_001" } ],
+        "codeSnippets": [],
+        "testCasesGenerated": [],
+        "affectedFiles": [],
+        "relatedCommit": null,
+        "assignee": "dev_user_001",
+        "azureStatus": "Active",
+        "reasoningChainLink": null
+      }
+    },
+    "pullRequests": {
+        "Azure#456": {
+            "sourceBranchName": "feature/US12323-google-auth",
+            "targetBranchName": "develop",
+            "status": "ReviewedByAI",
+            "reviewReportPath": "/04_PR_REVIEWS/feature-US12323-google-auth/pr_Azure#456_review_report_20231028153000.md",
+            "lastReviewTimestamp": "2023-10-28T15:30:00Z",
+            "issuesFoundCounts": { "critical": 1, "major": 2, "minor": 5 },
+            "summary": "Review complete. One critical issue in token handling."
+        }
+    },
     "commits": {},
     "legacyCodeAnalyses": {},
     "sprintRetrospectivesSummaries": {},
@@ -103,15 +193,40 @@
         "angular": "ESLint with Angular plugin"
       },
       "testFrameworks": {
-        "dotnet": "MSTest/NUnit/xUnit (to be confirmed by project)",
-        "angular": "Jasmine/Karma/Jest (to be confirmed by project)"
+        "dotnet": "MSTest",
+        "angular": "Jasmine/Karma"
       }
     },
     "riskRegister": [],
     "workflowPerformanceMetrics": {
       "avgUserStoryLeadTime": null,
       "avgTaskCycleTime": null
-    }
+    },
+    "clarificationHistory": [
+        {
+            "clarificationId": "clarify_uuid_001",
+            "originalAgent": "@po-assistant",
+            "originalPromptContext": "Analysis of need X, ambiguity on target persona detail.",
+            "questionToUser": "For the 'power user' persona regarding feature X, are we targeting internal admins or external expert clients?",
+            "userResponse": "External expert clients.",
+            "timestampRequested": "2023-10-29T09:15:00Z",
+            "timestampResponded": "2023-10-29T09:18:00Z",
+            "impactOnWorkflow": "PO Assistant refined US for external expert clients."
+        }
+    ],
+    "agentActivityLog": [
+        {"timestamp": "2023-10-29T10:55:00Z", "agent": "@devops-connector", "handoffReason": null, "summary": "Details for PR Azure#789 retrieved."}
+    ],
+    "lastAdoSyncTimestamp": "2023-10-29T00:00:00Z"
   },
-  "notifications": []
+  "notifications": [
+    {
+        "id": "notif_uuid_001",
+        "type": "Info",
+        "message": "Workflow '01_Start_User_Story.md' for US Azure#12323 completed successfully.",
+        "timestamp": "2023-10-28T16:00:00Z",
+        "read": false,
+        "recipientUserId": "dev_user_001"
+    }
+  ]
 }

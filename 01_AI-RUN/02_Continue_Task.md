@@ -1,81 +1,81 @@
-# Workflow: Continuer une Tâche de Développement (02_Continue_Task.md)
+# Workflow: Continue Development Task (02_Continue_Task.md)
 
-**Objectif:** Permettre à un développeur de reprendre efficacement le travail sur une tâche technique spécifique. Le système charge le contexte complet de la tâche (incluant l'historique des décisions et le raisonnement précédent stocké dans la `memoryBank`), prépare l'environnement Git, et fournit une assistance contextuelle pendant la phase d'implémentation, avec des mécanismes de gestion d'erreur et de clarification.
+**Objective:** Enable a developer to efficiently resume work on a specific technical task. The system loads the complete task context (including decision history and previous reasoning stored in the `memoryBank`), prepares the Git environment, and provides contextual assistance during the implementation phase, with error management and clarification mechanisms.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@devops-connector`, `@developer-agent`, `@clarification-agent`.
+**Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@devops-connector`, `@developer-agent`, `@clarification-agent`.
 
-**MCPs Utilisés:** Azure DevOps MCP, Git Tools MCP, Context7 MCP, MSSQL MCP.
+**MCPs Used:** Azure DevOps MCP, Git Tools MCP, Context7 MCP, MSSQL MCP.
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** L'utilisateur (Dev) spécifie l'ID de la tâche Azure DevOps à continuer (ex: `"AgilePheromind continue tâche Azure#23223"`).
-2.  **`🧐 @uber-orchestrator`** prend le contrôle.
-    *   **Phase 1: Identification Utilisateur & Récupération/Validation Contexte Tâche Azure DevOps.**
-        *   UO délègue à `@devops-connector`.
-        *   **onError:** Si ADO MCP échoue, logguer, notifier, arrêter.
-    *   **Phase 2: Activation de la Tâche et Chargement du Contexte Approfondi depuis `.pheromone`.**
-        *   Scribe met à jour `activeTask`, `activeUserStory` dans `.pheromone`.
-        *   UO **injecte un contexte ciblé** de la `memoryBank` (notes, décisions antérieures, snippets, raisonnements liés) à `@developer-agent`.
-    *   **Phase 3: Préparation de l'Environnement de Développement et Assistance à l'Implémentation.**
-        *   UO délègue à `@developer-agent` pour vérifier/changer branche Git, ouvrir fichiers.
-        *   Pendant l'implémentation, si `@developer-agent` rencontre une ambiguïté ou un blocage, il le signale à l'UO qui peut initier une clarification via `@clarification-agent` ou appliquer une stratégie d'erreur.
-        *   **onError:** Gestion des échecs MCP (Context7, MSSQL) ou des erreurs de logique de l'agent.
+1.  **Initiation:** The user (Dev) specifies the Azure DevOps task ID to continue (e.g., `"AgilePheromind continue task Azure#23223"`).
+2.  **`🧐 @uber-orchestrator`** takes control.
+    *   **Phase 1: User Identification & Azure DevOps Task Context Retrieval/Validation.**
+        *   UO delegates to `@devops-connector`.
+        *   **onError:** If ADO MCP fails, log, notify, stop.
+    *   **Phase 2: Task Activation and Deep Context Loading from `.pheromone`.**
+        *   Scribe updates `activeTask`, `activeUserStory` in `.pheromone`.
+        *   UO **injects targeted context** from `memoryBank` (notes, previous decisions, snippets, related reasoning) to `@developer-agent`.
+    *   **Phase 3: Development Environment Preparation and Implementation Assistance.**
+        *   UO delegates to `@developer-agent` to check/change Git branch, open files.
+        *   During implementation, if `@developer-agent` encounters ambiguity or a blocker, it reports to the UO who can initiate clarification via `@clarification-agent` or apply an error strategy.
+        *   **onError:** Management of MCP failures (Context7, MSSQL) or agent logic errors.
 
-## Détails des Phases:
+## Phase Details:
 
-### Phase 1: Identification Utilisateur & Récupération/Validation Contexte Tâche Azure DevOps
-*   **Agent Responsable:** `@devops-connector`
-*   **Inputs:** ID de la tâche fourni par l'UO. `currentUser` depuis `.pheromone`.
+### Phase 1: User Identification & Azure DevOps Task Context Retrieval/Validation
+*   **Responsible Agent:** `@devops-connector`
+*   **Inputs:** Task ID provided by the UO. `currentUser` from `.pheromone`.
 *   **Actions & Tooling:**
-    1.  Utiliser **Azure DevOps MCP**:
+    1.  Use **Azure DevOps MCP**:
         *   `get_user_identity`.
-        *   `get_work_item_details {id: ID_Tache}`: Récupérer titre, description, état ADO, US parente, assigné ADO.
-*   **onError Strategy (pour l'UO si `@devops-connector` signale échec MCP):**
-    1.  Scribe loggue l'erreur dans `activeWorkflow.lastError`.
-    2.  UO notifie l'utilisateur: "Impossible de récupérer les détails de la tâche Azure#{{taskId}} depuis Azure DevOps. Erreur MCP: [Message]. Vérifiez la connexion ou l'ID."
-    3.  Arrêter ce workflow.
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe` si succès):** Résumé NL: "Utilisateur '{{currentUser.azureDevOpsUsername}}' confirmé. Contexte tâche 'Azure#{{taskId}}' ('{{taskTitle}}'), US Parente: 'Azure#{{parentId}} - {{parentTitle}}', État Azure: '{{taskAzureStatus}}', Assigné Azure: '{{taskAzureAssignee}}'. Log: `azure_wi_{{taskId}}_{{timestamp}}.json`."
+        *   `get_work_item_details {id: Task_ID}`: Retrieve title, description, ADO status, parent US, ADO assignee.
+*   **onError Strategy (for UO if `@devops-connector` reports MCP failure):**
+    1.  Scribe logs the error in `activeWorkflow.lastError`.
+    2.  UO notifies the user: "Unable to retrieve details for task Azure#{{taskId}} from Azure DevOps. MCP Error: [Message]. Check connection or ID."
+    3.  Stop this workflow.
+*   **Output (to `✍️ @orchestrator-pheromone-scribe` if successful):** NL Summary: "User '{{currentUser.azureDevOpsUsername}}' confirmed. Task context 'Azure#{{taskId}}' ('{{taskTitle}}'), Parent US: 'Azure#{{parentId}} - {{parentTitle}}', Azure Status: '{{taskAzureStatus}}', Azure Assignee: '{{taskAzureAssignee}}'. Log: `azure_wi_{{taskId}}_{{timestamp}}.json`."
 
-### Phase 2: Activation de la Tâche et Chargement du Contexte Approfondi depuis `.pheromone`
-*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe` (pour état actif), `🧐 @uber-orchestrator` (pour injection de contexte), `@developer-agent` (pour lecture).
-*   **Inputs:** Résumé NL de `@devops-connector`. Données de `.pheromone`.
+### Phase 2: Task Activation and Deep Context Loading from `.pheromone`
+*   **Responsible Agent:** `✍️ @orchestrator-pheromone-scribe` (for active state), `🧐 @uber-orchestrator` (for context injection), `@developer-agent` (for reading).
+*   **Inputs:** NL summary from `@devops-connector`. Data from `.pheromone`.
 *   **Actions & Tooling (Scribe):**
-    1.  Mettre à jour `.pheromone` (`activeUserStory`, `activeTask`, statuts dans `memoryBank.tasks.{{taskId}}` et `activeUserStory.tasks`).
-*   **Actions & Tooling (UO prépare l'injection de contexte pour `@developer-agent`):**
-    1.  Extraire de `memoryBank.tasks.{{activeTask.id}}`: `developerNotes`, `codeSnippets`, `testCasesGeneratedLinks` (liens vers rapports de génération de tests), `relatedCommit`, `reasoningChainLink` (si des décisions précédentes sur cette tâche ont été loggées).
-    2.  Extraire de `memoryBank.userStories.{{activeTask.parentId}}`: `descriptionFull`, `acceptanceCriteria`, `analysisSummaries`, `keyDecisions`, `reasoningChainLinks` pertinents.
-    3.  Extraire de `memoryBank.projectContext`: `codingConventionsLink`, `designConventionsLink`, `techStack`.
-    4.  Extraire de `memoryBank.commonIssuesAndSolutions`: Problèmes similaires résolus précédemment.
-*   **Actions & Tooling (`@developer-agent` reçoit ce contexte injecté):**
-    1.  Intégrer toutes ces informations pour reconstituer l'état de la tâche.
+    1.  Update `.pheromone` (`activeUserStory`, `activeTask`, statuses in `memoryBank.tasks.{{taskId}}` and `activeUserStory.tasks`).
+*   **Actions & Tooling (UO prepares context injection for `@developer-agent`):**
+    1.  Extract from `memoryBank.tasks.{{activeTask.id}}`: `developerNotes`, `codeSnippets`, `testCasesGeneratedLinks` (links to test generation reports), `relatedCommit`, `reasoningChainLink` (if previous decisions on this task have been logged).
+    2.  Extract from `memoryBank.userStories.{{activeTask.parentId}}`: `descriptionFull`, `acceptanceCriteria`, `analysisSummaries`, `keyDecisions`, relevant `reasoningChainLinks`.
+    3.  Extract from `memoryBank.projectContext`: `codingConventionsLink`, `designConventionsLink`, `techStack`.
+    4.  Extract from `memoryBank.commonIssuesAndSolutions`: Previously solved similar issues.
+*   **Actions & Tooling (`@developer-agent` receives this injected context):**
+    1.  Integrate all this information to reconstruct the task state.
 *   **Memory Bank Interaction:**
-    *   Lecture intensive par l'UO pour préparer le contexte.
-*   **Output (pour `@developer-agent` lors de la Phase 3):** Un contexte riche et ciblé pour reprendre le travail.
+    *   Intensive reading by the UO to prepare the context.
+*   **Output (for `@developer-agent` during Phase 3):** A rich and targeted context to resume work.
 
-### Phase 3: Préparation de l'Environnement de Développement et Assistance à l'Implémentation
-*   **Agent Responsable:** `@developer-agent`
-*   **Inputs:** Contexte injecté par l'UO (Phase 2).
+### Phase 3: Development Environment Preparation and Implementation Assistance
+*   **Responsible Agent:** `@developer-agent`
+*   **Inputs:** Context injected by the UO (Phase 2).
 *   **Actions & Tooling:**
-    1.  **Gestion de Branche Git (Git Tools MCP):**
-        *   `get_current_branch`. Vérifier si correspond à `feature/US{{activeUserStory.id}}-description`.
-        *   Si non, `checkout_branch` ou `pull_branch` + `checkout_branch`. Gérer les erreurs de Git (conflits, branche inexistante) en informant l'UO.
-    2.  **Ouverture des Fichiers:** (Conceptuel) Demander à l'IDE d'ouvrir les fichiers pertinents (`memoryBank.tasks.{{activeTask.id}}.affectedFiles`).
-    3.  **Assistance Contextuelle à l'Implémentation:**
-        *   Pendant que le développeur code, sur demande :
-            *   **Context7 MCP** (`get_library_docs`): Pour documentation .NET/Angular.
-            *   **MSSQL MCP** (`get_schema_details`, `validate_sql_query`): Pour aide DB.
-            *   Consulter la `memoryBank` (via requête à l'UO ou `@memory-access-agent`) pour des décisions/solutions passées.
-        *   **Gestion d'Ambiguïté/Blocage par `@developer-agent`:**
-            *   Si une spécification est ambiguë ou si une dépendance bloque :
-                *   `@developer-agent` formule le problème clairement.
-                *   Il envoie un résumé à l'UO indiquant: "Blocage sur tâche Azure#{{taskId}}: [Description du problème/ambiguïté]. Suggestion de clarification: [Question précise pour le PO/TechLead]."
-                *   L'UO peut alors décider d'invoquer `@clarification-agent` ou de suivre une autre stratégie d'erreur du script `01_AI-RUN/*.md`. Le travail sur cette tâche spécifique est mis en pause.
-    4.  **Suivi du Travail et Prise de Notes pour la Memory Bank:**
-        *   L'agent doit être instruit de noter (pour son résumé final) les décisions techniques prises, les raisons ("chaîne de pensée" pour les solutions complexes), les problèmes résolus, et les nouveaux fichiers affectés.
-*   **onError Strategy (pour l'UO si `@developer-agent` signale échec MCP ou blocage insoluble):**
-    1.  Scribe loggue l'erreur/le blocage.
-    2.  Si échec MCP (Context7, MSSQL), UO peut suggérer au dev de vérifier les MCPs ou de chercher l'info manuellement pour l'instant. Le workflow sur la tâche peut continuer avec cette info manquante si non critique.
-    3.  Si blocage logique, UO initie le processus de clarification ou escalade au Tech Lead.
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe` à la fin d'une session de travail / sauvegarde de contexte):** Résumé NL détaillé: "Session sur tâche Azure#{{taskId}}. Avancement: [Description]. Fichiers modifiés: [Liste]. Décisions/Raisonnements clés: [Pour MemoryBank]. Problèmes/Clarifications nécessaires: [Si applicable]." (Ce résumé permet au Scribe de mettre à jour `developerNotes`, `affectedFiles`, `reasoningChainLink` dans `memoryBank.tasks.{{activeTask.id}}`).
+    1.  **Git Branch Management (Git Tools MCP):**
+        *   `get_current_branch`. Check if it corresponds to `feature/US{{activeUserStory.id}}-description`.
+        *   If not, `checkout_branch` or `pull_branch` + `checkout_branch`. Handle Git errors (conflicts, non-existent branch) by informing the UO.
+    2.  **File Opening:** (Conceptual) Ask the IDE to open relevant files (`memoryBank.tasks.{{activeTask.id}}.affectedFiles`).
+    3.  **Contextual Implementation Assistance:**
+        *   While the developer codes, on request:
+            *   **Context7 MCP** (`get_library_docs`): For .NET/Angular documentation.
+            *   **MSSQL MCP** (`get_schema_details`, `validate_sql_query`): For DB help.
+            *   Consult the `memoryBank` (via query to the UO or `@memory-access-agent`) for past decisions/solutions.
+        *   **Ambiguity/Blocker Management by `@developer-agent`:**
+            *   If a specification is ambiguous or if a dependency blocks:
+                *   `@developer-agent` clearly formulates the problem.
+                *   It sends a summary to the UO indicating: "Blocker on task Azure#{{taskId}}: [Problem/ambiguity description]. Clarification suggestion: [Precise question for PO/TechLead]."
+                *   The UO can then decide to invoke `@clarification-agent` or follow another error strategy from the `01_AI-RUN/*.md` script. Work on this specific task is paused.
+    4.  **Work Tracking and Note Taking for the Memory Bank:**
+        *   The agent should be instructed to note (for its final summary) technical decisions made, reasons ("chain of thought" for complex solutions), problems solved, and new affected files.
+*   **onError Strategy (for UO if `@developer-agent` reports MCP failure or unsolvable blocker):**
+    1.  Scribe logs the error/blocker.
+    2.  If MCP failure (Context7, MSSQL), UO can suggest to the dev to check the MCPs or manually look for the info for now. The workflow on the task can continue with this missing info if not critical.
+    3.  If logical blocker, UO initiates the clarification process or escalates to the Tech Lead.
+*   **Output (to `✍️ @orchestrator-pheromone-scribe` at the end of a work session / context save):** Detailed NL Summary: "Session on task Azure#{{taskId}}. Progress: [Description]. Modified files: [List]. Key decisions/reasoning: [For MemoryBank]. Issues/Clarifications needed: [If applicable]." (This summary allows the Scribe to update `developerNotes`, `affectedFiles`, `reasoningChainLink` in `memoryBank.tasks.{{activeTask.id}}`).
 
 ---

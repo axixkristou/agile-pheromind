@@ -1,88 +1,88 @@
-# Workflow: Amorçage et Configuration du Système AgilePheromind (00_System_Bootstrap.md)
+# Workflow: AgilePheromind System Bootstrap and Configuration (00_System_Bootstrap.md)
 
-**Objectif:** Initialiser ou vérifier la configuration fondamentale du système AgilePheromind. Cela inclut la création/validation du fichier `.pheromone`, la configuration du contexte de base du projet dans la Memory Bank, l'initialisation des documents de conventions, la vérification de la connexion à Azure DevOps, et la confirmation de la présence des agents système essentiels comme `@clarification-agent`. Ce workflow est crucial pour assurer la robustesse et l'intelligence contextuelle du système dès le départ.
+**Objective:** Initialize or verify the fundamental configuration of the AgilePheromind system. This includes creating/validating the `.pheromone` file, configuring the project's base context in the Memory Bank, initializing convention documents, verifying the Azure DevOps connection, and confirming the presence of essential system agents such as `@clarification-agent`. This workflow is crucial for ensuring the system's robustness and contextual intelligence from the start.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@project-setup-agent`, `@devops-connector`, `@architecture-advisor-agent`.
+**Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@project-setup-agent`, `@devops-connector`, `@architecture-advisor-agent`.
 
-**MCPs Utilisés:** Azure DevOps MCP.
+**MCPs Used:** Azure DevOps MCP.
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** L'utilisateur lance ce workflow (ex: `"AgilePheromind bootstrap système pour projet 'SuperApp' dans ADO org 'MaSuperOrg'"`). L'UO peut demander des précisions si les informations sont incomplètes.
-2.  **`🧐 @uber-orchestrator`** prend le contrôle.
-    *   **Phase 1: Initialisation/Vérification de `.pheromone` et des Agents Système.**
-        *   UO s'assure que le Scribe est activé (qui bootstrap `.pheromone` si besoin).
-        *   UO vérifie la présence de `@clarification-agent` dans `.roomodes` (conceptuel, via lecture de la config ou une capacité de l'UO).
-    *   **Phase 2: Configuration du Contexte du Projet dans la Memory Bank.**
-        *   UO délègue à `@project-setup-agent` pour collecter/confirmer les informations du projet.
-        *   Scribe enregistre ces informations dans `.pheromone.currentProject` et `memoryBank.projectContext`.
-    *   **Phase 3: Initialisation des Conventions de Codage et de Design.**
-        *   UO délègue à `@architecture-advisor-agent` pour créer/vérifier les fichiers de conventions à partir de modèles.
-    *   **Phase 4: Vérification de la Connexion Azure DevOps.**
-        *   UO délègue à `@devops-connector`.
-    *   **Phase 5: Rapport de Bootstrap et État de Préparation.**
-        *   L'UO compile un résumé des actions. Scribe enregistre le rapport et l'état du système.
+1.  **Initiation:** The user launches this workflow (e.g., `"AgilePheromind bootstrap system for project 'SuperApp' in ADO org 'MySuperOrg'"`). The UO may request clarification if information is incomplete.
+2.  **`🧐 @uber-orchestrator`** takes control.
+    *   **Phase 1: Initialization/Verification of `.pheromone` and System Agents.**
+        *   UO ensures the Scribe is activated (which bootstraps `.pheromone` if needed).
+        *   UO verifies the presence of `@clarification-agent` in `.roomodes` (conceptually, via configuration reading or a UO capability).
+    *   **Phase 2: Project Context Configuration in the Memory Bank.**
+        *   UO delegates to `@project-setup-agent` to collect/confirm project information.
+        *   Scribe records this information in `.pheromone.currentProject` and `memoryBank.projectContext`.
+    *   **Phase 3: Initialization of Coding and Design Conventions.**
+        *   UO delegates to `@architecture-advisor-agent` to create/verify convention files from templates.
+    *   **Phase 4: Azure DevOps Connection Verification.**
+        *   UO delegates to `@devops-connector`.
+    *   **Phase 5: Bootstrap Report and Readiness Status.**
+        *   The UO compiles an action summary. Scribe records the report and system status.
 
-## Détails des Phases:
+## Phase Details:
 
-### Phase 1: Initialisation/Vérification de `.pheromone` et des Agents Système
-*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe` (pour `.pheromone`), `🧐 @uber-orchestrator` (pour vérification agents).
-*   **Inputs:** Aucun input spécifique pour le Scribe. L'UO a accès à la configuration `.roomodes` (conceptuellement).
+### Phase 1: Initialization/Verification of `.pheromone` and System Agents
+*   **Responsible Agent:** `✍️ @orchestrator-pheromone-scribe` (for `.pheromone`), `🧐 @uber-orchestrator` (for agent verification).
+*   **Inputs:** No specific input for the Scribe. The UO has access to the `.roomodes` configuration (conceptually).
 *   **Actions & Tooling (`✍️ @orchestrator-pheromone-scribe`):**
-    1.  L'UO active le Scribe.
-    2.  Le Scribe charge `.pheromone`. S'il est manquant/invalide, il l'initialise avec la structure de base (incluant `systemVersion`, `clarificationContext` vide, `memoryBank` avec ses sections, `documentationRegistry`, `currentUser` à null, `systemHealth` avec `lastPheromoneWriteSuccess: true`).
-    3.  Si `.pheromone` existe, le Scribe valide sa structure de base.
+    1.  The UO activates the Scribe.
+    2.  The Scribe loads `.pheromone`. If missing/invalid, it initializes it with the basic structure (including `systemVersion`, empty `clarificationContext`, `memoryBank` with its sections, `documentationRegistry`, `currentUser` set to null, `systemHealth` with `lastPheromoneWriteSuccess: true`).
+    3.  If `.pheromone` exists, the Scribe validates its basic structure.
 *   **Actions & Tooling (`🧐 @uber-orchestrator`):**
-    1.  (Conceptuel) Vérifier que l'agent `@clarification-agent` est défini dans `.roomodes`. Si manquant, émettre un avertissement critique dans le rapport final car il est essentiel pour la gestion des ambiguïtés.
+    1.  (Conceptual) Verify that the `@clarification-agent` is defined in `.roomodes`. If missing, issue a critical warning in the final report as it is essential for ambiguity management.
 *   **Memory Bank Interaction:**
-    *   Écriture (Scribe): Initialisation de la structure de la Memory Bank si `.pheromone` est nouveau.
-*   **Output (interne à l'UO):** `.pheromone` est prêt. Statut de la présence de `@clarification-agent`.
+    *   Writing (Scribe): Initialization of the Memory Bank structure if `.pheromone` is new.
+*   **Output (internal to UO):** `.pheromone` is ready. Status of `@clarification-agent` presence.
 
-### Phase 2: Configuration du Contexte du Projet dans la Memory Bank
-*   **Agent Responsable:** `@project-setup-agent`
-*   **Inputs:** Nom du projet Azure DevOps et URL de l'organisation (fournis par l'utilisateur via l'UO). L'UO injecte le `techStack` par défaut depuis `memoryBank.projectContext` (si déjà partiellement rempli) ou les valeurs par défaut connues.
+### Phase 2: Project Context Configuration in the Memory Bank
+*   **Responsible Agent:** `@project-setup-agent`
+*   **Inputs:** Azure DevOps project name and organization URL (provided by the user via UO). The UO injects the default `techStack` from `memoryBank.projectContext` (if already partially filled) or known default values.
 *   **Actions & Tooling:**
-    1.  Collecter/Confirmer les informations projet : Nom projet ADO, URL org ADO, URL repo Git principal, stack technique (par défaut .NET/Angular/AzureSQL/Docker/AKS, mais peut être affiné ici si l'utilisateur spécifie des versions ou des composants particuliers).
-    2.  Préparer un objet JSON pour `.pheromone.currentProject` et pour `.pheromone.memoryBank.projectContext`.
+    1.  Collect/Confirm project information: ADO project name, ADO org URL, main Git repo URL, technical stack (default .NET/Angular/AzureSQL/Docker/AKS, but can be refined here if the user specifies particular versions or components).
+    2.  Prepare a JSON object for `.pheromone.currentProject` and for `.pheromone.memoryBank.projectContext`.
 *   **Memory Bank Interaction:**
-    *   Préparation des données.
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe`):** Résumé NL: "Contexte du projet '[NomProjet]' collecté. Stack: [.NET, Angular, Azure SQL, Docker, AKS]. Azure DevOps Org: '[URLOrg]', Projet: '[NomProjet]', Repo: '[URLRepo]'. Prêt à mettre à jour `.pheromone`."
+    *   Data preparation.
+*   **Output (to `✍️ @orchestrator-pheromone-scribe`):** NL Summary: "Project context for '[ProjectName]' collected. Stack: [.NET, Angular, Azure SQL, Docker, AKS]. Azure DevOps Org: '[OrgURL]', Project: '[ProjectName]', Repo: '[RepoURL]'. Ready to update `.pheromone`."
 
-### Phase 3: Initialisation des Conventions de Codage et de Design
-*   **Agent Responsable:** `@architecture-advisor-agent`
-*   **Inputs:** Chemins vers les modèles (`02_AI-DOCS/Conventions/coding_conventions_template.md`, `02_AI-DOCS/Conventions/design_conventions_template.md`). L'UO injecte le contexte de la stack confirmée en Phase 2.
+### Phase 3: Initialization of Coding and Design Conventions
+*   **Responsible Agent:** `@architecture-advisor-agent`
+*   **Inputs:** Paths to templates (`02_AI-DOCS/Conventions/coding_conventions_template.md`, `02_AI-DOCS/Conventions/design_conventions_template.md`). The UO injects the stack context confirmed in Phase 2.
 *   **Actions & Tooling:**
-    1.  Vérifier si `coding_conventions.md` et `design_conventions.md` existent dans `02_AI-DOCS/Conventions/`.
-    2.  Si non, copier les modèles vers ces emplacements.
-    3.  Effectuer des ajustements initiaux minimes dans les copies pour refléter la stack (.NET/Angular), et ajouter des placeholders pour les décisions de design spécifiques au projet.
+    1.  Check if `coding_conventions.md` and `design_conventions.md` exist in `02_AI-DOCS/Conventions/`.
+    2.  If not, copy the templates to these locations.
+    3.  Make minimal initial adjustments in the copies to reflect the stack (.NET/Angular), and add placeholders for project-specific design decisions.
 *   **Memory Bank Interaction:**
-    *   Les chemins seront ajoutés à `documentationRegistry` par le Scribe.
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe`):** Résumé NL: "Fichiers de conventions `coding_conventions.md` et `design_conventions.md` initialisés dans `02_AI-DOCS/Conventions/`. Prêts pour personnalisation et versionnement (v1.0_initial)."
+    *   Paths will be added to `documentationRegistry` by the Scribe.
+*   **Output (to `✍️ @orchestrator-pheromone-scribe`):** NL Summary: "Convention files `coding_conventions.md` and `design_conventions.md` initialized in `02_AI-DOCS/Conventions/`. Ready for customization and versioning (v1.0_initial)."
 
-### Phase 4: Vérification de la Connexion Azure DevOps
-*   **Agent Responsable:** `@devops-connector`
-*   **Inputs:** Informations du projet depuis `.pheromone.currentProject` (après mise à jour par le Scribe suite à Phase 2).
+### Phase 4: Azure DevOps Connection Verification
+*   **Responsible Agent:** `@devops-connector`
+*   **Inputs:** Project information from `.pheromone.currentProject` (after update by the Scribe following Phase 2).
 *   **Actions & Tooling:**
-    1.  Utiliser **Azure DevOps MCP**:
+    1.  Use **Azure DevOps MCP**:
         *   `get_project_details {projectName: .pheromone.currentProject.name}`.
         *   `get_user_identity`.
-    2.  Si l'une des commandes échoue, cela indique un problème de configuration MCP ou d'accès au projet ADO.
+    2.  If either command fails, this indicates an MCP configuration issue or ADO project access problem.
 *   **Memory Bank Interaction:**
-    *   Le Scribe mettra à jour `.pheromone.systemHealth.mcpStatus.azureDevOpsMCP`.
-*   **Output (vers `✍️ @orchestrator-pheromone-scribe`):** Résumé NL: "Connexion à Azure DevOps pour projet '[NomProjet]' [réussie/échouée]. Identité MCP: '[IdentitéMCP]'." Si échec, inclure le message d'erreur de l'ADO MCP.
+    *   The Scribe will update `.pheromone.systemHealth.mcpStatus.azureDevOpsMCP`.
+*   **Output (to `✍️ @orchestrator-pheromone-scribe`):** NL Summary: "Azure DevOps connection for project '[ProjectName]' [successful/failed]. MCP Identity: '[MCPIdentity]'." If failure, include the ADO MCP error message.
 
-### Phase 5: Rapport de Bootstrap et État de Préparation
-*   **Agent Responsable:** `🧐 @uber-orchestrator` (pour la compilation), `✍️ @orchestrator-pheromone-scribe` (pour l'enregistrement final).
-*   **Inputs:** Résumés des phases précédentes.
+### Phase 5: Bootstrap Report and Readiness Status
+*   **Responsible Agent:** `🧐 @uber-orchestrator` (for compilation), `✍️ @orchestrator-pheromone-scribe` (for final recording).
+*   **Inputs:** Summaries from previous phases.
 *   **Actions & Tooling (`🧐 @uber-orchestrator`):**
-    1.  Compiler un résumé global. Noter explicitement le statut de la connexion ADO et la présence de `@clarification-agent`.
-*   **Output (`🧐 @uber-orchestrator` vers `✍️ @orchestrator-pheromone-scribe`):** Résumé NL: "Bootstrap AgilePheromind terminé pour projet '[NomProjet]'. `.pheromone` [initialisé/vérifié]. Contexte projet [OK]. Conventions [initialisées/existantes]. Connexion Azure DevOps [OK/Échouée]. Agent `@clarification-agent` [Présent/Manquant - ALERTE SI MANQUANT]. Système [Prêt pour opérations / Nécessite attention sur points X, Y]. Rapport: `system_bootstrap_report_[timestamp].md`."
+    1.  Compile a global summary. Explicitly note the ADO connection status and the presence of `@clarification-agent`.
+*   **Output (`🧐 @uber-orchestrator` to `✍️ @orchestrator-pheromone-scribe`):** NL Summary: "AgilePheromind bootstrap completed for project '[ProjectName]'. `.pheromone` [initialized/verified]. Project context [OK]. Conventions [initialized/existing]. Azure DevOps connection [OK/Failed]. Agent `@clarification-agent` [Present/Missing - ALERT IF MISSING]. System [Ready for operations / Requires attention on points X, Y]. Report: `system_bootstrap_report_[timestamp].md`."
 *   **Actions & Tooling (`✍️ @orchestrator-pheromone-scribe`):**
-    1.  Enregistrer le rapport (`system_bootstrap_report_[timestamp].md`) dans `documentationRegistry` (ex: `02_AI-DOCS/System_Admin/`).
-    2.  Persister toutes les mises à jour de `.pheromone` des phases précédentes (contexte projet, versions conventions, statut MCP).
-    3.  Mettre à jour `.pheromone.systemVersion` si nécessaire.
+    1.  Save the report (`system_bootstrap_report_[timestamp].md`) in `documentationRegistry` (e.g., `02_AI-DOCS/System_Admin/`).
+    2.  Persist all `.pheromone` updates from previous phases (project context, convention versions, MCP status).
+    3.  Update `.pheromone.systemVersion` if necessary.
 *   **Memory Bank Interaction:**
-    *   Écriture (Scribe): Finalisation du contexte projet, enregistrement du rapport.
-*   **Outcome:** AgilePheromind est configuré, son état initial est enregistré, et les points d'attention pour une opérabilité complète sont signalés.
+    *   Writing (Scribe): Finalization of project context, report recording.
+*   **Outcome:** AgilePheromind is configured, its initial state is recorded, and attention points for complete operability are flagged.
 
 ---

@@ -1,96 +1,96 @@
-# Workflow: Validation de l'Interface Utilisateur (UI Test Validation) (12_UI_Test_Validation.md)
+# Workflow: User Interface Validation (UI Test Validation) (12_UI_Test_Validation.md)
 
-**Objectif:** Assister le testeur dans la validation manuelle ou semi-automatisée de l'interface utilisateur (UI) d'une fonctionnalité ou User Story (US). L'agent utilise le Browser Tools MCP pour les interactions/captures, compare aux spécifications de design (avec une "chaîne de pensée" pour les écarts significatifs), et gère les erreurs ou ambiguïtés dans les specs.
+**Objective:** Assist the tester in manual or semi-automated validation of the user interface (UI) of a feature or User Story (US). The agent uses the Browser Tools MCP for interactions/captures, compares against design specifications (with a "chain of thought" for significant discrepancies), and handles errors or ambiguities in the specs.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@tester-ui-validator-agent`, `@devops-connector`, `@clarification-agent`.
+**Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@tester-ui-validator-agent`, `@devops-connector`, `@clarification-agent`.
 
-**MCPs Utilisés:** Browser Tools MCP (Puppeteer ou Playwright), Azure DevOps MCP.
+**MCPs Used:** Browser Tools MCP (Puppeteer or Playwright), Azure DevOps MCP.
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** Testeur/PO demande validation UI pour US/Fonctionnalité + URL environnement de test (ex: `"AgilePheromind valide UI US Azure#12323 sur https://test.myapp.com"`).
-2.  **`🧐 @uber-orchestrator`** prend le contrôle.
-    *   **Phase 1: Récupération Spécifications, ACs et Injection de Contexte.**
-        *   UO délègue à `@devops-connector` pour ACs (via **ADO MCP**).
-        *   UO **injecte contexte** à `@tester-ui-validator-agent` : ACs, `design_conventions.md`, mockups (depuis `documentationRegistry`/`memoryBank`).
-        *   UO évalue clarté des specs UI. Si ambigu (ex: design contradictoire avec ACs), UO initie clarification via `@clarification-agent` avec PO/Designer.
-        *   **onError:** Si ADO MCP ou accès aux specs échoue, notifier, arrêter.
-    *   **Phase 2: Définition du Scénario de Test UI Détaillé.**
-        *   UO délègue à `@tester-ui-validator-agent`.
-    *   **Phase 3: Exécution Interactions et Captures via Browser Tools MCP.**
-        *   UO délègue à `@tester-ui-validator-agent`.
-        *   **onError (Browser Tools MCP):** Si MCP échoue (ex: élément non trouvé, navigation impossible), l'agent le note, tente de continuer si possible, et le signale dans le rapport.
-    *   **Phase 4: Analyse des Résultats et Génération Rapport (avec "Chaîne de Pensée" pour Écarts).**
-        *   UO délègue à `@tester-ui-validator-agent`. Pour les écarts majeurs, l'agent **documente sa "chaîne de pensée"** (pourquoi il considère que c'est un écart par rapport aux specs).
-    *   **Phase 5: Enregistrement Rapport et Création Bugs (Optionnel).**
-        *   Scribe enregistre. UO peut proposer création de bugs dans ADO via `@devops-connector`.
+1.  **Initiation:** Tester/PO requests UI validation for US/Feature + test environment URL (e.g., `"AgilePheromind validate UI US Azure#12323 on https://test.myapp.com"`).
+2.  **`🧐 @uber-orchestrator`** takes control.
+    *   **Phase 1: Specifications Retrieval, ACs and Context Injection.**
+        *   UO delegates to `@devops-connector` for ACs (via **ADO MCP**).
+        *   UO **injects context** to `@tester-ui-validator-agent`: ACs, `design_conventions.md`, mockups (from `documentationRegistry`/`memoryBank`).
+        *   UO evaluates clarity of UI specs. If ambiguous (e.g., design contradicts ACs), UO initiates clarification via `@clarification-agent` with PO/Designer.
+        *   **onError:** If ADO MCP or specs access fails, notify, stop.
+    *   **Phase 2: Detailed UI Test Scenario Definition.**
+        *   UO delegates to `@tester-ui-validator-agent`.
+    *   **Phase 3: Interactions Execution and Captures via Browser Tools MCP.**
+        *   UO delegates to `@tester-ui-validator-agent`.
+        *   **onError (Browser Tools MCP):** If MCP fails (e.g., element not found, navigation impossible), the agent notes it, tries to continue if possible, and reports it in the report.
+    *   **Phase 4: Results Analysis and Report Generation (with "Chain of Thought" for Discrepancies).**
+        *   UO delegates to `@tester-ui-validator-agent`. For major discrepancies, the agent **documents its "chain of thought"** (why it considers it a deviation from specs).
+    *   **Phase 5: Report Recording and Bug Creation (Optional).**
+        *   Scribe records. UO can propose bug creation in ADO via `@devops-connector`.
 
-## Détails des Phases:
+## Phase Details:
 
-### Phase 1: Récupération Spécifications, ACs et Injection de Contexte
-*   **Agent Responsable:** UO, `@devops-connector`, `@clarification-agent`.
-*   **Inputs:** ID US/Fonctionnalité, URL env test.
+### Phase 1: Specifications Retrieval, ACs and Context Injection
+*   **Responsible Agent:** UO, `@devops-connector`, `@clarification-agent`.
+*   **Inputs:** US/Feature ID, test env URL.
 *   **Actions (UO & `@devops-connector`):**
-    1.  `@devops-connector` récupère ACs de l'US (si ID US) via **ADO MCP** `get_work_item_details`.
-    2.  **onError (ADO MCP):** UO loggue via Scribe, notifie, arrête/continue avec avertissement.
-    3.  Scribe met à jour `memoryBank.userStories.{{usId}}.acceptanceCriteria`.
-    4.  UO injecte à `@tester-ui-validator-agent`:
-        *   ACs récupérés.
-        *   Chemin vers `design_conventions.md` (de `documentationRegistry`).
-        *   Chemins vers mockups/prototypes pour l'US/feature (de `memoryBank.userStories.{{usId}}.designArtifactLinks` ou `documentationRegistry`).
-        *   (Optionnel) Rapports de validation UI précédents pour des fonctionnalités similaires.
-*   **Actions (UO - Évaluation Clarté):**
-    1.  L'UO évalue si les ACs et les specs de design injectées sont cohérentes et suffisamment précises.
-    2.  **Si ambiguïté majeure** (ex: AC décrit un comportement X, mockup montre Y):
-        *   Mettre workflow en pause (`activeWorkflow.status: 'PendingClarification_UITestSpec'`).
-        *   Déléguer à `@clarification-agent` avec le contexte et une question pour le PO/Designer (ex: "Pour US Azure#{{usId}}, l'AC X dit [comportement], mais le mockup Y montre [autre chose]. Quelle est l'attente correcte pour la validation UI ?").
-        *   Attendre réponse via `01_AI-RUN/XX_Handle_Clarification_Response.md`.
-*   **Output:** Contexte riche et clarifié (si besoin) pour `@tester-ui-validator-agent`.
+    1.  `@devops-connector` retrieves ACs of the US (if US ID) via **ADO MCP** `get_work_item_details`.
+    2.  **onError (ADO MCP):** UO logs via Scribe, notifies, stops/continues with warning.
+    3.  Scribe updates `memoryBank.userStories.{{usId}}.acceptanceCriteria`.
+    4.  UO injects to `@tester-ui-validator-agent`:
+        *   Retrieved ACs.
+        *   Path to `design_conventions.md` (from `documentationRegistry`).
+        *   Paths to mockups/prototypes for the US/feature (from `memoryBank.userStories.{{usId}}.designArtifactLinks` or `documentationRegistry`).
+        *   (Optional) Previous UI validation reports for similar features.
+*   **Actions (UO - Clarity Evaluation):**
+    1.  The UO evaluates if the ACs and injected design specs are consistent and sufficiently precise.
+    2.  **If major ambiguity** (e.g., AC describes behavior X, mockup shows Y):
+        *   Pause workflow (`activeWorkflow.status: 'PendingClarification_UITestSpec'`).
+        *   Delegate to `@clarification-agent` with context and a question for the PO/Designer (e.g., "For US Azure#{{usId}}, AC X says [behavior], but mockup Y shows [something else]. What is the correct expectation for UI validation?").
+        *   Wait for response via `01_AI-RUN/XX_Handle_Clarification_Response.md`.
+*   **Output:** Rich and clarified (if needed) context for `@tester-ui-validator-agent`.
 
-### Phase 2: Définition du Scénario de Test UI Détaillé
-*   **Agent Responsable:** `@tester-ui-validator-agent`.
-*   **Inputs:** Contexte injecté (Phase 1).
+### Phase 2: Detailed UI Test Scenario Definition
+*   **Responsible Agent:** `@tester-ui-validator-agent`.
+*   **Inputs:** Injected context (Phase 1).
 *   **Actions:**
-    1.  Définir étapes de validation (actions, attendus visuels/fonctionnels) basé sur ACs et specs design.
-    2.  Documenter scénario (pour rapport final).
-*   **Output (interne):** Plan de test UI.
+    1.  Define validation steps (actions, visual/functional expectations) based on ACs and design specs.
+    2.  Document scenario (for final report).
+*   **Output (internal):** UI test plan.
 
-### Phase 3: Exécution Interactions et Captures via Browser Tools MCP
-*   **Agent Responsable:** `@tester-ui-validator-agent`.
-*   **Inputs:** Scénario de test (Phase 2), URL env test.
+### Phase 3: Interactions Execution and Captures via Browser Tools MCP
+*   **Responsible Agent:** `@tester-ui-validator-agent`.
+*   **Inputs:** Test scenario (Phase 2), test env URL.
 *   **Actions (Browser Tools MCP - Puppeteer/Playwright):**
-    1.  Pour chaque étape: `navigate`, `click`, `fill_form_field`, `take_screenshot` (différents viewports, dans `04_PR_REVIEWS/[branche]/screenshots/` ou `03_SPECS/UI_Validation_Screenshots/[feature]/`), `execute_script` (CSS, contenu), `get_console_logs`.
+    1.  For each step: `navigate`, `click`, `fill_form_field`, `take_screenshot` (different viewports, in `04_PR_REVIEWS/[branch]/screenshots/` or `03_SPECS/UI_Validation_Screenshots/[feature]/`), `execute_script` (CSS, content), `get_console_logs`.
 *   **onError (Browser Tools MCP):**
-    *   Si une action MCP échoue (ex: `click {selector}` car élément non trouvé):
-        *   L'agent loggue l'erreur précise du MCP.
-        *   Tente de continuer le scénario si l'échec n'est pas bloquant pour les étapes suivantes.
-        *   Tous les échecs MCP seront explicitement listés dans le rapport de validation.
-*   **Output (interne):** Captures d'écran, données navigateur, logs d'erreurs MCP.
+    *   If an MCP action fails (e.g., `click {selector}` because element not found):
+        *   The agent logs the precise MCP error.
+        *   Tries to continue the scenario if the failure is not blocking for subsequent steps.
+        *   All MCP failures will be explicitly listed in the validation report.
+*   **Output (internal):** Screenshots, browser data, MCP error logs.
 
-### Phase 4: Analyse des Résultats et Génération Rapport (avec "Chaîne de Pensée" pour Écarts)
-*   **Agent Responsable:** `@tester-ui-validator-agent`.
-*   **Inputs:** Données de la Phase 3, specs de la Phase 1.
+### Phase 4: Results Analysis and Report Generation (with "Chain of Thought" for Discrepancies)
+*   **Responsible Agent:** `@tester-ui-validator-agent`.
+*   **Inputs:** Data from Phase 3, specs from Phase 1.
 *   **Actions:**
-    1.  Comparer captures/données avec mockups/conventions/ACs. Vérifier logs console.
-    2.  Rédiger rapport MD (`ui_validation_report_[US_ID_ou_Feature]_[timestamp].md`) dans `03_SPECS/UI_Validation_Reports/` ou dir PR.
-        *   Structure: Périmètre, Résumé, Points de validation (Attendu, Constaté (avec screenshot/data), Statut, Commentaire).
-        *   **"Chaîne de Pensée" pour Écarts Significatifs:** Pour chaque "Échec" majeur, expliquer *pourquoi* c'est un écart par rapport aux specs (ex: "Le bouton X utilise la couleur `colors.red['300']` alors que `design_conventions.md` Section 4.1 spécifie `colors.red['500']` pour les actions destructives. Cela manque de contraste et ne respecte pas la sémantique définie.").
-        *   Lister échecs MCP de la Phase 3.
-        *   Lister bugs/problèmes avec sévérité.
-*   **Output (vers Scribe):** Résumé NL: "Validation UI '[US_ID/Feature]' terminée. Statut: [Global]. [N_bugs] bugs. Rapport (avec chaîne de pensée pour écarts): `ui_validation_report...md`."
+    1.  Compare captures/data with mockups/conventions/ACs. Check console logs.
+    2.  Write MD report (`ui_validation_report_[US_ID_or_Feature]_[timestamp].md`) in `03_SPECS/UI_Validation_Reports/` or PR dir.
+        *   Structure: Scope, Summary, Validation points (Expected, Observed (with screenshot/data), Status, Comment).
+        *   **"Chain of Thought" for Significant Discrepancies:** For each major "Failure", explain *why* it's a deviation from specs (e.g., "Button X uses color `colors.red['300']` while `design_conventions.md` Section 4.1 specifies `colors.red['500']` for destructive actions. This lacks contrast and doesn't respect the defined semantics.").
+        *   List MCP failures from Phase 3.
+        *   List bugs/issues with severity.
+*   **Output (to Scribe):** NL Summary: "UI validation '[US_ID/Feature]' completed. Status: [Global]. [N_bugs] bugs. Report (with chain of thought for discrepancies): `ui_validation_report...md`."
 
-### Phase 5: Enregistrement Rapport et Création Bugs (Optionnel)
-*   **Agent Responsable:** Scribe, UO, `@devops-connector`.
-*   **Inputs:** Résumé NL de `@tester-ui-validator-agent`.
+### Phase 5: Report Recording and Bug Creation (Optional)
+*   **Responsible Agent:** Scribe, UO, `@devops-connector`.
+*   **Inputs:** NL summary from `@tester-ui-validator-agent`.
 *   **Actions (Scribe):**
-    1.  Mettre à jour `.pheromone`:
-        *   `documentationRegistry`: Ajouter chemin rapport.
-        *   `memoryBank.userStories.{{usId}}.uiValidationHistory[]`: Ajouter `{reportPath, status, timestamp}`.
-        *   `memoryBank.userStories.{{usId}}.reasoningChainLinks.uiValidation`: Lier au rapport (contenant la chaîne de pensée pour les écarts).
-        *   (Optionnel) `memoryBank.identifiedBugs`: Ajouter les bugs listés.
+    1.  Update `.pheromone`:
+        *   `documentationRegistry`: Add report path.
+        *   `memoryBank.userStories.{{usId}}.uiValidationHistory[]`: Add `{reportPath, status, timestamp}`.
+        *   `memoryBank.userStories.{{usId}}.reasoningChainLinks.uiValidation`: Link to report (containing chain of thought for discrepancies).
+        *   (Optional) `memoryBank.identifiedBugs`: Add listed bugs.
 *   **Actions (UO):**
-    1.  Si bugs majeurs: `ask_followup_question` à l'utilisateur "Bugs UI trouvés. Voulez-vous créer des items Bug dans ADO pour : [liste bugs majeurs] ?".
-    2.  Si oui, UO délègue à `@devops-connector` (**ADO MCP** `create_work_item {type: "Bug", ...}`).
-*   **Output:** `.pheromone` à jour. Bugs potentiellement créés dans ADO.
+    1.  If major bugs: `ask_followup_question` to user "UI bugs found. Do you want to create Bug items in ADO for: [list of major bugs]?".
+    2.  If yes, UO delegates to `@devops-connector` (**ADO MCP** `create_work_item {type: "Bug", ...}`).
+*   **Output:** `.pheromone` updated. Bugs potentially created in ADO.
 
 ---

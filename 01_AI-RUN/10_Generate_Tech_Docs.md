@@ -1,86 +1,86 @@
-# Workflow: Génération de Documentation Technique (10_Generate_Tech_Docs.md)
+# Workflow: Technical Documentation Generation (10_Generate_Tech_Docs.md)
 
-**Objectif:** Générer ou mettre à jour la documentation technique pour un module, une fonctionnalité, ou une API spécifique du projet. L'agent analyse le code source, les commentaires, les spécifications (US/tâches), les conventions de documentation, et s'appuie sur un contexte riche injecté par l'UO. Il doit gérer les cas où les informations sources sont incomplètes ou ambiguës.
+**Objective:** Generate or update technical documentation for a specific project module, feature, or API. The agent analyzes source code, comments, specifications (US/tasks), documentation conventions, and relies on rich context injected by the UO. It must handle cases where source information is incomplete or ambiguous.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@documentation-writer-agent`, `@devops-connector` (pour contexte US/tâche), `@clarification-agent`.
+**Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@documentation-writer-agent`, `@devops-connector` (for US/task context), `@clarification-agent`.
 
-**MCPs Utilisés:** Git Tools MCP, Context7 MCP, Azure DevOps MCP.
+**MCPs Used:** Git Tools MCP, Context7 MCP, Azure DevOps MCP.
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** L'utilisateur (Dev/Tech Lead) demande la documentation pour une cible (ex: `"AgilePheromind documente module OrderService"`). Peut être déclenché post-commit.
-2.  **`🧐 @uber-orchestrator`** prend le contrôle.
-    *   **Phase 1: Définition du Périmètre et Injection de Contexte Approfondi.**
-        *   UO identifie les fichiers sources pertinents (via nom ou commits liés à US/tâche avec **Git Tools MCP** / **Azure DevOps MCP**).
-        *   UO **injecte un contexte riche** à `@documentation-writer-agent` : code source, commentaires, spécifications de l'US/tâche (depuis `.pheromone.memoryBank`), conventions de documentation (`documentationRegistry`), documentation de librairies similaires (si existante dans `memoryBank`).
-        *   UO évalue si le contexte est suffisant. Si ambiguïté (ex: code non commenté et specs vagues), UO peut initier clarification via `@clarification-agent`.
-        *   **onError:** Si code source inaccessible, notifier et arrêter.
-    *   **Phase 2: Analyse des Informations Sources par l'Agent.**
-        *   UO délègue à `@documentation-writer-agent`. L'agent analyse le code, les commentaires, les specs. Utilise **Context7 MCP** pour détails sur APIs externes utilisées.
-    *   **Phase 3: Structuration et Rédaction du Document Technique (avec "Chaîne de Pensée").**
-        *   UO délègue à `@documentation-writer-agent`. L'agent planifie sections, rédige contenu, inclut exemples, diagrammes Mermaid. **Doit documenter la "chaîne de pensée"** pour les explications de logique complexe ou les choix de structuration de la doc.
-        *   **onError/Ambiguïté Persistante:** Si l'agent ne peut documenter clairement une section, il le signale à l'UO qui peut relancer clarification ou demander au dev de commenter le code.
-    *   **Phase 4: Enregistrement et Notification.**
-        *   Scribe enregistre le document et met à jour `.pheromone`.
+1.  **Initiation:** The user (Dev/Tech Lead) requests documentation for a target (e.g., `"AgilePheromind document module OrderService"`). Can be triggered post-commit.
+2.  **`🧐 @uber-orchestrator`** takes control.
+    *   **Phase 1: Scope Definition and In-Depth Context Injection.**
+        *   UO identifies relevant source files (via name or commits linked to US/task with **Git Tools MCP** / **Azure DevOps MCP**).
+        *   UO **injects rich context** to `@documentation-writer-agent`: source code, comments, US/task specifications (from `.pheromone.memoryBank`), documentation conventions (`documentationRegistry`), documentation of similar libraries (if existing in `memoryBank`).
+        *   UO evaluates if the context is sufficient. If ambiguity (e.g., uncommented code and vague specs), UO can initiate clarification via `@clarification-agent`.
+        *   **onError:** If source code inaccessible, notify and stop.
+    *   **Phase 2: Source Information Analysis by the Agent.**
+        *   UO delegates to `@documentation-writer-agent`. The agent analyzes code, comments, specs. Uses **Context7 MCP** for details on external APIs used.
+    *   **Phase 3: Technical Document Structuring and Writing (with "Chain of Thought").**
+        *   UO delegates to `@documentation-writer-agent`. The agent plans sections, writes content, includes examples, Mermaid diagrams. **Must document the "chain of thought"** for explanations of complex logic or doc structuring choices.
+        *   **onError/Persistent Ambiguity:** If the agent cannot clearly document a section, it reports to the UO who can restart clarification or ask the dev to comment the code.
+    *   **Phase 4: Recording and Notification.**
+        *   Scribe records the document and updates `.pheromone`.
 
-## Détails des Phases:
+## Phase Details:
 
-### Phase 1: Définition du Périmètre et Injection de Contexte Approfondi
-*   **Agent Responsable:** `🧐 @uber-orchestrator`, `@devops-connector`, `@clarification-agent`.
-*   **Inputs:** Cible de documentation (module, US ID, etc.).
+### Phase 1: Scope Definition and In-Depth Context Injection
+*   **Responsible Agent:** `🧐 @uber-orchestrator`, `@devops-connector`, `@clarification-agent`.
+*   **Inputs:** Documentation target (module, US ID, etc.).
 *   **Actions & Tooling (UO):**
-    1.  **Identifier Code Source:**
-        *   Si nom de module/classe: Localiser fichiers.
-        *   Si ID US/tâche: Utiliser `@devops-connector` (**Azure DevOps MCP** `get_work_item_linked_commits`) pour trouver commits, puis **Git Tools MCP** (`get_commit_changed_files`) pour identifier fichiers.
-        *   **onError (Git/ADO MCP):** Si échec, logguer, notifier, arrêter.
-    2.  **Récupérer Code et Commentaires (Git Tools MCP `get_file_contents`).**
-    3.  **Injecter Contexte de `.pheromone`:**
-        *   Description/ACs de l'US/tâche (`memoryBank.userStories/tasks`).
-        *   `memoryBank.projectContext.codingConventionsLink` (pour standards de doc).
-        *   (Optionnel) Extraits de `memoryBank.architecturalDecisions` ou `design_conventions.md` pertinents pour le module.
-        *   (Optionnel) Exemples de documentation de modules similaires déjà dans `documentationRegistry`.
-    4.  **Évaluation de Clarté et Clarification:**
-        *   Si le code est minimalement commenté ET les specs fonctionnelles sont vagues pour la cible :
-            *   Mettre workflow en pause (`activeWorkflow.status: 'PendingClarification_TechDoc'`).
-            *   Déléguer à `@clarification-agent` avec le contexte et une question pour le développeur/PO (ex: "Le module `OrderService` manque de commentaires et les ACs de l'US#XYZ sont généraux. Pouvez-vous décrire le rôle principal des méthodes A, B et leurs interactions attendues pour la documentation ?").
-            *   Attendre réponse via `01_AI-RUN/XX_Handle_Clarification_Response.md`.
-    5.  Si clair, déléguer à `@documentation-writer-agent` avec le code et le contexte injecté (y compris clarifications).
-*   **Output:** Tâche déléguée à `@documentation-writer-agent` avec contexte riche, ou workflow en pause.
+    1.  **Identify Source Code:**
+        *   If module/class name: Locate files.
+        *   If US/task ID: Use `@devops-connector` (**Azure DevOps MCP** `get_work_item_linked_commits`) to find commits, then **Git Tools MCP** (`get_commit_changed_files`) to identify files.
+        *   **onError (Git/ADO MCP):** If failure, log, notify, stop.
+    2.  **Retrieve Code and Comments (Git Tools MCP `get_file_contents`).**
+    3.  **Inject Context from `.pheromone`:**
+        *   US/task Description/ACs (`memoryBank.userStories/tasks`).
+        *   `memoryBank.projectContext.codingConventionsLink` (for doc standards).
+        *   (Optional) Excerpts from `memoryBank.architecturalDecisions` or `design_conventions.md` relevant to the module.
+        *   (Optional) Examples of documentation for similar modules already in `documentationRegistry`.
+    4.  **Clarity Evaluation and Clarification:**
+        *   If the code is minimally commented AND functional specs are vague for the target:
+            *   Pause workflow (`activeWorkflow.status: 'PendingClarification_TechDoc'`).
+            *   Delegate to `@clarification-agent` with context and a question for the developer/PO (e.g., "The `OrderService` module lacks comments and the ACs of US#XYZ are general. Can you describe the main role of methods A, B and their expected interactions for documentation?").
+            *   Wait for response via `01_AI-RUN/XX_Handle_Clarification_Response.md`.
+    5.  If clear, delegate to `@documentation-writer-agent` with the code and injected context (including clarifications).
+*   **Output:** Task delegated to `@documentation-writer-agent` with rich context, or workflow paused.
 
-### Phase 2: Analyse des Informations Sources par l'Agent
-*   **Agent Responsable:** `@documentation-writer-agent`.
-*   **Inputs (Injectés par l'UO):** Code source, commentaires, specs US/tâche, conventions, docs de libs similaires, clarifications.
+### Phase 2: Source Information Analysis by the Agent
+*   **Responsible Agent:** `@documentation-writer-agent`.
+*   **Inputs (Injected by UO):** Source code, comments, US/task specs, conventions, docs of similar libs, clarifications.
 *   **Actions & Tooling:**
-    1.  Analyser en détail le code (signatures publiques, logique principale).
-    2.  Extraire et interpréter les commentaires existants.
-    3.  Corréler le code avec les specs fonctionnelles pour comprendre l'intention.
-    4.  Si le code utilise des APIs externes ou des librairies .NET/Angular de manière complexe, utiliser **Context7 MCP** (`get_library_docs`) pour s'assurer de la compréhension correcte de leur usage.
-*   **Output (interne):** Compréhension approfondie du code à documenter.
+    1.  Analyze the code in detail (public signatures, main logic).
+    2.  Extract and interpret existing comments.
+    3.  Correlate code with functional specs to understand intent.
+    4.  If the code uses external APIs or .NET/Angular libraries in a complex way, use **Context7 MCP** (`get_library_docs`) to ensure correct understanding of their usage.
+*   **Output (internal):** In-depth understanding of the code to document.
 
-### Phase 3: Structuration et Rédaction du Document Technique (avec "Chaîne de Pensée")
-*   **Agent Responsable:** `@documentation-writer-agent`.
-*   **Inputs:** Analyse (Phase 2). Type de doc attendu.
+### Phase 3: Technical Document Structuring and Writing (with "Chain of Thought")
+*   **Responsible Agent:** `@documentation-writer-agent`.
+*   **Inputs:** Analysis (Phase 2). Expected doc type.
 *   **Actions & Tooling:**
-    1.  **Choisir Modèle / Planifier Sections:** (Référence API, Guide Module, etc.).
-    2.  **Rédiger Contenu:** Langage clair, exemples de code, diagrammes Mermaid si utiles.
-    3.  **"Chaîne de Pensée":** Pour les sections expliquant une logique complexe ou des choix de design importants dans le module, l'agent doit inclure une brève explication de *comment* il a compris cette logique à partir du code et des specs (ex: "La méthode `ProcessOrder` semble gérer X, Y, Z basé sur la condition A dans le code et l'AC B. Le flux typique est..."). Ceci sera intégré dans le document généré.
-    4.  **Mise en Forme Markdown, Relecture.**
-    5.  **onError/Ambiguïté Persistante:** Si une partie du code reste obscure même après la phase de clarification (ou si aucune clarification n'a été demandée mais s'avère nécessaire):
-        *   L'agent documente ce qu'il peut et signale clairement la section ambiguë dans son rapport et dans le document lui-même (ex: `<!-- AMBIGUITY: Logic for XYZ unclear, needs dev input -->`).
-        *   Il remonte cette information à l'UO. L'UO peut alors demander une nouvelle clarification ciblée ou notifier le Tech Lead.
-    6.  Nommer et sauvegarder le fichier dans `02_AI-DOCS/` (ex: `Technical/Modules/[ModuleName].md`).
-*   **Output (vers Scribe):** Résumé NL: "Doc technique pour `{{TargetName}}` [générée/màj] à `{{FilePath}}`. Contient [description]. [Optionnel: Section X signalée comme ambiguë]. Chaîne de pensée pour les logiques clés incluse."
+    1.  **Choose Template / Plan Sections:** (API Reference, Module Guide, etc.).
+    2.  **Write Content:** Clear language, code examples, Mermaid diagrams if useful.
+    3.  **"Chain of Thought":** For sections explaining complex logic or important design choices in the module, the agent must include a brief explanation of *how* it understood this logic from the code and specs (e.g., "The `ProcessOrder` method appears to handle X, Y, Z based on condition A in the code and AC B. The typical flow is..."). This will be integrated into the generated document.
+    4.  **Markdown Formatting, Proofreading.**
+    5.  **onError/Persistent Ambiguity:** If part of the code remains obscure even after the clarification phase (or if no clarification was requested but proves necessary):
+        *   The agent documents what it can and clearly signals the ambiguous section in its report and in the document itself (e.g., `<!-- AMBIGUITY: Logic for XYZ unclear, needs dev input -->`).
+        *   It reports this information to the UO. The UO can then request a new targeted clarification or notify the Tech Lead.
+    6.  Name and save the file in `02_AI-DOCS/` (e.g., `Technical/Modules/[ModuleName].md`).
+*   **Output (to Scribe):** NL Summary: "Technical doc for `{{TargetName}}` [generated/updated] at `{{FilePath}}`. Contains [description]. [Optional: Section X flagged as ambiguous]. Chain of thought for key logic included."
 
-### Phase 4: Enregistrement et Notification
-*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe`.
-*   **Inputs:** Résumé NL de `@documentation-writer-agent`.
+### Phase 4: Recording and Notification
+*   **Responsible Agent:** `✍️ @orchestrator-pheromone-scribe`.
+*   **Inputs:** NL summary from `@documentation-writer-agent`.
 *   **Actions:**
-    1.  Interpréter via `.swarmConfig`.
-    2.  Mettre à jour `.pheromone`:
-        *   `documentationRegistry`: Ajouter/MàJ `{{FilePath}}`.
-        *   `memoryBank.tasks.{{taskId_if_contextual}}.relatedDocumentation[]`: Ajouter `{{FilePath}}`.
-        *   `memoryBank.modules.{{ModuleName}}.documentationPath`: Lier la doc au module.
-        *   `memoryBank.modules.{{ModuleName}}.reasoningChainLinks.documentation`: Peut pointer vers le document lui-même si la chaîne de pensée y est intégrée.
-*   **Output:** `.pheromone` mis à jour. UO informé.
+    1.  Interpret via `.swarmConfig`.
+    2.  Update `.pheromone`:
+        *   `documentationRegistry`: Add/Update `{{FilePath}}`.
+        *   `memoryBank.tasks.{{taskId_if_contextual}}.relatedDocumentation[]`: Add `{{FilePath}}`.
+        *   `memoryBank.modules.{{ModuleName}}.documentationPath`: Link doc to module.
+        *   `memoryBank.modules.{{ModuleName}}.reasoningChainLinks.documentation`: Can point to the document itself if the chain of thought is integrated.
+*   **Output:** `.pheromone` updated. UO informed.
 
 ---

@@ -8,6 +8,133 @@
   },
   "interpretationLogic": [
     {
+      "id": "process_performance_insight_report",
+      "priority": 25,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@performance-optimization-agent"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Performance analysis for '{{componentName}}' completed. .* Report \\(with reasoning\\): `{{reportPath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{reportPath}}",
+          "description": "Performance Optimization Report for {{componentName}}",
+          "documentType": "PerformanceReport"
+        },
+        {
+          "type": "updateMemoryBankField",
+          "targetField": "memoryBank.performanceInsights.componentPerformanceStatus.{{componentName}}",
+          "value": {
+            "summary": "{{summaryText | extractKeyFindings}}",
+            "link": "{{reportPath}}",
+            "timestamp": "{{timestamp}}",
+            "reasoningChainLink": "{{reportPath}}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "process_accessibility_report",
+      "priority": 25,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@accessibility-compliance-agent"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Accessibility check for '{{componentName}}' completed. .* Report \\(with reasoning\\): `{{reportPath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{reportPath}}",
+          "description": "Accessibility Compliance Report for {{componentName}}",
+          "documentType": "AccessibilityReport"
+        },
+        {
+          "type": "updateMemoryBankField",
+          "targetField": "memoryBank.accessibilityCompliance.componentAccessibilityStatus.{{componentName}}",
+          "value": {
+            "summary": "{{summaryText | extractKeyFindings}}",
+            "link": "{{reportPath}}",
+            "timestamp": "{{timestamp}}",
+            "reasoningChainLink": "{{reportPath}}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "process_learning_insights_report",
+      "priority": 25,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@learning-integration-agent"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Learning analysis for '{{focus}}' completed. .* Report \\(with reasoning\\): `{{reportPath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{reportPath}}",
+          "description": "Learning Insights Report for {{focus}}",
+          "documentType": "LearningInsightsReport"
+        },
+        {
+          "type": "updateMemoryBankField",
+          "targetField": "memoryBank.learningInsights",
+          "valueFromSummary": "{{summaryText | extractKeyFindings}}",
+          "mergeStrategy": "deep"
+        }
+      ]
+    },
+    {
+      "id": "process_refactoring_report",
+      "priority": 25,
+      "conditions": [
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Refactoring of '{{componentName}}' completed. .* Report \\(with reasoning\\): `{{reportPath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{reportPath}}",
+          "description": "Code Refactoring Report for {{componentName}}",
+          "documentType": "RefactoringReport"
+        },
+        {
+          "type": "updateMemoryBankField",
+          "targetField": "memoryBank.refactoringHistory.completedRefactorings.{{componentName}}",
+          "value": {
+            "summary": "{{summaryText | extractKeyFindings}}",
+            "link": "{{reportPath}}",
+            "timestamp": "{{timestamp}}",
+            "reasoningChainLink": "{{reportPath}}"
+          }
+        }
+      ]
+    },
+    {
       "id": "log_general_agent_activity",
       "priority": 999,
       "conditions": [

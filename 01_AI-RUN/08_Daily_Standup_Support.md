@@ -1,91 +1,91 @@
-# Workflow: Support au Daily Stand-up Meeting (08_Daily_Standup_Support.md)
+# Workflow: Daily Stand-up Meeting Support (08_Daily_Standup_Support.md)
 
-**Objectif:** Fournir à l'équipe Agile un résumé concis et pertinent de l'état d'avancement du sprint actuel pour faciliter un Daily Stand-up efficace. Le système agrège les informations d'Azure DevOps et de `.pheromone` (Memory Bank), identifie les progrès, les points d'attention et les potentiels bloquants.
+**Objective:** Provide the Agile team with a concise and relevant summary of the current sprint's progress to facilitate an effective Daily Stand-up. The system aggregates information from Azure DevOps and `.pheromone` (Memory Bank), identifies progress, attention points, and potential blockers.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@devops-connector`, `@scrum-facilitator-agent`.
+**Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@devops-connector`, `@scrum-facilitator-agent`.
 
-**MCPs Utilisés:** Azure DevOps MCP.
+**MCPs Used:** Azure DevOps MCP.
 
 ## Pheromind Workflow Overview:
 
 1.  **Initiation:**
-    *   **Manuelle:** Scrum Master/Tech Lead demande un résumé (ex: `"AgilePheromind prépare résumé Daily pour Sprint {{currentSprint.name}}"`).
-    *   **Automatique:** Déclenchement planifié (ex: chaque matin avant le Daily).
-2.  **`🧐 @uber-orchestrator`** prend le contrôle.
-    *   **Phase 1: Collecte des Mises à Jour du Sprint Actif.**
-        *   UO délègue à `@devops-connector` pour les données fraîches d'Azure DevOps (statuts US/tâches, assignés).
-        *   UO délègue à `@scrum-facilitator-agent` pour analyser l'activité récente dans `.pheromone.memoryBank` (commits, notes de développeurs, statuts Pheromind).
-        *   **onError:** Si ADO MCP échoue, le rapport sera basé uniquement sur les données de `.pheromone`, avec un avertissement.
-    *   **Phase 2: Identification des Progrès, Points d'Attention et Bloquants.**
-        *   UO délègue à `@scrum-facilitator-agent` pour consolider et analyser.
-    *   **Phase 3: Génération du Résumé Structuré pour le Daily.**
-        *   UO délègue à `@scrum-facilitator-agent`.
-    *   **Phase 4: Enregistrement du Résumé et Diffusion (Optionnelle).**
-        *   Scribe enregistre le rapport. UO peut notifier l'équipe.
+    *   **Manual:** Scrum Master/Tech Lead requests a summary (e.g., `"AgilePheromind prepare Daily summary for Sprint {{currentSprint.name}}"`).
+    *   **Automatic:** Scheduled trigger (e.g., every morning before the Daily).
+2.  **`🧐 @uber-orchestrator`** takes control.
+    *   **Phase 1: Active Sprint Updates Collection.**
+        *   UO delegates to `@devops-connector` for fresh Azure DevOps data (US/task statuses, assignees).
+        *   UO delegates to `@scrum-facilitator-agent` to analyze recent activity in `.pheromone.memoryBank` (commits, developer notes, Pheromind statuses).
+        *   **onError:** If ADO MCP fails, the report will be based solely on `.pheromone` data, with a warning.
+    *   **Phase 2: Progress, Attention Points, and Blockers Identification.**
+        *   UO delegates to `@scrum-facilitator-agent` to consolidate and analyze.
+    *   **Phase 3: Structured Summary Generation for the Daily.**
+        *   UO delegates to `@scrum-facilitator-agent`.
+    *   **Phase 4: Summary Recording and Distribution (Optional).**
+        *   Scribe records the report. UO can notify the team.
 
-## Détails des Phases:
+## Phase Details:
 
-### Phase 1: Collecte des Mises à Jour du Sprint Actif
-*   **Agent Responsable:** `@devops-connector` (pour ADO), `@scrum-facilitator-agent` (pour `.pheromone`).
-*   **Inputs:** `currentSprint.id` et `currentSprint.userStories` depuis `.pheromone`. `memoryBank.lastAdoSyncTimestamp` pour la synchro différentielle.
+### Phase 1: Active Sprint Updates Collection
+*   **Responsible Agent:** `@devops-connector` (for ADO), `@scrum-facilitator-agent` (for `.pheromone`).
+*   **Inputs:** `currentSprint.id` and `currentSprint.userStories` from `.pheromone`. `memoryBank.lastAdoSyncTimestamp` for differential sync.
 *   **Actions (`@devops-connector`):**
-    1.  Utiliser **Azure DevOps MCP**:
-        *   Pour chaque `usId` dans `currentSprint.userStories`, récupérer `get_work_item_details` et `get_child_work_items`.
-        *   Pour chaque `taskId` enfant, `get_work_item_details` (état, assigné, travail restant/effectué si tracé).
-        *   (Optionnel) Filtrer les requêtes pour ne récupérer que les items modifiés depuis `memoryBank.lastAdoSyncTimestamp` si le MCP le permet.
-*   **onError (ADO MCP pour `@devops-connector`):**
-    *   Si échec, `@devops-connector` signale à l'UO. L'UO note que le résumé sera basé sur les dernières données Pheromind connues et inclut un avertissement dans le rapport final. Le workflow continue si possible.
-*   **Output (`@devops-connector` -> Scribe):** Résumé NL: "MàJ ADO Sprint '{{currentSprint.name}}' OK. [Stats]. Log: `sprint_{{sprintId}}_ado_update_{{timestamp}}.json`." ou "Échec MàJ ADO: [Erreur]."
-*   **Actions (Scribe après résumé de `@devops-connector`):**
-    1.  Mettre à jour `memoryBank.userStories` et `memoryBank.tasks` avec les `azureStatus`, `azureAssignee`, etc. d'ADO.
-    2.  Mettre à jour `memoryBank.lastAdoSyncTimestamp`.
+    1.  Use **Azure DevOps MCP**:
+        *   For each `usId` in `currentSprint.userStories`, retrieve `get_work_item_details` and `get_child_work_items`.
+        *   For each child `taskId`, `get_work_item_details` (status, assignee, remaining/completed work if tracked).
+        *   (Optional) Filter queries to retrieve only items modified since `memoryBank.lastAdoSyncTimestamp` if the MCP allows it.
+*   **onError (ADO MCP for `@devops-connector`):**
+    *   If failure, `@devops-connector` reports to the UO. The UO notes that the summary will be based on the latest known Pheromind data and includes a warning in the final report. The workflow continues if possible.
+*   **Output (`@devops-connector` -> Scribe):** NL Summary: "ADO Update Sprint '{{currentSprint.name}}' OK. [Stats]. Log: `sprint_{{sprintId}}_ado_update_{{timestamp}}.json`." or "ADO Update Failed: [Error]."
+*   **Actions (Scribe after `@devops-connector` summary):**
+    1.  Update `memoryBank.userStories` and `memoryBank.tasks` with `azureStatus`, `azureAssignee`, etc. from ADO.
+    2.  Update `memoryBank.lastAdoSyncTimestamp`.
 *   **Actions (`@scrum-facilitator-agent`):**
-    1.  Lire `.pheromone.memoryBank` pour les tâches du sprint:
-        *   `statusHistory`, `developerNotes`, `relatedCommits` (depuis le dernier Daily ou les dernières 24h).
-        *   `clarificationHistory` pour voir si des points ont été récemment clarifiés.
-*   **Output (interne à `@scrum-facilitator-agent`):** Données consolidées sur l'activité récente.
+    1.  Read `.pheromone.memoryBank` for sprint tasks:
+        *   `statusHistory`, `developerNotes`, `relatedCommits` (since the last Daily or the last 24h).
+        *   `clarificationHistory` to see if points have been recently clarified.
+*   **Output (internal to `@scrum-facilitator-agent`):** Consolidated data on recent activity.
 
-### Phase 2: Identification des Progrès, Points d'Attention et Bloquants
-*   **Agent Responsable:** `@scrum-facilitator-agent`.
-*   **Inputs:** Données consolidées (Phase 1). `memoryBank.riskRegister`.
+### Phase 2: Progress, Attention Points, and Blockers Identification
+*   **Responsible Agent:** `@scrum-facilitator-agent`.
+*   **Inputs:** Consolidated data (Phase 1). `memoryBank.riskRegister`.
 *   **Actions & Tooling:**
-    1.  **Analyser Progrès:** Tâches passées à "Done" (dans ADO ou Pheromind). US complétées. Commits significatifs.
-    2.  **Analyser Points d'Attention/Bloquants:**
-        *   Tâches "InProgress" sans commit/note récente (> X heures/jours).
-        *   Tâches dont l'estimation est bientôt/déjà dépassée.
-        *   `developerNotes` mentionnant "bloquant", "problème", "attente".
-        *   Dépendances entre tâches du sprint (si tracées dans `memoryBank.tasks.{{taskId}}.dependencies`) où une tâche bloquante stagne.
-        *   Risques actifs du `memoryBank.riskRegister` liés aux US/tâches du sprint.
-        *   Clarifications en attente (`clarificationContext.pendingClarificationId`).
-*   **Output (interne à `@scrum-facilitator-agent`):** Listes structurées: Progrès, Points d'Attention.
+    1.  **Analyze Progress:** Tasks moved to "Done" (in ADO or Pheromind). Completed US. Significant commits.
+    2.  **Analyze Attention Points/Blockers:**
+        *   "InProgress" tasks without recent commit/note (> X hours/days).
+        *   Tasks whose estimate is soon/already exceeded.
+        *   `developerNotes` mentioning "blocker", "issue", "waiting".
+        *   Dependencies between sprint tasks (if tracked in `memoryBank.tasks.{{taskId}}.dependencies`) where a blocking task is stagnating.
+        *   Active risks from `memoryBank.riskRegister` related to sprint US/tasks.
+        *   Pending clarifications (`clarificationContext.pendingClarificationId`).
+*   **Output (internal to `@scrum-facilitator-agent`):** Structured lists: Progress, Attention Points.
 
-### Phase 3: Génération du Résumé Structuré pour le Daily
-*   **Agent Responsable:** `@scrum-facilitator-agent`.
-*   **Inputs:** Listes de la Phase 2. `currentSprint` depuis `.pheromone`.
+### Phase 3: Structured Summary Generation for the Daily
+*   **Responsible Agent:** `@scrum-facilitator-agent`.
+*   **Inputs:** Lists from Phase 2. `currentSprint` from `.pheromone`.
 *   **Actions & Tooling:**
-    1.  Formater un rapport Markdown (`daily_standup_summary_{{currentSprint.name}}_{{date}}.md`) dans `03_SPECS/Daily_Summaries/`.
-    2.  Structure du rapport :
+    1.  Format a Markdown report (`daily_standup_summary_{{currentSprint.name}}_{{date}}.md`) in `03_SPECS/Daily_Summaries/`.
+    2.  Report structure:
         *   **Sprint Goal:** `{{currentSprint.goal}}`.
-        *   **Avertissement (si synchro ADO échouée):** "Note: Les données Azure DevOps n'ont pas pu être synchronisées. Ce rapport est basé sur le dernier état connu dans Pheromind."
-        *   **Terminé Hier:**
-            *   Tâche Azure#ID (Titre) - par [Assigné] - (Commit: Hash si dispo)
-        *   **En Cours Aujourd'hui (Focus Principal):**
-            *   Tâche Azure#ID (Titre) - par [Assigné] - (Dernière activité Pheromind: Note/Commit)
-        *   **Points d'Attention / Bloquants Identifiés:**
-            *   Tâche Azure#ID: [Raison de l'attention - ex: Pas de progression depuis X temps, Bloquant mentionné: "..."]
-            *   Risque Actif: [ID Risque] - [Description] - Impacte US Azure#ID_US.
-            *   Clarification en attente: ID `{{clarificationContext.pendingClarificationId}}` pour agent `{{clarificationContext.originalAgent}}`.
-*   **Output (vers Scribe et UO):** Résumé NL: "Résumé Daily Sprint '{{currentSprint.name}}' ({date}) prêt. Terminé hier: [N_done]. En cours: [N_inprogress]. Points d'attention: [N_blockers]. Rapport: `daily_standup_summary_{{currentSprint.name}}_{{date}}.md`."
+        *   **Warning (if ADO sync failed):** "Note: Azure DevOps data could not be synchronized. This report is based on the last known state in Pheromind."
+        *   **Completed Yesterday:**
+            *   Task Azure#ID (Title) - by [Assignee] - (Commit: Hash if available)
+        *   **In Progress Today (Main Focus):**
+            *   Task Azure#ID (Title) - by [Assignee] - (Last Pheromind activity: Note/Commit)
+        *   **Identified Attention Points / Blockers:**
+            *   Task Azure#ID: [Reason for attention - e.g., No progress for X time, Blocker mentioned: "..."]
+            *   Active Risk: [Risk ID] - [Description] - Impacts US Azure#ID_US.
+            *   Pending clarification: ID `{{clarificationContext.pendingClarificationId}}` for agent `{{clarificationContext.originalAgent}}`.
+*   **Output (to Scribe and UO):** NL Summary: "Daily summary Sprint '{{currentSprint.name}}' ({date}) ready. Completed yesterday: [N_done]. In progress: [N_inprogress]. Attention points: [N_blockers]. Report: `daily_standup_summary_{{currentSprint.name}}_{{date}}.md`."
 
-### Phase 4: Enregistrement du Résumé et Diffusion (Optionnelle)
-*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe`, UO.
-*   **Inputs:** Résumé NL de `@scrum-facilitator-agent`.
+### Phase 4: Summary Recording and Distribution (Optional)
+*   **Responsible Agent:** `✍️ @orchestrator-pheromone-scribe`, UO.
+*   **Inputs:** NL summary from `@scrum-facilitator-agent`.
 *   **Actions (Scribe):**
-    1.  Mettre à jour `.pheromone`:
-        *   `documentationRegistry`: Ajouter chemin vers `daily_standup_summary...md`.
-        *   `memoryBank.sprints.{{currentSprint.id}}.dailySummaryLinks[]`: Ajouter lien.
-*   **Actions (UO - Optionnel):**
-    1.  Si MCP de notification configuré, envoyer résumé/lien à l'équipe.
-*   **Output:** `.pheromone` mis à jour. Équipe potentiellement notifiée.
+    1.  Update `.pheromone`:
+        *   `documentationRegistry`: Add path to `daily_standup_summary...md`.
+        *   `memoryBank.sprints.{{currentSprint.id}}.dailySummaryLinks[]`: Add link.
+*   **Actions (UO - Optional):**
+    1.  If notification MCP configured, send summary/link to the team.
+*   **Output:** `.pheromone` updated. Team potentially notified.
 
 ---

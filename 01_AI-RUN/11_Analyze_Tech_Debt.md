@@ -1,100 +1,128 @@
-# Workflow: Analyse de la Dette Technique et des "Code Smells" (11_Analyze_Tech_Debt.md)
+# Workflow: Technical Debt and Code Smells Analysis (11_Analyze_Tech_Debt.md)
 
-**Objectif:** Effectuer une analyse approfondie du codebase du projet (ou d'un module spécifique) pour identifier la dette technique, les "code smells", et les zones nécessitant un refactoring. Le système doit produire un rapport détaillé avec des suggestions priorisées et la "chaîne de pensée" justifiant les principales conclusions. Une gestion des erreurs d'accès au code ou aux outils d'analyse est prévue.
+**Objective:** Perform an in-depth analysis of the project codebase (or a specific module) to identify technical debt, code smells, and areas requiring refactoring. The system must produce a detailed report with prioritized suggestions and the "chain of thought" justifying the main findings. Error handling for code access or analysis tools is provided.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@code-reviewer-assistant`, `@clarification-agent`.
+**Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@code-reviewer-assistant`, `@clarification-agent`.
 
-**MCPs Utilisés:** Git Tools MCP, potentiellement un MCP d'analyse statique dédié (ex: SonarQube), Context7 MCP, Sequential Thinking MCP.
+**MCPs Used:** Git Tools MCP, potentially a dedicated static analysis MCP (e.g., SonarQube), Context7 MCP, Sequential Thinking MCP.
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** L'utilisateur (Tech Lead/Architecte) demande une analyse (ex: `"AgilePheromind analyse dette technique projet"`). Peut être planifié.
-2.  **`🧐 @uber-orchestrator`** prend le contrôle.
-    *   **Phase 1: Définition du Périmètre, Collecte du Code, et Injection de Contexte.**
-        *   UO délègue à `@code-reviewer-assistant` pour identifier et récupérer les fichiers cibles via **Git Tools MCP**.
-        *   UO **injecte un contexte pertinent** de `memoryBank` (conventions, historique de dette, décisions architecturales) à `@code-reviewer-assistant`.
-        *   **onError (Accès Code):** Si code inaccessible, logguer, notifier, arrêter.
-    *   **Phase 2: Planification de l'Analyse et Analyse Statique/Heuristique (avec "Chaîne de Pensée").**
-        *   UO délègue à `@code-reviewer-assistant`. L'agent utilise **Sequential Thinking MCP** pour planifier son analyse.
-        *   Exécute linters, analyseurs, et heuristiques pour "code smells". Utilise **Context7 MCP** pour bonnes pratiques librairies.
-        *   **Doit documenter la "chaîne de pensée"** pour l'identification des principaux "smells" ou zones de dette.
-        *   **onError (Outils d'Analyse):** Si un outil d'analyse (ex: MCP SonarQube) échoue, noter et continuer avec les autres méthodes si possible.
-    *   **Phase 3: Identification des Zones de Dette Technique, Priorisation et Suggestions (avec "Chaîne de Pensée").**
-        *   UO délègue à `@code-reviewer-assistant`. Évalue impact, priorise.
-        *   **Doit documenter la "chaîne de pensée"** pour la priorisation et les suggestions de refactoring.
-        *   Si des zones de code sont trop obscures pour une analyse de dette pertinente, l'agent peut le signaler à l'UO pour une clarification potentielle via `@clarification-agent` (demandant au dev d'expliquer la section).
-    *   **Phase 4: Génération du Rapport Détaillé.**
-        *   UO délègue à `@code-reviewer-assistant`.
-    *   **Phase 5: Enregistrement dans `.pheromone`.**
-        *   Scribe enregistre rapport et met à jour `memoryBank.technicalDebtItems`.
+1.  **Initiation:** The user (Tech Lead/Architect) requests an analysis (e.g., `"AgilePheromind analyze technical debt project"`). Can be scheduled.
+2.  **`🧐 @uber-orchestrator`** takes control.
+    *   **Phase 1: Scope Definition, Code Collection, and Context Injection.**
+        *   UO delegates to `@code-reviewer-assistant` to identify and retrieve target files via **Git Tools MCP**.
+        *   UO **injects relevant context** from `memoryBank` (conventions, debt history, architectural decisions) to `@code-reviewer-assistant`.
+        *   **onError (Code Access):** If code is inaccessible, log, notify, stop.
+    *   **Phase 2: Analysis Planning and Static/Heuristic Analysis (with "Chain of Thought").**
+        *   UO delegates to `@code-reviewer-assistant`. The agent uses **Sequential Thinking MCP** to plan its analysis.
+        *   Runs linters, analyzers, and heuristics for code smells. Uses **Context7 MCP** for library best practices.
+        *   **Must document the "chain of thought"** for identifying the main "smells" or debt areas.
+        *   **onError (Analysis Tools):** If an analysis tool (e.g., SonarQube MCP) fails, note and continue with other methods if possible.
+    *   **Phase 3: Technical Debt Areas Identification, Prioritization, and Suggestions (with "Chain of Thought").**
+        *   UO delegates to `@code-reviewer-assistant`. Evaluates impact, prioritizes.
+        *   **Must document the "chain of thought"** for prioritization and refactoring suggestions.
+        *   If code areas are too obscure for relevant debt analysis, the agent can report it to the UO for potential clarification via `@clarification-agent` (asking the dev to explain the section).
+    *   **Phase 4: Detailed Report Generation.**
+        *   UO delegates to `@code-reviewer-assistant`.
+    *   **Phase 5: Recording in `.pheromone`.**
+        *   Scribe records report and updates `memoryBank.technicalDebtItems`.
 
-## Détails des Phases:
+## Phase Details:
 
-### Phase 1: Définition du Périmètre, Collecte du Code, et Injection de Contexte
-*   **Agent Responsable:** `@code-reviewer-assistant`, UO.
-*   **Inputs:** Périmètre d'analyse. `memoryBank.currentProject.repositoryUrl` et `defaultBranch`.
-*   **Actions & Tooling (UO et `@code-reviewer-assistant`):**
-    1.  Définir fichiers cibles.
-    2.  `@code-reviewer-assistant` récupère code via **Git Tools MCP**.
-    3.  **onError (Git Tools MCP):** Si échec, UO loggue via Scribe, notifie utilisateur, arrête workflow.
-    4.  UO injecte contexte de `memoryBank` à `@code-reviewer-assistant`:
+### Phase 1: Scope Definition, Code Collection, and Context Injection
+*   **Responsible Agent:** `@code-reviewer-assistant`, UO.
+*   **Inputs:** Analysis scope. `memoryBank.currentProject.repositoryUrl` and `defaultBranch`.
+*   **Actions & Tooling (UO and `@code-reviewer-assistant`):**
+    1.  Define target files.
+    2.  `@code-reviewer-assistant` retrieves code via **Git Tools MCP**.
+    3.  **onError (Git Tools MCP):** If failure, UO logs via Scribe, notifies user, stops workflow.
+    4.  UO injects context from `memoryBank` to `@code-reviewer-assistant`:
         *   `projectContext.codingConventionsLink`, `designConventionsLink`.
-        *   `technicalDebtItems` existants (pour éviter doublons ou voir évolution).
-        *   `architecturalDecisions` pertinentes.
-        *   (Optionnel) Configuration spécifique pour outils d'analyse statique (si stockée).
-*   **Output:** Code source et contexte injecté prêts pour `@code-reviewer-assistant`.
+        *   Existing `technicalDebtItems` (to avoid duplicates or see evolution).
+        *   Relevant `architecturalDecisions`.
+        *   (Optional) Specific configuration for static analysis tools (if stored).
+*   **Output:** Source code and injected context ready for `@code-reviewer-assistant`.
 
-### Phase 2: Planification de l'Analyse et Analyse Statique/Heuristique (avec "Chaîne de Pensée")
-*   **Agent Responsable:** `@code-reviewer-assistant`.
-*   **Inputs:** Code source, contexte injecté.
+### Phase 2: Analysis Planning and Static/Heuristic Analysis (with "Chain of Thought")
+*   **Responsible Agent:** `@code-reviewer-assistant`.
+*   **Inputs:** Source code, injected context.
 *   **Actions & Tooling:**
-    1.  **Planification (Sequential Thinking MCP):**
-        *   `set_goal`: "Analyser le code [périmètre] pour la dette technique."
-        *   `add_step`: "Exécuter linters et analyseurs standards."
-        *   `add_step`: "Rechercher duplications de code."
-        *   `add_step`: "Analyser complexité cyclomatique (méthodes/fonctions)."
-        *   `add_step`: "Identifier longues méthodes/classes/composants."
-        *   `add_step`: "Évaluer couplage/cohésion."
-        *   `add_step`: "Rechercher 'dead code'."
-        *   `add_step`: "Vérifier TODO/FIXME."
-        *   `add_step`: "Consulter Context7 pour bonnes pratiques sur librairies utilisées dans zones suspectes."
-        *   `run_sequence`. **Conserver ce plan comme partie de la "chaîne de pensée".**
-    2.  Exécuter les étapes du plan.
-    3.  **"Chaîne de Pensée":** Pour chaque "code smell" ou zone de dette majeure identifiée, documenter dans le rapport comment elle a été détectée et pourquoi elle est considérée comme de la dette (ex: "La méthode X dépasse 100 lignes et a une complexité de Y, indiquant une violation de la convention Z et un risque de maintenabilité." ).
-*   **onError (Outils d'Analyse):**
-    *   Si un outil externe (ex: MCP SonarQube) échoue, `@code-reviewer-assistant` le note, informe l'UO, et continue l'analyse avec les autres méthodes. Le rapport final mentionnera l'outil défaillant.
-*   **Output (interne):** Liste de "code smells", problèmes de qualité, avec localisation et début de "chaîne de pensée".
+    1.  **Planning (Sequential Thinking MCP):**
+        *   `set_goal`: "Analyze the code [scope] for technical debt."
+        *   `add_step`: "Run standard linters and analyzers."
+        *   `add_step`: "Look for code duplications."
+        *   `add_step`: "Analyze cyclomatic complexity (methods/functions)."
+        *   `add_step`: "Identify long methods/classes/components."
+        *   `add_step`: "Evaluate coupling/cohesion."
+        *   `add_step`: "Search for 'dead code'."
+        *   `add_step`: "Check TODO/FIXME."
+        *   `add_step`: "Consult Context7 for best practices on libraries used in suspicious areas."
+        *   `run_sequence`. **Keep this plan as part of the "chain of thought".**
+    2.  Execute the steps of the plan.
+    3.  **"Chain of Thought":** For each major code smell or debt area identified, document in the report how it was detected and why it is considered debt (e.g., "Method X exceeds 100 lines and has a complexity of Y, indicating a violation of convention Z and a maintainability risk.").
+*   **onError (Analysis Tools):**
+    *   If an external tool (e.g., SonarQube MCP) fails, `@code-reviewer-assistant` notes it, informs the UO, and continues the analysis with other methods. The final report will mention the failing tool.
+*   **Output (internal):** List of code smells, quality issues, with location and beginning of "chain of thought".
 
-### Phase 3: Identification des Zones de Dette Technique, Priorisation et Suggestions (avec "Chaîne de Pensée")
-*   **Agent Responsable:** `@code-reviewer-assistant`.
-*   **Inputs:** Liste des "code smells" (Phase 2).
+### Phase 3: Technical Debt Areas Identification, Prioritization, and Suggestions (with "Chain of Thought")
+*   **Responsible Agent:** `@code-reviewer-assistant`.
+*   **Inputs:** List of code smells (Phase 2).
 *   **Actions & Tooling:**
-    1.  Regrouper problèmes, évaluer impact (maintenabilité, risque bugs, perf, extensibilité).
-    2.  Prioriser la dette (Critique, Élevée, Moyenne, Faible).
-    3.  Pour les items prioritaires, suggérer des refactorings ou actions.
-    4.  **"Chaîne de Pensée":** Documenter dans le rapport la justification de la priorisation pour les items critiques/élevés et la logique derrière les suggestions de refactoring (ex: "Refactoriser X en utilisant le pattern Y améliorera la lisibilité et réduira le couplage, comme suggéré par la bonne pratique Z de Context7 pour cette librairie.").
-    5.  **Gestion d'Ambiguïté:** Si une zone de code est si obscure qu'il est impossible d'évaluer la dette ou de suggérer un refactoring pertinent:
-        *   Signaler à l'UO: "Impossible d'analyser la dette pour [fichier Z ligne A]. Code obscur. Suggestion de question pour dev: 'Pouvez-vous expliquer l'objectif et la structure de cette section pour évaluer son refactoring ?'".
-        *   L'UO peut initier clarification via `@clarification-agent`. L'analyse de cette section spécifique est mise en pause.
-*   **Output (interne):** Liste priorisée d'items de dette technique avec suggestions et justifications.
+    1.  Group issues, evaluate impact (maintainability, bug risk, performance, extensibility).
+    2.  Prioritize debt (Critical, High, Medium, Low).
+    3.  For priority items, suggest refactorings or actions.
+    4.  **"Chain of Thought":** Document in the report the justification for prioritization of critical/high items and the logic behind refactoring suggestions (e.g., "Refactoring X using pattern Y will improve readability and reduce coupling, as suggested by best practice Z from Context7 for this library.").
+    5.  **Ambiguity Management:** If a code area is so obscure that it is impossible to evaluate the debt or suggest relevant refactoring:
+        *   Report to the UO: "Unable to analyze debt for [file Z line A]. Obscure code. Suggested question for dev: 'Can you explain the purpose and structure of this section to evaluate its refactoring?'".
+        *   The UO can initiate clarification via `@clarification-agent`. Analysis of this specific section is paused.
+*   **Output (internal):** Prioritized list of technical debt items with suggestions and justifications.
 
-### Phase 4: Génération du Rapport Détaillé
-*   **Agent Responsable:** `@code-reviewer-assistant`.
-*   **Inputs:** Liste priorisée de dette technique, justifications ("chaînes de pensée").
+### Phase 4: Detailed Report Generation
+*   **Responsible Agent:** `@code-reviewer-assistant`.
+*   **Inputs:** Prioritized list of technical debt, justifications ("chains of thought").
 *   **Actions & Tooling:**
-    1.  Rédiger rapport MD (`tech_debt_analysis_[scope]_[timestamp].md`) dans `03_SPECS/Tech_Debt_Reports/`.
-    2.  Structure: Périmètre, Résumé zones de dette, Détail items prioritaires (description, localisation, impact, sévérité, **raisonnement/chaîne de pensée**, suggestion refactoring), Métriques (optionnel).
-    3.  Si des sections n'ont pu être analysées faute de clarté (et que la clarification n'a pas eu lieu ou n'a pas résolu), le mentionner clairement.
-*   **Output (vers Scribe):** Résumé NL: "Analyse dette technique '[Périmètre]' terminée. [N_total] problèmes, dont [N_crit] critiques. Suggestions refactoring incluses. Rapport (avec chaîne de pensée): `tech_debt_analysis_[scope]_[timestamp].md`."
+    1.  Write MD report (`tech_debt_analysis_[scope]_[timestamp].md`) in `03_SPECS/Tech_Debt_Reports/`.
+    2.  Structure: Scope, Debt areas summary, Priority items detail (description, location, impact, severity, **reasoning/chain of thought**, refactoring suggestion), Metrics (optional).
+    3.  If sections could not be analyzed due to lack of clarity (and clarification did not occur or did not resolve), mention it clearly.
+*   **Output (to Scribe):** NL Summary: "Technical debt analysis '[Scope]' completed. [N_total] issues, including [N_crit] critical. Refactoring suggestions included. Report (with chain of thought): `tech_debt_analysis_[scope]_[timestamp].md`."
 
-### Phase 5: Enregistrement dans `.pheromone`
-*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe`.
-*   **Inputs:** Résumé NL de `@code-reviewer-assistant`.
+### Phase 4.5: Prioritization and Remediation Planning
+*   **Responsible Agent:** `@architecture-advisor-agent` (in collaboration with `@code-reviewer-assistant`)
+*   **Inputs:** Technical debt analysis report (Phase 4).
+*   **Actions & Tooling:**
+    1.  Use **Sequential Thinking MCP** to methodically evaluate each technical debt item:
+        *   Analyze impact on code quality, maintainability, and performance.
+        *   Evaluate effort required to fix each item.
+        *   Identify dependencies between technical debt items.
+    2.  Prioritize items based on impact/effort using an explicit decision matrix:
+        *   High priority: High impact / Low effort
+        *   Medium priority: High impact / High effort or Low impact / Low effort
+        *   Low priority: Low impact / High effort
+    3.  Propose a phased remediation plan:
+        *   Phase 1: Immediate fixes (high priority)
+        *   Phase 2: Medium-term fixes (medium priority)
+        *   Phase 3: Long-term fixes (low priority)
+    4.  Suggest specific US for the Azure DevOps backlog:
+        *   Write titles and descriptions for technical debt remediation US.
+        *   Propose acceptance criteria for each US.
+    5.  Estimate the impact of each fix on overall code quality.
+    6.  **"Chain of Thought":** Explicitly document reasoning for prioritization and remediation plan.
+*   **onError Strategy (for UO if `@architecture-advisor-agent` reports failure):**
+    1.  Scribe logs error.
+    2.  UO notifies user: "Unable to generate a complete remediation plan for technical debt. Error: [Error message]. The analysis report remains available."
+    3.  Continue with Phase 5 without the remediation plan.
+*   **Output (to Scribe):** NL Summary: "Technical debt remediation plan for '[Scope]' developed. [N] US proposed for backlog, distributed across [M] phases. Plan report: `tech_debt_remediation_plan_[scope]_[timestamp].md`."
+
+### Phase 5: Recording in `.pheromone`
+*   **Responsible Agent:** `✍️ @orchestrator-pheromone-scribe`.
+*   **Inputs:** NL summaries from `@code-reviewer-assistant` and `@architecture-advisor-agent`.
 *   **Actions:**
-    1.  Mettre à jour `.pheromone`:
-        *   `documentationRegistry`: Ajouter chemin vers `tech_debt_analysis...md`.
-        *   `memoryBank.technicalDebtItems`: Ajouter/Mettre à jour des objets structurés pour chaque item de dette critique/élevé identifié, incluant un lien vers la section pertinente du rapport (`reasoningChainLink`).
+    1.  Update `.pheromone`:
+        *   `documentationRegistry`: Add paths to `tech_debt_analysis...md` and `tech_debt_remediation_plan...md`.
+        *   `memoryBank.technicalDebtItems`: Add/Update structured objects for each critical/high debt item identified, including a link to the relevant section of the report (`reasoningChainLink`).
+        *   `memoryBank.technicalDebtRemediationPlan`: Add the repayment plan with phases and proposed US.
         *   `memoryBank.projectContext.lastTechDebtAnalysisTimestamp = "{{timestamp}}"`.
-*   **Output:** `.pheromone` mis à jour. UO informé.
+*   **Output:** `.pheromone` updated. UO informed.
 
 ---

@@ -202,6 +202,25 @@
       "avgUserStoryLeadTime": null,
       "avgTaskCycleTime": null
     },
+    "performanceInsights": {
+      "identifiedBottlenecks": {},
+      "optimizationPatterns": {},
+      "componentPerformanceStatus": {}
+    },
+    "accessibilityCompliance": {
+      "wcagCheckHistory": {},
+      "componentAccessibilityStatus": {}
+    },
+    "learningInsights": {
+      "recurringPatterns": {},
+      "effectiveSolutions": {},
+      "commonPitfalls": {}
+    },
+    "refactoringHistory": {
+      "completedRefactorings": {},
+      "pendingRefactorings": {},
+      "refactoringPatterns": {}
+    },
     "clarificationHistory": [
         {
             "clarificationId": "clarify_uuid_001",

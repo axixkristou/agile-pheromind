@@ -1,103 +1,103 @@
-# Workflow: Assistance au Product Owner - Analyse d'un Besoin Client (03_PO_Analyze_Need.md)
+# Workflow: Product Owner Assistance - Customer Need Analysis (03_PO_Analyze_Need.md)
 
-**Objectif:** Aider le Product Owner (PO) à analyser un besoin client exprimé en langage naturel. Le système doit décomposer le besoin de manière structurée (en utilisant le `Sequential Thinking MCP` et en enregistrant la "chaîne de pensée"), proposer des User Stories (US) potentielles avec des Critères d'Acceptation (ACs) initiaux, vérifier les US similaires existantes (via Azure DevOps MCP), gérer les ambiguïtés du besoin via `@clarification-agent`, et enregistrer l'analyse complète dans la Memory Bank.
+**Objective:** Help the Product Owner (PO) analyze a customer need expressed in natural language. The system must decompose the need in a structured way (using the `Sequential Thinking MCP` and recording the "chain of thought"), propose potential User Stories (US) with initial Acceptance Criteria (ACs), check for similar existing US (via Azure DevOps MCP), manage ambiguities in the need via `@clarification-agent`, and record the complete analysis in the Memory Bank.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@po-assistant`, `@devops-connector`, `@clarification-agent`.
+**Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@po-assistant`, `@devops-connector`, `@clarification-agent`.
 
-**MCPs Utilisés:** Azure DevOps MCP, Sequential Thinking MCP.
+**MCPs Used:** Azure DevOps MCP, Sequential Thinking MCP.
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** Le PO soumet une description du besoin client à AgilePheromind (ex: `"AgilePheromind analyse besoin : 'Nos utilisateurs se plaignent que le processus d'inscription est trop long...'"`).
-2.  **`🧐 @uber-orchestrator`** prend le contrôle.
-    *   **Phase 1: Analyse Structurée du Besoin Client et Identification d'Ambiguïtés.**
-        *   UO **injecte un contexte pertinent** (ex: personae existants, glossaire métier depuis `memoryBank`) à `@po-assistant`.
-        *   `@po-assistant` utilise **Sequential Thinking MCP** pour la décomposition. Il doit **détailler sa "chaîne de pensée"**.
-        *   Si des ambiguïtés majeures sont détectées dans le besoin client, `@po-assistant` les signale à l'UO. L'UO peut alors engager `@clarification-agent` pour demander des précisions au PO. Le workflow attend la réponse.
-        *   **onError:** Si l'analyse initiale échoue ou reste trop vague, notifier le PO.
-    *   **Phase 2: Génération de Propositions d'User Stories et Critères d'Acceptation.**
-        *   UO délègue à `@po-assistant` (utilisant les informations clarifiées si Phase 1b a eu lieu).
-    *   **Phase 3: Recherche d'User Stories Existantes dans le Backlog.**
-        *   UO délègue à `@po-assistant`, qui interroge `@devops-connector`.
-        *   **onError:** Si ADO MCP échoue, informer le PO que la vérification des doublons n'a pas pu être faite.
-    *   **Phase 4: Compilation du Rapport d'Analyse et Interaction avec le PO.**
-        *   `@po-assistant` génère un rapport (incluant la "chaîne de pensée" de l'analyse).
-        *   Scribe enregistre le rapport et les US brouillons dans `.pheromone`.
-        *   UO présente un résumé au PO et propose des actions de suivi.
+1.  **Initiation:** The PO submits a description of the customer need to AgilePheromind (e.g., `"AgilePheromind analyze need: 'Our users complain that the registration process is too long...'"`).
+2.  **`🧐 @uber-orchestrator`** takes control.
+    *   **Phase 1: Structured Analysis of Customer Need and Identification of Ambiguities.**
+        *   UO **injects relevant context** (e.g., existing personas, business glossary from `memoryBank`) to `@po-assistant`.
+        *   `@po-assistant` uses **Sequential Thinking MCP** for decomposition. It must **detail its "chain of thought"**.
+        *   If major ambiguities are detected in the customer need, `@po-assistant` reports them to the UO. The UO can then engage `@clarification-agent` to request clarification from the PO. The workflow awaits the response.
+        *   **onError:** If the initial analysis fails or remains too vague, notify the PO.
+    *   **Phase 2: Generation of User Story Proposals and Acceptance Criteria.**
+        *   UO delegates to `@po-assistant` (using clarified information if Phase 1b occurred).
+    *   **Phase 3: Search for Existing User Stories in the Backlog.**
+        *   UO delegates to `@po-assistant`, which queries `@devops-connector`.
+        *   **onError:** If ADO MCP fails, inform the PO that duplicate checking could not be done.
+    *   **Phase 4: Compilation of Analysis Report and Interaction with the PO.**
+        *   `@po-assistant` generates a report (including the analysis "chain of thought").
+        *   Scribe records the report and draft US in `.pheromone`.
+        *   UO presents a summary to the PO and proposes follow-up actions.
 
-## Détails des Phases:
+## Phase Details:
 
-### Phase 1: Analyse Structurée du Besoin Client et Identification d'Ambiguïtés
-*   **Agent Responsable:** `@po-assistant` (avec support de l'UO pour clarification si besoin via `@clarification-agent`).
-*   **Inputs (Injectés par l'UO):**
-    *   Description du besoin client.
-    *   Contexte de `memoryBank.projectContext` (ex: `targetAudienceDescription`, `businessGoals`).
-    *   Liste des personas existants (`memoryBank.userPersonas`).
-    *   Glossaire métier (`memoryBank.glossary`).
+### Phase 1: Structured Analysis of Customer Need and Identification of Ambiguities
+*   **Responsible Agent:** `@po-assistant` (with UO support for clarification if needed via `@clarification-agent`).
+*   **Inputs (Injected by UO):**
+    *   Customer need description.
+    *   Context from `memoryBank.projectContext` (e.g., `targetAudienceDescription`, `businessGoals`).
+    *   List of existing personas (`memoryBank.userPersonas`).
+    *   Business glossary (`memoryBank.glossary`).
 *   **Actions & Tooling (`@po-assistant`):**
-    1.  Utiliser **Sequential Thinking MCP** pour l'analyse détaillée :
-        *   `set_goal`: "Analyser le besoin client: '{{besoinClient}}' pour identifier problèmes, solutions et bénéfices."
-        *   `add_step`: "Identifier les acteurs/personas concernés (en utilisant la liste de personas fournie comme référence)."
-        *   `add_step`: "Extraire les problèmes spécifiques ('pain points')."
-        *   `add_step`: "Identifier les solutions/désirs explicites ou implicites."
-        *   `add_step`: "Déduire les bénéfices attendus."
-        *   `add_step`: "Identifier les contraintes ou hypothèses."
-        *   `add_step`: "**Évaluer la clarté du besoin.** Lister les points ambigus ou les informations manquantes qui empêchent une décomposition claire en US."
+    1.  Use **Sequential Thinking MCP** for detailed analysis:
+        *   `set_goal`: "Analyze customer need: '{{customerNeed}}' to identify problems, solutions, and benefits."
+        *   `add_step`: "Identify concerned actors/personas (using the provided persona list as reference)."
+        *   `add_step`: "Extract specific problems ('pain points')."
+        *   `add_step`: "Identify explicit or implicit solutions/desires."
+        *   `add_step`: "Deduce expected benefits."
+        *   `add_step`: "Identify constraints or assumptions."
+        *   `add_step`: "**Evaluate the clarity of the need.** List ambiguous points or missing information that prevent clear decomposition into US."
         *   `run_sequence`.
-    2.  **Documenter la "Chaîne de Pensée":** Conserver le log détaillé de cette analyse séquentielle pour l'inclure dans le rapport final.
-    3.  **Signaler Ambiguïtés à l'UO:** Si l'étape "Évaluer la clarté" identifie des ambiguïtés critiques:
-        *   Formuler les points d'ambiguïté.
-        *   Suggérer des questions spécifiques pour le PO.
-*   **onError / Gestion de l'Ambiguïté (par l'UO):**
-    1.  Si `@po-assistant` signale des ambiguïtés :
-        *   UO met le workflow en pause (`activeWorkflow.status: 'PendingClarification_UserNeed'`).
-        *   UO délègue à `@clarification-agent` avec le contexte du besoin et les questions suggérées par `@po-assistant`.
-        *   La réponse sera traitée par `01_AI-RUN/XX_Handle_Clarification_Response.md`, qui mettra à jour la `memoryBank` et réactivera ce workflow.
-    2.  Si le Sequential Thinking MCP échoue, Scribe loggue l'erreur, UO notifie le PO.
-*   **Output (interne à `@po-assistant` après clarification si nécessaire):** Analyse structurée du besoin client (potentiellement enrichie par les réponses du PO).
+    2.  **Document the "Chain of Thought":** Preserve the detailed log of this sequential analysis for inclusion in the final report.
+    3.  **Report Ambiguities to UO:** If the "Evaluate clarity" step identifies critical ambiguities:
+        *   Formulate the ambiguity points.
+        *   Suggest specific questions for the PO.
+*   **onError / Ambiguity Management (by UO):**
+    1.  If `@po-assistant` reports ambiguities:
+        *   UO pauses the workflow (`activeWorkflow.status: 'PendingClarification_UserNeed'`).
+        *   UO delegates to `@clarification-agent` with the need context and questions suggested by `@po-assistant`.
+        *   The response will be processed by `01_AI-RUN/XX_Handle_Clarification_Response.md`, which will update the `memoryBank` and reactivate this workflow.
+    2.  If the Sequential Thinking MCP fails, Scribe logs the error, UO notifies the PO.
+*   **Output (internal to `@po-assistant` after clarification if necessary):** Structured analysis of the customer need (potentially enriched by PO responses).
 
-### Phase 2: Génération de Propositions d'User Stories et Critères d'Acceptation
-*   **Agent Responsable:** `@po-assistant`
-*   **Inputs:** Analyse structurée du besoin (clarifiée si besoin en Phase 1).
+### Phase 2: Generation of User Story Proposals and Acceptance Criteria
+*   **Responsible Agent:** `@po-assistant`
+*   **Inputs:** Structured analysis of the need (clarified if needed in Phase 1).
 *   **Actions & Tooling:**
-    1.  Pour chaque ensemble {Problème -> Solution -> Bénéfice} :
-        *   Formuler des US ("En tant que..., je veux..., afin de...").
-        *   Rédiger des ACs initiaux (Gherkin ou listes).
-    2.  **Documenter la "Chaîne de Pensée":** Expliquer brièvement dans le rapport final pourquoi chaque US a été formulée de cette manière par rapport à l'analyse du besoin.
-*   **Memory Bank Interaction (via Scribe en Phase 4):**
-    *   Les US brouillons et ACs seront stockés.
-*   **Output (interne à `@po-assistant`):** Liste d'US candidates avec ACs.
+    1.  For each {Problem -> Solution -> Benefit} set:
+        *   Formulate US ("As a..., I want..., so that...").
+        *   Draft initial ACs (Gherkin or lists).
+    2.  **Document the "Chain of Thought":** Briefly explain in the final report why each US was formulated this way in relation to the need analysis.
+*   **Memory Bank Interaction (via Scribe in Phase 4):**
+    *   Draft US and ACs will be stored.
+*   **Output (internal to `@po-assistant`):** List of candidate US with ACs.
 
-### Phase 3: Recherche d'User Stories Existantes dans le Backlog
-*   **Agent Responsable:** `@po-assistant` (coordonnant avec `@devops-connector`).
-*   **Inputs:** US candidates (Phase 2). `.pheromone.currentProject.name`.
+### Phase 3: Search for Existing User Stories in the Backlog
+*   **Responsible Agent:** `@po-assistant` (coordinating with `@devops-connector`).
+*   **Inputs:** Candidate US (Phase 2). `.pheromone.currentProject.name`.
 *   **Actions & Tooling:**
-    1.  `@po-assistant` identifie mots-clés pour chaque US candidate.
-    2.  `@po-assistant` demande à `@devops-connector`: "Recherche US existantes dans ADO projet `{{currentProject.name}}` pour mots-clés : [liste]."
-    3.  `@devops-connector` utilise **Azure DevOps MCP** (`search_work_items`).
-*   **onError Strategy (pour l'UO si `@devops-connector` signale échec MCP):**
-    1.  Scribe loggue l'erreur.
-    2.  UO informe `@po-assistant` que la recherche ADO a échoué. L'analyse continuera sans cette information, mais le rapport final le mentionnera.
-*   **Output (`@devops-connector` vers `@po-assistant`):** Liste d'IDs/titres d'US ADO potentiellement similaires.
+    1.  `@po-assistant` identifies keywords for each candidate US.
+    2.  `@po-assistant` asks `@devops-connector`: "Search existing US in ADO project `{{currentProject.name}}` for keywords: [list]."
+    3.  `@devops-connector` uses **Azure DevOps MCP** (`search_work_items`).
+*   **onError Strategy (for UO if `@devops-connector` reports MCP failure):**
+    1.  Scribe logs the error.
+    2.  UO informs `@po-assistant` that the ADO search failed. The analysis will continue without this information, but the final report will mention it.
+*   **Output (`@devops-connector` to `@po-assistant`):** List of potentially similar ADO US IDs/titles.
 
-### Phase 4: Compilation du Rapport d'Analyse et Interaction avec le PO
-*   **Agent Responsable:** `@po-assistant` (rapport), Scribe (enregistrement), UO (interaction PO).
-*   **Inputs:** Résultats des phases précédentes.
+### Phase 4: Compilation of Analysis Report and Interaction with the PO
+*   **Responsible Agent:** `@po-assistant` (report), Scribe (recording), UO (PO interaction).
+*   **Inputs:** Results from previous phases.
 *   **Actions & Tooling (`@po-assistant`):**
-    1.  Compiler un rapport Markdown (`po_need_analysis_[timestamp].md`) dans `02_AI-DOCS/PO_Analyses/`. Il doit inclure:
-        *   Besoin client initial.
-        *   **Analyse structurée détaillée (avec la "chaîne de pensée" de la Phase 1).**
-        *   US candidates avec ACs (et la "chaîne de pensée" pour leur formulation).
-        *   Résultats de la recherche ADO (ou mention de l'échec si Phase 3 a échoué).
-        *   Recommandations (créer, fusionner, priorités initiales).
-*   **Output (`@po-assistant` vers Scribe):** Résumé NL: "Analyse besoin client '[résumé]' terminée. [N_us] US proposées. [N_exist] US existantes trouvées. Rapport (avec chaîne de pensée): `po_need_analysis_[timestamp].md`. Recommandations: [clés]."
+    1.  Compile a Markdown report (`po_need_analysis_[timestamp].md`) in `02_AI-DOCS/PO_Analyses/`. It should include:
+        *   Initial customer need.
+        *   **Detailed structured analysis (with the "chain of thought" from Phase 1).**
+        *   Candidate US with ACs (and the "chain of thought" for their formulation).
+        *   ADO search results (or mention of failure if Phase 3 failed).
+        *   Recommendations (create, merge, initial priorities).
+*   **Output (`@po-assistant` to Scribe):** NL Summary: "Customer need analysis '[summary]' completed. [N_us] US proposed. [N_exist] existing US found. Report (with chain of thought): `po_need_analysis_[timestamp].md`. Recommendations: [keys]."
 *   **Actions & Tooling (Scribe):**
-    1.  Enregistrer rapport dans `documentationRegistry`.
-    2.  Stocker US candidates (avec ACs, liens vers US existantes, et un lien vers la section "chaîne de pensée" du rapport) dans `memoryBank.draftUserStories` ou `memoryBank.userStories.{{usId_draft}}.analysisSummaries[]` (si des ID brouillons sont générés).
+    1.  Record report in `documentationRegistry`.
+    2.  Store candidate US (with ACs, links to existing US, and a link to the "chain of thought" section of the report) in `memoryBank.draftUserStories` or `memoryBank.userStories.{{usId_draft}}.analysisSummaries[]` (if draft IDs are generated).
 *   **Actions & Tooling (UO):**
-    1.  Utiliser `ask_followup_question` pour présenter résumé et options au PO : "Analyse du besoin terminée. [Résumé]. Rapport avec analyse détaillée disponible. Options: 1. Voir rapport. 2. Créer les nouvelles US suggérées dans ADO. 3. Discuter d'une US."
+    1.  Use `ask_followup_question` to present summary and options to the PO: "Need analysis completed. [Summary]. Detailed analysis report available. Options: 1. View report. 2. Create suggested new US in ADO. 3. Discuss a US."
 *   **Memory Bank Interaction (via Scribe):**
-    *   Archivage du rapport, des US brouillons, et du lien vers la "chaîne de pensée".
-*   **Outcome:** Le PO reçoit une analyse approfondie et traçable, des US exploitables, et des options claires, même si des clarifications ont été nécessaires.
+    *   Archiving of the report, draft US, and link to the "chain of thought".
+*   **Outcome:** The PO receives a thorough and traceable analysis, actionable US, and clear options, even if clarifications were necessary.
 
 ---

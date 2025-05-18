@@ -1,13 +1,22 @@
 # Concepts du Système d'Assistance IA Agile "AgilePheromind"
 
-**Version:** 1.0
-**Date de Dernière Mise à Jour:** {{TIMESTAMP_PAR_PHEROMIND}}
+**Version:** 1.1
+**Date de Dernière Mise à Jour:** 15 mai 2025
 
 ## 1. Introduction à AgilePheromind
 
 AgilePheromind est un système d'intelligence artificielle (IA) avancé, conçu comme un **essaim d'agents IA collaboratifs**, propulsé par le framework **Pheromind**. Son but principal est d'assister et d'augmenter les capacités des équipes de développement logiciel qui suivent des méthodologies Agiles, en particulier celles utilisant des technologies comme .NET, Angular, Azure DevOps, Docker et Azure Kubernetes Service (AKS).
 
 Contrairement à un outil IA monolithique, AgilePheromind fonctionne comme un écosystème où des agents spécialisés interagissent indirectement pour accomplir des tâches complexes, apprendre du contexte du projet, et s'adapter aux besoins de l'équipe.
+
+### 1.1. Intégration avec Roo Code
+
+AgilePheromind est conçu pour fonctionner exclusivement sur **Roo Code**, une plateforme avancée d'assistance IA pour le développement logiciel. Cette intégration offre plusieurs avantages clés :
+
+* **Modes Personnalisés :** AgilePheromind utilise le système de modes personnalisés de Roo Code pour définir ses agents spécialisés via le fichier `.roomodes`.
+* **Outils Natifs :** Les agents peuvent accéder aux outils natifs de Roo Code pour la lecture/écriture de fichiers, l'exécution de commandes, et la navigation web.
+* **Intégration MCP :** Les Model Context Protocol (MCP) servers d'AgilePheromind s'intègrent avec les capacités MCP de Roo Code pour interagir avec des outils externes.
+* **Orchestration :** Le système utilise les capacités d'orchestration de Roo Code pour coordonner les différents agents et workflows.
 
 ## 2. Principes Fondamentaux de Pheromind Appliqués
 
@@ -78,12 +87,14 @@ L'intégrité et la richesse de `.pheromone`, en particulier de la `memoryBank`,
 
 ### 3.2. Les Fichiers de Configuration
 
-*   **`.roomodes`:** Ce fichier JSON définit chaque agent IA spécialisé. Pour chaque agent, il spécifie :
-    *   `slug`: Un identifiant unique (ex: `developer-agent`).
-    *   `name`: Un nom lisible (ex: `💻 @developer-agent`).
-    *   `roleDefinition`: Une description générale de son rôle et de ses responsabilités primaires.
+*   **`.roomodes`:** Ce fichier JSON définit chaque agent IA spécialisé en utilisant le format de modes personnalisés de Roo Code. Pour chaque agent, il spécifie :
+    *   `slug`: Un identifiant unique (ex: `developer-agent`) utilisé par Roo Code pour référencer le mode.
+    *   `name`: Un nom lisible (ex: `💻 @developer-agent`) affiché dans l'interface de Roo Code.
+    *   `roleDefinition`: Une description générale de son rôle et de ses responsabilités primaires, placée au début du prompt système.
     *   `customInstructions`: Des instructions détaillées et spécifiques sur la manière dont l'agent doit accomplir ses tâches, quels MCPs utiliser, comment interagir avec `.pheromone` (via le Scribe), quels formats de sortie produire, et comment gérer les erreurs. Ces instructions sont le "code source comportemental" de l'agent.
-    *   `groups`: Permissions d'accès aux fichiers (lecture, écriture, exécution de commandes, utilisation de MCPs).
+    *   `groups`: Permissions d'accès aux outils de Roo Code (lecture "read", écriture "edit", navigation web "browser", exécution de commandes "command", utilisation de MCPs "mcp").
+    *   `whenToUse`: Description optionnelle indiquant quand ce mode doit être utilisé, particulièrement utile pour l'orchestration des tâches.
+    *   `source`: Indique l'origine du mode (généralement "project" pour les modes spécifiques au projet).
 *   **`.swarmConfig`:** Ce fichier JSON contient principalement la `interpretationLogic` pour le `✍️ @orchestrator-pheromone-scribe`. Cette logique est une série de règles (conditions et actions) qui permettent au Scribe de :
     *   Parser les résumés en langage naturel (NL) des agents.
     *   Extraire des informations structurées (IDs, statuts, chemins de fichiers, décisions).
@@ -138,18 +149,18 @@ La force du système réside dans la capacité de l'`🧐 @uber-orchestrator` à
 
 ### 3.5. Les Model Context Protocol (MCP) Servers
 
-Ce sont des services externes qui exposent des fonctionnalités spécifiques via une API structurée que les agents Pheromind peuvent appeler. AgilePheromind s'appuie sur :
+Ce sont des services externes qui exposent des fonctionnalités spécifiques via une API structurée que les agents Pheromind peuvent appeler. AgilePheromind s'intègre avec les capacités MCP de Roo Code pour interagir avec divers outils et services. Le système s'appuie sur :
 
-*   **Azure DevOps MCP:** Pour toute interaction avec Azure Boards (US, tâches), Azure Repos (PRs), Azure Pipelines.
-*   **Git Tools MCP:** Pour les opérations Git locales (commit, branch, diff, etc.).
-*   **Context7 MCP:** Pour obtenir la documentation à jour des librairies et frameworks (.NET, Angular, etc.).
-*   **MSSQL MCP:** Pour interagir avec la base de données SQL Server (lire schémas, valider/exécuter des requêtes).
-*   **Browser Tools MCP (Puppeteer/Playwright):** Pour l'automatisation des tests UI et la validation visuelle.
-*   **Sequential Thinking MCP:** Pour aider les agents à structurer leur pensée et leur analyse pour des tâches complexes (décomposition, planification).
-*   **Fetch MCP:** En fallback pour scraper des documentations ou exemples si Context7 ne suffit pas.
-*   **(Conceptuels/Futurs) Docker MCP, Kubernetes/AKS MCP, SonarQube MCP.**
+* **Azure DevOps MCP:** Pour toute interaction avec Azure Boards (US, tâches), Azure Repos (PRs), Azure Pipelines.
+* **Git Tools MCP:** Pour les opérations Git locales (commit, branch, diff, etc.).
+* **Context7 MCP:** Pour obtenir la documentation à jour des librairies et frameworks (.NET, Angular, etc.).
+* **MSSQL MCP:** Pour interagir avec la base de données SQL Server (lire schémas, valider/exécuter des requêtes).
+* **Browser Tools MCP (Puppeteer/Playwright):** Pour l'automatisation des tests UI et la validation visuelle.
+* **Sequential Thinking MCP:** Pour aider les agents à structurer leur pensée et leur analyse pour des tâches complexes (décomposition, planification).
+* **Fetch MCP:** En fallback pour scraper des documentations ou exemples si Context7 ne suffit pas.
+* **(Conceptuels/Futurs) Docker MCP, Kubernetes/AKS MCP, SonarQube MCP.**
 
-L'utilisation de MCPs permet aux agents de manipuler directement les outils de l'équipe de développement.
+L'utilisation de MCPs permet aux agents de manipuler directement les outils de l'équipe de développement. Grâce à l'intégration avec Roo Code, les agents peuvent accéder à ces MCPs via le groupe de permissions "mcp" défini dans le fichier `.roomodes`.
 
 ## 4. Flux d'Information et Cycle de Vie d'une Tâche
 
@@ -213,13 +224,25 @@ La qualité des informations stockées dans la `memoryBank` et la capacité du `
 
 AgilePheromind est conçu pour être adaptable :
 
-*   **`.roomodes`:** Les instructions des agents peuvent être affinées, et de nouveaux agents peuvent être ajoutés pour couvrir de nouveaux besoins.
-*   **`01_AI-RUN/*.md`:** De nouveaux workflows peuvent être créés pour automatiser ou assister de nouvelles tâches. Les workflows existants peuvent être modifiés.
-*   **`.swarmConfig`:** La logique d'interprétation du Scribe peut être étendue pour comprendre de nouveaux types de résumés ou pour enrichir la `memoryBank` de manière plus fine.
-*   **MCPs:** De nouveaux MCPs peuvent être intégrés pour connecter AgilePheromind à d'autres outils ou services.
+* **`.roomodes`:** Les instructions des agents peuvent être affinées, et de nouveaux agents peuvent être ajoutés pour couvrir de nouveaux besoins. Ce fichier suit le format de modes personnalisés de Roo Code, ce qui permet d'utiliser toutes les fonctionnalités de personnalisation offertes par la plateforme.
+* **`01_AI-RUN/*.md`:** De nouveaux workflows peuvent être créés pour automatiser ou assister de nouvelles tâches. Les workflows existants peuvent être modifiés.
+* **`.swarmConfig`:** La logique d'interprétation du Scribe peut être étendue pour comprendre de nouveaux types de résumés ou pour enrichir la `memoryBank` de manière plus fine.
+* **MCPs:** De nouveaux MCPs peuvent être intégrés pour connecter AgilePheromind à d'autres outils ou services, en tirant parti des capacités d'extension de Roo Code.
+* **Instructions spécifiques aux modes:** Des instructions supplémentaires peuvent être fournies via les dossiers `.roo/rules-{slug}/` ou les fichiers `.roorules-{slug}` de Roo Code pour personnaliser davantage le comportement des agents.
 
 Le système peut ainsi évoluer avec les processus et les technologies de l'équipe. Des agents comme `@workflow-optimizer-agent` et `@swarm-monitor-agent` sont spécifiquement conçus pour aider à cette évolution en analysant les performances du système et en suggérant des améliorations.
 
+### 6.1. Intégration avec les Fonctionnalités Avancées de Roo Code
+
+AgilePheromind tire parti de plusieurs fonctionnalités avancées de Roo Code :
+
+* **Orchestration de tâches:** Utilisation du mode Orchestrator (Boomerang) de Roo Code pour coordonner les workflows complexes.
+* **Changement de modes:** Les agents peuvent passer d'un mode à l'autre selon les besoins de la tâche en cours.
+* **Modèles persistants par mode:** Chaque agent peut utiliser un modèle d'IA différent, optimisé pour sa tâche spécifique.
+* **Restrictions d'accès aux fichiers:** Les permissions définies dans `.roomodes` permettent de limiter l'accès des agents à certains types de fichiers pour plus de sécurité.
+
 ## Conclusion
 
-AgilePheromind représente une approche sophistiquée de l'assistance IA pour les équipes Agiles. En combinant une architecture d'essaim flexible, une gestion d'état centralisée et intelligente, et une intégration profonde avec les outils existants, il a le potentiel de transformer la manière dont les équipes développent des logiciels. Son succès repose sur la clarté des workflows définis, la précision des instructions des agents, et l'intelligence du mécanisme d'interprétation et de mise à jour de la `memoryBank`.
+AgilePheromind représente une approche sophistiquée de l'assistance IA pour les équipes Agiles. En combinant une architecture d'essaim flexible, une gestion d'état centralisée et intelligente, et une intégration profonde avec les outils existants via Roo Code, il a le potentiel de transformer la manière dont les équipes développent des logiciels. Son succès repose sur la clarté des workflows définis, la précision des instructions des agents, et l'intelligence du mécanisme d'interprétation et de mise à jour de la `memoryBank`.
+
+L'intégration native avec Roo Code permet à AgilePheromind de bénéficier d'une plateforme robuste et extensible, tout en offrant une expérience utilisateur fluide et cohérente. Cette synergie entre le framework Pheromind et les capacités de Roo Code crée un système d'assistance IA véritablement adapté aux besoins des équipes de développement Agile modernes.

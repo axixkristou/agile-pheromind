@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgilePheromind - Présentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .slide {
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            border-left: 6px solid #3b82f6;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .agent-chip {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+        .mcp-chip {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .code {
+            font-family: 'Courier New', monospace;
+            background-color: #1e293b;
+            color: #f8fafc;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+            border-left: 4px solid #3b82f6;
+        }
+        .swarm-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <!-- Slide 1 - Title -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <div class="text-center mb-6">
+            <h1 class="text-4xl font-bold text-blue-800 mb-4">AgilePheromind</h1>
+            <h2 class="text-2xl font-semibold text-blue-600">Révolutionnez Votre Développement Agile avec une Assistance IA Intelligente</h2>
+        </div>
+        <div class="text-center text-lg text-gray-700 mb-8">
+            Augmentez la productivité, améliorez la qualité et boostez la collaboration de votre équipe .NET/Angular avec un essaim d'IA.
+        </div>
+        <div class="text-center text-gray-500 italic">
+            [Votre Nom/Logo ici]
+        </div>
+        <div class="mt-8 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Accueillir le public, introduire brièvement le sujet de l'IA dans le développement Agile. Mentionner que l'IA est là pour amplifier les capacités de l'équipe, pas pour remplacer les humains.</p>
+        </div>
+    </div>
+
+    <!-- Slide 2 - Challenges -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6">Les Défis Constants du Développement Agile Moderne</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="flex items-start">
+                <div class="text-blue-500 mr-4 mt-1"><i class="fas fa-brain fa-lg"></i></div>
+                <div>
+                    <h3 class="font-semibold text-lg text-gray-800">Charge Cognitive Élevée</h3>
+                    <p class="text-gray-600">Gérer le backlog, les estimations, les tests, les revues, la documentation...</p>
+                </div>
+            </div>
+            <div class="flex items-start">
+                <div class="text-blue-500 mr-4 mt-1"><i class="fas fa-redo fa-lg"></i></div>
+                <div>
+                    <h3 class="font-semibold text-lg text-gray-800">Tâches Répétitives</h3>
+                    <p class="text-gray-600">Perte de temps sur des actions à faible valeur ajoutée (formatage de commits, génération de code boilerplate).</p>
+                </div>
+            </div>
+            <div class="flex items-start">
+                <div class="text-blue-500 mr-4 mt-1"><i class="fas fa-shield-alt fa-lg"></i></div>
+                <div>
+                    <h3 class="font-semibold text-lg text-gray-800">Maintien de la Qualité</h3>
+                    <p class="text-gray-600">Assurer la cohérence, détecter les bugs et la dette technique tôt.</p>
+                </div>
+            </div>
+            <div class="flex items-start">
+                <div class="text-blue-500 mr-4 mt-1"><i class="fas fa-file-alt fa-lg"></i></div>
+                <div>
+                    <h3 class="font-semibold text-lg text-gray-800">Documentation Négligée</h3>
+                    <p class="text-gray-600">Manque de temps ou de motivation pour maintenir la documentation à jour.</p>
+                </div>
+            </div>
+            <div class="flex items-start">
+                <div class="text-blue-500 mr-4 mt-1"><i class="fas fa-plug fa-lg"></i></div>
+                <div>
+                    <h3 class="font-semibold text-lg text-gray-800">Intégration des Outils</h3>
+                    <p class="text-gray-600">Garder Azure DevOps, Git, et autres outils synchronisés et bien utilisés.</p>
+                </div>
+            </div>
+            <div class="flex items-start">
+                <div class="text-blue-500 mr-4 mt-1"><i class="fas fa-history fa-lg"></i></div>
+                <div>
+                    <h3 class="font-semibold text-lg text-gray-800">Migration de Legacy</h3>
+                    <p class="text-gray-600">Un fardeau technique et une source de risques pour les projets.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center py-4 bg-blue-50 rounded-lg">
+            <p class="text-blue-700 font-medium italic">"Ces défis vous semblent-ils familiers ?"</p>
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Élaborer sur chaque point avec des exemples concrets. Donner des exemples spécifiques à votre public cible (.NET/Angular). Créer une connexion avec l'audience en demandant s'ils reconnaissent ces défis.</p>
+        </div>
+    </div>
+
+    <!-- Slide 3 - Vision -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6">AgilePheromind : L'IA au Service de Votre Équipe Agile</h2>
+        
+        <div class="flex flex-col md:flex-row items-center mb-8">
+            <div class="md:w-1/2 mb-6 md:mb-0 md:pr-6">
+                <div class="bg-white p-6 rounded-lg shadow-md swarm-animation">
+                    <div class="flex justify-center mb-4">
+                        <i class="fas fa-project-diagram text-6xl text-blue-500"></i>
+                    </div>
+                    <p class="text-center text-gray-700 italic">Essaim d'agents IA collaboratifs</p>
+                </div>
+            </div>
+            <div class="md:w-1/2">
+                <div class="p-4 highlight-box rounded-lg">
+                    <p class="text-lg font-semibold text-blue-800">AgilePheromind n'est pas juste <em>un autre</em> outil IA.</p>
+                    <p class="mt-2 text-gray-700">C'est un <span class="font-bold">système d'assistance intelligent et collaboratif</span>, un véritable <span class="font-bold">partenaire IA</span> intégré à vos processus et outils existants.</p>
+                </div>
+                
+                <div class="mt-6 bg-white p-4 rounded-lg shadow-sm">
+                    <p class="text-gray-700"><span class="font-semibold">Comment ?</span> Grâce à une <span class="font-bold text-blue-600">architecture d'essaim d'agents IA spécialisés</span>, propulsée par le framework <span class="font-bold text-blue-600">Pheromind</span>.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Insister sur le fait qu'il ne s'agit pas d'un simple chatbot ou outil ponctuel, mais d'un système complet qui s'intègre dans le flux de travail existant. Comparer à un assistant personnel multiplié par le nombre de membres de l'équipe, tous coordonnés.</p>
+        </div>
+    </div>
+
+    <!-- Slide 4 - Pillars -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6">Comment Ça Marche ? Les 5 Piliers d'AgilePheromind</h2>
+        
+        <div class="mb-8 bg-white p-6 rounded-lg shadow-md">
+            <div class="flex justify-center mb-6">
+                <div class="text-center">
+                    <div class="inline-block p-4 bg-blue-100 rounded-full mb-2">
+                        <i class="fas fa-user text-3xl text-blue-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-600">Utilisateur</p>
+                </div>
+                
+                <div class="flex items-center mx-2">
+                    <i class="fas fa-arrow-right text-gray-400"></i>
+                </div>
+                
+                <div class="text-center">
+                    <div class="inline-block p-4 bg-purple-100 rounded-full mb-2">
+                        <i class="fas fa-hat-wizard text-3xl text-purple-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-600">@head-orchestrator</p>
+                </div>
+                
+                <div class="flex items-center mx-2">
+                    <i class="fas fa-arrow-right text-gray-400"></i>
+                </div>
+                
+                <div class="text-center">
+                    <div class="inline-block p-4 bg-green-100 rounded-full mb-2">
+                        <i class="fas fa-search text-3xl text-green-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-600">@uber-orchestrator</p>
+                </div>
+                
+                <div class="flex items-center mx-2">
+                    <i class="fas fa-arrows-alt-h text-gray-400"></i>
+                </div>
+                
+                <div class="text-center">
+                    <div class="inline-block p-4 bg-yellow-100 rounded-full mb-2">
+                        <i class="fas fa-file-alt text-3xl text-yellow-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-600">01_AI-RUN/*.md</p>
+                </div>
+            </div>
+            
+            <div class="flex justify-center">
+                <div class="text-center mr-8">
+                    <div class="inline-block p-4 bg-indigo-100 rounded-full mb-2">
+                        <i class="fas fa-robot text-3xl text-indigo-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-600">Agents Spécialisés</p>
+                </div>
+                
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-arrows-alt-h text-gray-400 mr-2"></i>
+                        <div class="inline-block p-4 bg-blue-100 rounded-full">
+                            <i class="fas fa-plug text-3xl text-blue-600"></i>
+                        </div>
+                        <i class="fas fa-arrows-alt-h text-gray-400 ml-2"></i>
+                    </div>
+                    <p class="text-sm text-gray-600">MCPs</p>
+                </div>
+                
+                <div class="text-center ml-8">
+                    <div class="inline-block p-4 bg-pink-100 rounded-full mb-2">
+                        <i class="fas fa-pen-fancy text-3xl text-pink-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-600">@orchestrator-pheromone-scribe</p>
+                </div>
+            </div>
+            
+            <div class="mt-6 text-center">
+                <div class="inline-block p-4 bg-gray-100 rounded-full">
+                    <i class="fas fa-database text-3xl text-gray-600"></i>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">.pheromone (État + MemoryBank)</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-list-ol text-blue-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">1. Workflows Définis</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Des "programmes" clairs pour chaque action majeure dans <span class="font-mono bg-gray-100 px-1 rounded">01_AI-RUN/*.md</span></p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-purple-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-robot text-purple-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">2. Agents IA Spécialisés</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Une équipe d'experts virtuels dans <span class="font-mono bg-gray-100 px-1 rounded">.roomodes</span></p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-green-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-brain text-green-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">3. État Partagé & Mémoire Collective</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Le "cerveau" central avec <span class="font-mono bg-gray-100 px-1 rounded">.pheromone</span> et <span class="font-mono bg-gray-100 px-1 rounded">memoryBank</span></p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-yellow-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-hat-wizard text-yellow-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">4. Orchestration Intelligente</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Le trio <span class="font-mono bg-gray-100 px-1 rounded">@head-orchestrator</span>, <span class="font-mono bg-gray-100 px-1 rounded">@uber-orchestrator</span>, et <span class="font-mono bg-gray-100 px-1 rounded">@orchestrator-pheromone-scribe</span></p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm md:col-span-2">
+                <div class="flex items-center mb-2">
+                    <div class="bg-red-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-plug text-red-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">5. Connexion au Monde Réel (MCPs)</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Ponts vers Azure DevOps, Git, MSSQL, APIs de documentation, etc.</p>
+            </div>
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Expliquer que les agents communiquent indirectement via le fichier .pheromone, comme des fourmis laissant des traces chimiques. Cela permet une coordination sans goulot d'étranglement central. Donner un exemple concret de workflow.</p>
+        </div>
+    </div>
+
+    <!-- Slide 5 - MemoryBank -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6">Plus qu'une Base de Données : La MemoryBank, le Cœur Apprenant</h2>
+        
+        <div class="flex flex-col md:flex-row items-center mb-8">
+            <div class="md:w-1/3 mb-6 md:mb-0">
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="inline-block p-6 bg-blue-100 rounded-full mb-4">
+                        <i class="fas fa-brain text-5xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">MemoryBank</h3>
+                    <p class="text-gray-600">Le cerveau central d'AgilePheromind</p>
+                </div>
+            </div>
+            
+            <div class="md:w-2/3 md:pl-8">
+                <div class="mb-6">
+                    <div class="flex items-start mb-4">
+                        <div class="bg-blue-100 p-2 rounded-full mr-4">
+                            <i class="fas fa-history text-blue-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-1">Contexte Persistant</h3>
+                            <p class="text-gray-600">Fini les informations perdues ou les décisions oubliées. AgilePheromind se souvient de tout :</p>
+                            <ul class="list-disc list-inside text-gray-600 mt-2 ml-6">
+                                <li>Historique des User Stories et des Tâches</li>
+                                <li>Décisions architecturales et justifications</li>
+                                <li>Conventions de codage spécifiques</li>
+                                <li>Analyses de code legacy et dette technique</li>
+                                <li>Feedback des rétrospectives</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="flex items-start">
+                        <div class="bg-purple-100 p-2 rounded-full mr-4">
+                            <i class="fas fa-lightbulb text-purple-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-1">Apprentissage Contextuel</h3>
+                            <p class="text-gray-600">En analysant la MemoryBank, les agents peuvent :</p>
+                            <ul class="list-disc list-inside text-gray-600 mt-2 ml-6">
+                                <li>Proposer des solutions plus pertinentes et cohérentes</li>
+                                <li>Identifier des patterns (ex: types de tâches souvent sous-estimées)</li>
+                                <li>Aider à éviter de répéter les mêmes erreurs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="flex items-start">
+                        <div class="bg-green-100 p-2 rounded-full mr-4">
+                            <i class="fas fa-check-circle text-green-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-1">Cohérence Garantie</h3>
+                            <p class="text-gray-600">Tous les agents (et l'équipe !) travaillent à partir de la même source de vérité, assurant une cohérence à travers tout le projet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Contrasté avec une simple base de données : la MemoryBank comprend les relations entre éléments, apprend des patterns, et peut faire des déductions. Donner l'exemple d'une convention d'équipe qui est apprise et appliquée de manière cohérente.</p>
+        </div>
+    </div>
+
+    <!-- Slide 6 - PO Scenarios -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6">Product Owners, Gagnez en Efficacité !</h2>
+        
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="bg-blue-100 text-blue-800 p-2 rounded-full mr-3">
+                    <i class="fas fa-chart-line"></i>
+                </span>
+                Scénario 1: Analyse de Besoin Client Assistée
+            </h3>
+            
+            <div class="mb-4">
+                <h4 class="font-medium text-gray-700 mb-2">Vous dites :</h4>
+                <div class="bg-gray-800 text-green-400 p-3 rounded font-mono text-sm">
+                    AgilePheromind analyse besoin : "Nos utilisateurs veulent une inscription plus rapide via Google..."
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <h4 class="font-medium text-gray-700 mb-2">AgilePheromind (<span class="agent-chip px-2 py-1 rounded-full text-sm">@po-assistant</span>) :</h4>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                    <li><span class="font-medium">Analyse structurée</span> du besoin (pain points, solutions, bénéfices) via <span class="mcp-chip px-2 py-1 rounded-full text-sm">Sequential Thinking MCP</span></li>
+                    <li><span class="font-medium">Propose des User Stories claires et des Critères d'Acceptation</span> prêts pour le backlog</li>
+                    <li><span class="font-medium">Vérifie le backlog Azure DevOps</span> pour les doublons via <span class="mcp-chip px-2 py-1 rounded-full text-sm">Azure DevOps MCP</span></li>
+                    <li><span class="font-medium">Fournit un rapport d'analyse</span> pour votre revue et validation</li>
+                </ol>
+            </div>
+            
+            <div class="mt-6 p-3 bg-blue-50 rounded-lg">
+                <h4 class="font-semibold text-blue-800 mb-1">Bénéfice :</h4>
+                <p class="text-blue-700">Transformation rapide d'un besoin client en éléments de backlog exploitables, avec une analyse structurée et cohérente.</p>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="bg-purple-100 text-purple-800 p-2 rounded-full mr-3">
+                    <i class="fas fa-sort-amount-up"></i>
+                </span>
+                Scénario 2: Aide à la Priorisation (futur)
+            </h3>
+            
+            <p class="text-gray-700 mb-4">AgilePheromind pourrait analyser :</p>
+            <ul class="list-disc list-inside text-gray-700 space-y-2 mb-4">
+                <li>Les dépendances entre les User Stories</li>
+                <li>La valeur métier (si renseignée)</li>
+                <li>Les estimations de complexité</li>
+                <li>Les ressources disponibles</li>
+            </ul>
+            
+            <p class="text-gray-700">Pour suggérer un ordre de priorité optimisé pour votre backlog.</p>
+            
+            <div class="mt-4 p-3 bg-purple-50 rounded-lg">
+                <p class="text-purple-700 italic">Fonctionnalité en développement - Disponible dans une prochaine version</p>
+            </div>
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Décrire comment cela accélère le travail du PO : au lieu de passer 1h à rédiger des US, le PO peut se concentrer sur la validation et l'ajustement. Mentionner que le système apprend des préférences du PO au fil du temps.</p>
+        </div>
+    </div>
+
+    <!-- Slide 7 - Dev Scenarios -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6">Développeurs, Codez Plus Vite et Mieux !</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Scenario 1 -->
+            <div class="bg-white p-5 rounded-lg shadow-md">
+                <div class="flex items-center mb-3">
+                    <div class="bg-green-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-play text-green-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">Démarrer une User Story</h3>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="bg-gray-800 text-green-400 p-2 rounded font-mono text-sm mb-2">
+                        AgilePheromind commence US Azure#12323
+                    </div>
+                </div>
+                
+                <ul class="list-disc list-inside text-gray-700 space-y-1 text-sm">
+                    <li>Récupère l'US et identifie l'utilisateur</li>
+                    <li>Décompose/estime les tâches si besoin</li>
+                    <li>Crée votre branche Git</li>
+                    <li>Prêt à coder en un temps record !</li>
+                </ul>
+                
+                <div class="mt-3 p-2 bg-green-50 rounded text-sm">
+                    <p class="text-green-700"><i class="fas fa-bolt mr-1"></i> <strong>Gain de temps :</strong> Réduction du setup initial de 30-60min à quelques secondes</p>
+                </div>
+            </div>
+            
+            <!-- Scenario 2 -->
+            <div class="bg-white p-5 rounded-lg shadow-md">
+                <div class="flex items-center mb-3">
+                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-vial text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">Génération de Tests Unitaires</h3>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="bg-gray-800 text-green-400 p-2 rounded font-mono text-sm mb-2">
+                        AgilePheromind génère tests pour méthode 'CalculateTotal' dans 'OrderService'
+                    </div>
+                </div>
+                
+                <ul class="list-disc list-inside text-gray-700 space-y-1 text-sm">
+                    <li>Analyse le code et les ACs</li>
+                    <li>Génère des squelettes de tests (.NET/Angular)</li>
+                    <li>Couvre les cas clés et edge cases</li>
+                    <li>Respecte vos conventions de test</li>
+                </ul>
+                
+                <div class="mt-3 p-2 bg-blue-50 rounded text-sm">
+                    <p class="text-blue-700"><i class="fas fa-shield-alt mr-1"></i> <strong>Qualité :</strong> Meilleure couverture, moins de bugs</p>
+                </div>
+            </div>
+            
+            <!-- Scenario 3 -->
+            <div class="bg-white p-5 rounded-lg shadow-md md:col-span-2">
+                <div class="flex items-center mb-3">
+                    <div class="bg-purple-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-code-commit text-purple-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">Finalisation de Tâche et Commit Standardisé</h3>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="bg-gray-800 text-green-400 p-2 rounded font-mono text-sm mb-2">
+                        AgilePheromind: Tâche Azure#23223 terminée. Prépare commit pour US Azure#12323.
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-gray-100 p-2 rounded text-center">
+                        <div class="text-purple-600 mb-1"><i class="fas fa-check-circle"></i></div>
+                        <p class="text-xs font-medium">Vérifie tests/linters</p>
+                    </div>
+                    <div class="bg-gray-100 p-2 rounded text-center">
+                        <div class="text-purple-600 mb-1"><i class="fas fa-comment-alt"></i></div>
+                        <p class="text-xs font-medium">Propose message "Conventional Commit"</p>
+                    </div>
+                    <div class="bg-gray-100 p-2 rounded text-center">
+                        <div class="text-purple-600 mb-1"><i class="fas fa-sync-alt"></i></div>
+                        <p class="text-xs font-medium">Met à jour Azure DevOps</p>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-2 bg-purple-50 rounded text-sm">
+                    <p class="text-purple-700"><i class="fas fa-clock mr-1"></i> <strong>Efficacité :</strong> Processus propre et standardisé en quelques secondes</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-4 bg-blue-100 rounded-lg">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">Bénéfices pour les Développeurs :</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-3 rounded shadow-sm">
+                    <div class="text-blue-600 mb-1"><i class="fas fa-hourglass-half"></i></div>
+                    <p class="text-sm font-medium">Moins de temps perdu en setup et tâches manuelles</p>
+                </div>
+                <div class="bg-white p-3 rounded shadow-sm">
+                    <div class="text-blue-600 mb-1"><i class="fas fa-code"></i></div>
+                    <p class="text-sm font-medium">Plus de focus sur le code de valeur</p>
+                </div>
+                <div class="bg-white p-3 rounded shadow-sm">
+                    <div class="text-blue-600 mb-1"><i class="fas fa-thumbs-up"></i></div>
+                    <p class="text-sm font-medium">Code plus propre et plus standardisé</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Insister sur l'élimination des tâches fastidieuses qui frustrent les développeurs. Donner des chiffres estimés de temps gagné. Mentionner que le système s'adapte aux conventions de l'équipe.</p>
+        </div>
+    </div>
+
+    <!-- Slide 8 - Tech Lead Scenarios -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6">Tech Leads & Architectes, Maîtrisez la Qualité et la Vision !</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Scenario 1 -->
+            <div class="bg-white p-5 rounded-lg shadow-md">
+                <div class="flex items-center mb-3">
+                    <div class="bg-red-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-code-branch text-red-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">Revue de PR Assistée</h3>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="bg-gray-800 text-green-400 p-2 rounded font-mono text-sm mb-2">
+                        AgilePheromind analyse PR Azure#456
+                    </div>
+                </div>
+                
+                <div class="flex space-x-2 mb-3">
+                    <span class="agent-chip px-2 py-1 rounded-full text-sm">@code-reviewer-assistant</span>
+                    <span class="agent-chip px-2 py-1 rounded-full text-sm">@security-analyst-agent</span>
+                </div>
+                
+                <ul class="list-disc list-inside text-gray-700 space-y-1 text-sm">
+                    <li>Analyse les diffs (conventions, code smells)</li>
+                    <li>Vérifie la couverture de tests</li>
+                    <li>Détecte les problèmes de sécurité</li>
+                    <li>Génère un rapport détaillé</li>
+                    <li>Met en avant les problèmes critiques</li>
+                </ul>
+                
+                <div class="mt-3 p-2 bg-red-50 rounded text-sm">
+                    <p class="text-red-700"><i class="fas fa-stopwatch mr-1"></i> <strong>Efficacité :</strong> Revues plus rapides et ciblées</p>
+                </div>
+            </div>
+            
+            <!-- Scenario 2 -->
+            <div class="bg-white p-5 rounded-lg shadow-md">
+                <div class="flex items-center mb-3">
+                    <div class="bg-yellow-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-history text-yellow-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">Analyse de Code Legacy</h3>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="bg-gray-800 text-green-400 p-2 rounded font-mono text-sm mb-2">
+                        AgilePheromind analyse code VB6 pour migration vers .NET Core/Angular
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <span class="agent-chip px-2 py-1 rounded-full text-sm">@migration-analyst-agent</span>
+                </div>
+                
+                <ul class="list-disc list-inside text-gray-700 space-y-1 text-sm">
+                    <li>Fournit un rapport détaillé des composants</li>
+                    <li>Identifie les dépendances critiques</li>
+                    <li>Propose un mapping vers .NET Core/Angular</li>
+                    <li>Estime la complexité et les risques</li>
+                </ul>
+                
+                <div class="mt-3 p-2 bg-yellow-50 rounded text-sm">
+                    <p class="text-yellow-700"><i class="fas fa-lightbulb mr-1"></i> <strong>Décision :</strong> Migration éclairée par les données</p>
+                </div>
+            </div>
+            
+            <!-- Scenario 3 -->
+            <div class="bg-white p-5 rounded-lg shadow-md md:col-span-2">
+                <div class="flex items-center mb-3">
+                    <div class="bg-green-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-broom text-green-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">Gestion de la Dette Technique</h3>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="bg-gray-800 text-green-400 p-2 rounded font-mono text-sm mb-2">
+                        AgilePheromind analyse dette technique projet
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                    <div class="bg-gray-100 p-2 rounded text-center">
+                        <div class="text-green-600 mb-1"><i class="fas fa-search"></i></div>
+                        <p class="text-xs font-medium">Identification des zones à problèmes</p>
+                    </div>
+                    <div class="bg-gray-100 p-2 rounded text-center">
+                        <div class="text-green-600 mb-1"><i class="fas fa-lightbulb"></i></div>
+                        <p class="text-xs font-medium">Suggestions de refactorings</p>
+                    </div>
+                    <div class="bg-gray-100 p-2 rounded text-center">
+                        <div class="text-green-600 mb-1"><i class="fas fa-book"></i></div>
+                        <p class="text-xs font-medium">Mise à jour du registre de dette</p>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-2 bg-green-50 rounded text-sm">
+                    <p class="text-green-700"><i class="fas fa-chart-line mr-1"></i> <strong>Vision :</strong> Suivi proactif de la qualité du code</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-4 bg-blue-100 rounded-lg">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">AgilePheromind : Votre Multiplicateur de Force Technique</h3>
+            <p class="text-blue-700">Permet aux tech leads et architectes de maintenir une vision claire et une qualité élevée sur plusieurs projets simultanément.</p>
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Positionner AgilePheromind comme un multiplicateur de force pour le leadership technique. Donner l'exemple d'un architecte qui peut maintenir la vision technique sur plusieurs projets simultanément grâce à l'assistance IA.</p>
+        </div>
+    </div>
+
+    <!-- Slide 9 - DevOps Scenarios -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6">DevOps & Déploiement : Automatisation et Fiabilité Accrues !</h2>
+        
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="bg-indigo-100 text-indigo-800 p-2 rounded-full mr-3">
+                    <i class="fas fa-rocket"></i>
+                </span>
+                Scénario : Déploiement sur AKS via Azure Pipelines
+            </h3>
+            
+            <div class="mb-4">
+                <h4 class="font-medium text-gray-700 mb-2">Vous dites :</h4>
+                <div class="bg-gray-800 text-green-400 p-3 rounded font-mono text-sm">
+                    AgilePheromind déploie 'MyAPI' v1.2 sur AKS Staging
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <h4 class="font-medium text-gray-700 mb-2">AgilePheromind :</h4>
+                <div class="flex space-x-2 mb-3">
+                    <span class="agent-chip px-2 py-1 rounded-full text-sm">@deployment-agent-aks</span>
+                    <span class="agent-chip px-2 py-1 rounded-full text-sm">@devops-connector</span>
+                </div>
+                
+                <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                    <li><span class="font-medium">Vérifie l'image Docker</span> dans ACR (ou la build si nécessaire via <span class="mcp-chip px-2 py-1 rounded-full text-sm">Docker MCP</span>)</li>
+                    <li><span class="font-medium">Récupère les manifestes Kubernetes</span> depuis Git</li>
+                    <li><span class="font-medium">Déclenche le pipeline Azure DevOps</span> configuré pour le déploiement sur AKS</li>
+                    <li><span class="font-medium">Suit le statut du pipeline</span> et effectue des vérifications post-déploiement</li>
+                </ol>
+            </div>
+            
+            <div class="mt-6 p-3 bg-indigo-50 rounded-lg">
+                <h4 class="font-semibold text-indigo-800 mb-1">Bénéfices :</h4>
+                <ul class="list-disc list-inside text-indigo-700 space-y-1">
+                    <li>Processus de déploiement standardisé et tracé</li>
+                    <li>Réduction des erreurs manuelles</li>
+                    <li>Intégration transparente avec votre CI/CD existante</li>
+                    <li>Vérifications automatiques post-déploiement</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white p-4 rounded-lg shadow-sm text-center">
+                <div class="text-indigo-600 text-3xl mb-2"><i class="fas fa-random"></i></div>
+                <h4 class="font-semibold text-gray-800 mb-1">Intégration Continue</h4>
+                <p class="text-gray-600 text-sm">Déclenchement et monitoring des pipelines</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm text-center">
+                <div class="text-indigo-600 text-3xl mb-2"><i class="fas fa-server"></i></div>
+                <h4 class="font-semibold text-gray-800 mb-1">Déploiement Continu</h4>
+                <p class="text-gray-600 text-sm">Gestion des environnements et versions</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm text-center">
+                <div class="text-indigo-600 text-3xl mb-2"><i class="fas fa-shield-alt"></i></div>
+                <h4 class="font-semibold text-gray-800 mb-1">Sécurité</h4>
+                <p class="text-gray-600 text-sm">Vérification des configurations et permissions</p>
+            </div>
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Montrer comment cela réduit les erreurs de déploiement et le temps de résolution des problèmes. Mentionner l'intégration avec les outils existants (Azure DevOps, AKS) sans nécessiter de changement majeur.</p>
+        </div>
+    </div>
+
+    <!-- Slide 10 - Tech Stack -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6">Conçu pour Votre Environnement</h2>
+        
+        <div class="text-center mb-8">
+            <p class="text-lg text-gray-700 italic">Optimisé pour une intégration native avec votre stack</p>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-4 rounded-lg shadow-md text-center">
+                <div class="text-blue-600 text-4xl mb-3">
+                    <i class="fab fa-microsoft"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">.NET (C#)</h3>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md text-center">
+                <div class="text-red-600 text-4xl mb-3">
+                    <i class="fab fa-angular"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">Angular (TypeScript)</h3>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md text-center">
+                <div class="text-blue-400 text-4xl mb-3">
+                    <i class="fas fa-cloud"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">Azure DevOps</h3>
+                <p class="text-xs text-gray-600">Boards, Repos, Pipelines</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md text-center">
+                <div class="text-blue-800 text-4xl mb-3">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">MSSQL</h3>
+                <p class="text-xs text-gray-600">Azure SQL</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md text-center">
+                <div class="text-blue-500 text-4xl mb-3">
+                    <i class="fab fa-docker"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">Docker</h3>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md text-center">
+                <div class="text-blue-600 text-4xl mb-3">
+                    <i class="fas fa-cubes"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">AKS</h3>
+                <p class="text-xs text-gray-600">Azure Kubernetes Service</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md text-center">
+                <div class="text-orange-600 text-4xl mb-3">
+                    <i class="fab fa-git-alt"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">Git</h3>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md text-center">
+                <div class="text-purple-600 text-4xl mb-3">
+                    <i class="fas fa-plug"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">MCPs</h3>
+                <p class="text-xs text-gray-600">Connecteurs personnalisables</p>
+            </div>
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Rassurer l'audience sur le fait qu'ils n'auront pas à abandonner leurs outils actuels. Mentionner que des intégrations supplémentaires peuvent être développées si nécessaire.</p>
+        </div>
+    </div>
+
+    <!-- Slide 11 - MCPs -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6">Model Context Protocol (MCPs) : Les Mains et les Yeux d'AgilePheromind</h2>
+        
+        <div class="mb-6 p-4 bg-green-100 rounded-lg">
+            <p class="text-green-800 font-medium text-center">"Les MCPs permettent à nos agents IA d'agir sur vos outils."</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-cloud text-blue-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">Azure DevOps MCP</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Lire/écrire des US et tâches, gérer les PRs, déclencher des pipelines</p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-orange-100 p-2 rounded-full mr-3">
+                        <i class="fab fa-git-alt text-orange-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">Git Tools MCP</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Cloner, commiter, créer des branches, lire des diffs</p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-purple-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-book text-purple-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">Context7 MCP</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Accéder à la documentation des librairies .NET/Angular</p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-database text-blue-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">MSSQL MCP</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Analyser les schémas de base de données, valider des requêtes SQL</p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-green-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-window-maximize text-green-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">Browser Tools MCP</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Pour les tests UI automatisés et la navigation web</p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-yellow-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-sitemap text-yellow-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">Sequential Thinking MCP</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Résolution de problèmes complexes par les agents</p>
+            </div>
+        </div>
+        
+        <div class="p-4 bg-blue-50 rounded-lg">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">Avantage Clé :</h3>
+            <p class="text-blue-700">Permet une intégration profonde et contextuelle avec vos outils existants sans nécessiter de les remplacer.</p>
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Expliquer que sans MCPs, l'IA serait "aveugle" - elle pourrait raisonner mais pas agir. Comparer à un humain qui aurait des idées mais pas de mains pour les mettre en œuvre. Mentionner la sécurité des connexions.</p>
+        </div>
+    </div>
+
+    <!-- Slide 12 - Continuous Improvement -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6">Un Système Qui Apprend et s'Améliore</h2>
+        
+        <div class="mb-6 p-4 bg-purple-100 rounded-lg">
+            <p class="text-purple-800 font-medium text-center">"AgilePheromind est conçu pour évoluer et devenir plus intelligent avec votre projet."</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-red-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">@risk-manager-agent</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Surveillance proactive des risques du projet en analysant la memoryBank</p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-tachometer-alt text-blue-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">@workflow-optimizer-agent</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Analyse les performances d'AgilePheromind et suggère des améliorations</p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-green-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-heartbeat text-green-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">@swarm-monitor-agent</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Fournit des rapports sur la santé globale du système Pheromind</p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex items-center mb-2">
+                    <div class="bg-yellow-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-archway text-yellow-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">@architecture-advisor-agent</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Aide à garder les conventions de codage et design à jour</p>
+            </div>
+        </div>
+        
+        <div class="p-4 bg-blue-100 rounded-lg">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">Objectif :</h3>
+            <p class="text-blue-700">Un système qui s'adapte à vos besoins spécifiques et devient plus efficace avec le temps, tout en maintenant la cohérence et la qualité.</p>
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Souligner que contrairement à un outil statique, AgilePheromind s'améliore avec le temps. Donner l'exemple d'une optimisation de workflow détectée après quelques semaines d'utilisation.</p>
+        </div>
+    </div>
+
+    <!-- Slide 13 - Interaction -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6">Prise en Main d'AgilePheromind</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-5 rounded-lg shadow-md">
+                <div class="flex items-center mb-3">
+                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-terminal text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">Interface Principale</h3>
+                </div>
+                <p class="text-gray-600 ml-11">Via des <span class="font-bold">commandes textuelles</span> dans votre environnement Roo Code (ou similaire)</p>
+                <div class="bg-gray-800 text-green-400 p-3 rounded font-mono text-sm mt-2 ml-11">
+                    AgilePheromind [Action] [Objet] [Paramètres]
+                </div>
+            </div>
+            
+            <div class="bg-white p-5 rounded-lg shadow-md">
+                <div class="flex items-center mb-3">
+                    <div class="bg-purple-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-bullseye text-purple-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">Clarté est Reine</h3>
+                </div>
+                <ul class="list-disc list-inside text-gray-600 space-y-1 ml-11">
+                    <li>Utilisez les IDs Azure DevOps (<span class="font-mono bg-gray-100 px-1 rounded">Azure#12345</span>)</li>
+                    <li>Soyez précis sur les noms de méthodes, classes, modules</li>
+                    <li>Plus la commande est spécifique, meilleur est le résultat</li>
+                </ul>
+            </div>
+            
+            <div class="bg-white p-5 rounded-lg shadow-md">
+                <div class="flex items-center mb-3">
+                    <div class="bg-green-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-user-check text-green-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">Validation Humaine</h3>
+                </div>
+                <p class="text-gray-600 ml-11">AgilePheromind demande confirmation pour les décisions clés via <span class="font-mono bg-gray-100 px-1 rounded">ask_followup_question</span>. <span class="font-bold">Vous gardez le contrôle.</span></p>
+            </div>
+            
+            <div class="bg-white p-5 rounded-lg shadow-md">
+                <div class="flex items-center mb-3">
+                    <div class="bg-yellow-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-sync-alt text-yellow-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">Itération</h3>
+                </div>
+                <p class="text-gray-600 ml-11">N'hésitez pas à demander des modifications si une proposition ne vous convient pas. Le système est conçu pour itérer et s'améliorer avec votre feedback.</p>
+            </div>
+        </div>
+        
+        <div class="p-4 bg-blue-100 rounded-lg">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">Philosophie :</h3>
+            <p class="text-blue-700">AgilePheromind est un assistant, pas un automate. Il est conçu pour collaborer avec vous, pas pour vous remplacer.</p>
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Démystifier l'utilisation : montrer que ce n'est pas plus compliqué qu'une conversation avec un collègue. Insister sur le fait que l'humain garde toujours le contrôle final.</p>
+        </div>
+    </div>
+
+    <!-- Slide 14 - Next Steps -->
+    <div class="slide max-w-4xl mx-auto mb-12 p-8 rounded-lg">
+        <h2 class="text-3xl font-bold text-blue-800 mb-6">Prêts à Augmenter Votre Agilité ?</h2>
+        
+        <div class="mb-8">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Prochaines Étapes Possibles :</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow-sm flex items-start">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
+                        <span class="text-blue-600 font-bold">1</span>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-1">Session de Bootstrap</h4>
+                        <p class="text-gray-600 text-sm">Initialisation d'AgilePheromind pour un projet pilote</p>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow-sm flex items-start">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
+                        <span class="text-blue-600 font-bold">2</span>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-1">Formation de l'Équipe</h4>
+                        <p class="text-gray-600 text-sm">Prise en main des commandes de base pour différents rôles</p>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow-sm flex items-start">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
+                        <span class="text-blue-600 font-bold">3</span>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-1">Adaptation Initiale</h4>
+                        <p class="text-gray-600 text-sm">Affiner les <span class="font-mono bg-gray-100 px-1 rounded">.roomodes</span> et <span class="font-mono bg-gray-100 px-1 rounded">.swarmConfig</span> pour vos besoins</p>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow-sm flex items-start">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
+                        <span class="text-blue-600 font-bold">4</span>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-1">Commencer avec quelques workflows clés</h4>
+                        <p class="text-gray-600 text-sm">Ex: Démarrer une US, Revue de PR, Génération de tests</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-8 p-4 bg-blue-50 rounded-lg text-center">
+            <p class="text-blue-700 font-medium italic text-lg">"Quels sont les premiers cas d'usage qui vous semblent les plus pertinents pour votre équipe ?"</p>
+            <p class="text-blue-700 font-medium italic mt-2">"Quelles sont vos questions ?"</p>
+        </div>
+        
+        <div class="text-center text-gray-500">
+            <p>[Contact/Infos ici]</p>
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 italic"><strong>Note pour le présentateur :</strong> Ouvrir la discussion en demandant quels points ont le plus intéressé l'audience. Proposer un plan d'adoption progressif pour réduire la courbe d'apprentissage. Avoir des exemples de workflows prêts à suggérer en fonction des réactions.</p>
+        </div>
+    </div>
+</body>
+</html>

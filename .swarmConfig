@@ -1,0 +1,631 @@
+{
+  "scribeSettings": {
+    "defaultPheromoneFile": ".pheromone",
+    "maxMemoryBankSignalsBeforePruning": 0,
+    "signalsToPrune": 0,
+    "logLevel": "INFO"
+  },
+  "interpretationLogic": [
+    {
+      "id": "log_general_agent_summary",
+      "priority": 999,
+      "conditions": [
+        {
+          "field": "summaryText",
+          "operator": "isNotEmpty"
+        }
+      ],
+      "actions": [
+        {
+          "type": "appendToMemoryBankSection",
+          "targetSection": "memoryBank.agentActivityLog",
+          "value": {
+            "timestamp": "{{timestamp}}",
+            "agent": "{{agentName}}",
+            "handoffReason": "{{handoffReasonCode}}",
+            "summary": "{{summaryText}}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "update_currentUser_from_devops_connector",
+      "priority": 10,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@devops-connector"
+        },
+        {
+          "field": "summaryText",
+          "operator": "contains",
+          "value": "Utilisateur '{{azureUser}}' identifié."
+        }
+      ],
+      "actions": [
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentUser.azureDevOpsUsername",
+          "valueFromSummary": "{{azureUser}}"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentUser.id",
+          "valueFromSummary": "{{azureUser}}",
+          "comment": "Potentially generate a more unique ID or use one from context if available"
+        }
+      ]
+    },
+    {
+      "id": "start_user_story_processing",
+      "priority": 20,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@devops-connector"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Détails de l'US 'Azure#{{usId}}' ('{{usTitle}}') récupérés : Description: '{{usDescSnippet}}', État Actuel: '{{usAzureStatus}}'."
+        }
+      ],
+      "actions": [
+        {
+          "type": "updatePheromoneField",
+          "targetField": "activeUserStory",
+          "value": {
+            "id": "Azure#{{usId}}",
+            "title": "{{usTitle}}",
+            "descriptionSummaryFromAzure": "{{usDescSnippet}}",
+            "status": "InProgressByPheromind",
+            "azureStatus": "{{usAzureStatus}}",
+            "tasks": []
+          }
+        },
+        {
+          "type": "appendToMemoryBankSection",
+          "targetSection": "memoryBank.userStories.{{usId}}.statusHistory",
+          "value": {
+            "status": "InProgressByPheromind",
+            "timestamp": "{{timestamp}}",
+            "actor": "AgilePheromindSystem",
+            "developer": "{{currentUser.id}}"
+          }
+        },
+        {
+          "type": "updateMemoryBankField",
+          "targetField": "memoryBank.userStories.{{usId}}.title",
+          "valueFromSummary": "{{usTitle}}"
+        },
+        {
+          "type": "updateMemoryBankField",
+          "targetField": "memoryBank.userStories.{{usId}}.descriptionSummary",
+          "valueFromSummary": "{{usDescSnippet}}"
+        }
+      ]
+    },
+    {
+      "id": "process_task_breakdown",
+      "priority": 25,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@task-breakdown-estimator"
+        },
+        {
+          "field": "summaryText",
+          "operator": "contains",
+          "value": "Décomposition de l'US 'Azure#{{usId}}' effectuée/vérifiée."
+        },
+        {
+          "field": "summaryText",
+          "operator": "contains",
+          "value": "Rapport: `{{reportPath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "updatePheromoneField",
+          "targetField": "activeUserStory.tasks",
+          "value": [],
+          "comment": "Tasks will be added if reportPath is parsed, or assume Azure DevOps sync by agent"
+        },
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{reportPath}}",
+          "description": "Task breakdown report for US Azure#{{usId}}",
+          "documentType": "TaskBreakdownReport"
+        },
+        {
+          "type": "appendToMemoryBankSection",
+          "targetSection": "memoryBank.userStories.{{usId}}.analysisSummaries",
+          "value": {
+            "type": "TaskBreakdownEstimation",
+            "summary": "Task breakdown and estimation complete.",
+            "link": "{{reportPath}}",
+            "timestamp": "{{timestamp}}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "process_task_status_update_from_azure",
+      "priority": 30,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@devops-connector"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Statut de la tâche Azure#{{taskId}} mis à jour à '{{newStatus}}' dans Azure DevOps."
+        }
+      ],
+      "actions": [
+        {
+          "type": "updateTaskStatusInMemoryBank",
+          "taskIdFromSummary": "{{taskId}}",
+          "newStatus": "{{newStatus}}",
+          "actor": "AzureDevOpsSync"
+        },
+        {
+          "type": "updateTaskStatusInActiveUserStory",
+          "taskIdFromSummary": "{{taskId}}",
+          "newStatus": "{{newStatus}}"
+        }
+      ]
+    },
+    {
+      "id": "process_commit_preparation",
+      "priority": 30,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@commit-pr-formatter"
+        },
+        {
+          "field": "summaryText",
+          "operator": "contains",
+          "value": "Commit message and PR draft ready"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Commit Message: \"{{commitMessage}}\""
+        }
+      ],
+      "actions": [
+        {
+          "type": "updateMemoryBankField",
+          "targetField": "memoryBank.tasks.{{activeTask.id}}.lastProposedCommitMessage",
+          "valueFromSummary": "{{commitMessage}}"
+        }
+      ]
+    },
+    {
+      "id": "process_commit_pushed",
+      "priority": 35,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@commit-pr-formatter"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Commit {{commitHash}} pushed for Task Azure#{{taskId}}."
+        }
+      ],
+      "actions": [
+        {
+          "type": "appendToMemoryBankSection",
+          "targetSection": "memoryBank.userStories.{{activeUserStory.id}}.relatedCommits",
+          "value": "{{commitHash}}"
+        },
+        {
+          "type": "updateMemoryBankField",
+          "targetField": "memoryBank.tasks.{{taskId}}.relatedCommit",
+          "valueFromSummary": "{{commitHash}}"
+        }
+      ]
+    },
+    {
+      "id": "process_po_need_analysis_report",
+      "priority": 20,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@po-assistant"
+        },
+        {
+          "field": "summaryText",
+          "operator": "contains",
+          "value": "Rapport complet généré : `{{reportPath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{reportPath}}",
+          "description": "PO Need Analysis Report",
+          "documentType": "AnalysisReport"
+        },
+        {
+          "type": "appendToMemoryBankSection",
+          "targetSection": "memoryBank.userStories.{{activeUserStory.id_if_contextual_or_new_us_id_from_report}}.analysisSummaries",
+          "value": {
+            "type": "PO_NeedAnalysis",
+            "summary": "PO need analysis completed.",
+            "link": "{{reportPath}}",
+            "timestamp": "{{timestamp}}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "process_unit_test_generation",
+      "priority": 20,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@test-generator-agent"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Generated .* tests for .* in file `{{filePath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{filePath}}",
+          "description": "Unit test file",
+          "documentType": "TestFile"
+        },
+        {
+          "type": "appendToMemoryBankSection",
+          "targetSection": "memoryBank.tasks.{{activeTask.id}}.testCasesGenerated",
+          "value": {
+            "path": "{{filePath}}",
+            "description": "Unit tests generated by @test-generator-agent",
+            "timestamp": "{{timestamp}}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "process_pr_review_report",
+      "priority": 20,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@code-reviewer-assistant"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "PR Azure#{{prId}} reviewed. .* Report: `{{reportPath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{reportPath}}",
+          "description": "Pull Request Review Report for PR Azure#{{prId}}",
+          "documentType": "ReviewReport"
+        },
+        {
+          "type": "updateMemoryBankField",
+          "targetField": "memoryBank.pullRequests.{{prId}}.reviewReportPath",
+          "valueFromSummary": "{{reportPath}}"
+        },
+        {
+          "type": "updateMemoryBankField",
+          "targetField": "memoryBank.pullRequests.{{prId}}.lastReviewTimestamp",
+          "value": "{{timestamp}}"
+        }
+      ]
+    },
+    {
+      "id": "process_legacy_analysis_report",
+      "priority": 20,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@migration-analyst-agent"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Legacy codebase analysis for {{projectName}} completed. .* Report: `{{reportPath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{reportPath}}",
+          "description": "Legacy Code Analysis Report for {{projectName}}",
+          "documentType": "MigrationAnalysisReport"
+        },
+        {
+          "type": "updateMemoryBankField",
+          "targetField": "memoryBank.legacyCodeAnalyses.{{reportPath | extractFilename}}",
+          "value": {
+            "summary": "{{summaryText | extractKeyFindings}}",
+            "link": "{{reportPath}}",
+            "timestamp": "{{timestamp}}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "process_tech_doc_generation",
+      "priority": 20,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@documentation-writer-agent"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Documentation for {{moduleOrFeature}} created/updated at `{{filePath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{filePath}}",
+          "description": "Technical/User Documentation for {{moduleOrFeature}}",
+          "documentType": "TechnicalDocumentation"
+        }
+      ]
+    },
+    {
+      "id": "process_tech_debt_report",
+      "priority": 20,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@code-reviewer-assistant"
+        },
+        {
+          "field": "summaryText",
+          "operator": "contains",
+          "value": "Technical debt analysis complete."
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Report: `{{reportPath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{reportPath}}",
+          "description": "Technical Debt Analysis Report",
+          "documentType": "AnalysisReport"
+        },
+        {
+          "type": "updateMemoryBankField",
+          "targetField": "memoryBank.projectContext.lastTechDebtAnalysis",
+          "value": {
+            "reportPath": "{{reportPath}}",
+            "timestamp": "{{timestamp}}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "process_ui_validation_report",
+      "priority": 20,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@tester-ui-validator-agent"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "UI validation for {{featureName}} completed. .* Report: `{{reportPath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{reportPath}}",
+          "description": "UI Validation Report for {{featureName}}",
+          "documentType": "TestReport"
+        },
+        {
+          "type": "appendToMemoryBankSection",
+          "targetSection": "memoryBank.userStories.{{activeUserStory.id_if_contextual}}.uiValidationReports",
+          "value": {
+            "reportPath": "{{reportPath}}",
+            "timestamp": "{{timestamp}}",
+            "status": "{{summaryText | extractOverallStatus}}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "process_project_setup",
+      "priority": 15,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@project-setup-agent"
+        },
+        {
+          "field": "summaryText",
+          "operator": "contains",
+          "value": "New project environment for \"{{projectName}}\" (.NET/Angular) initialized."
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Azure DevOps project \"{{adoName}}\" connected."
+        }
+      ],
+      "actions": [
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentProject.name",
+          "valueFromSummary": "{{adoName}}"
+        },
+        {
+          "type": "updateMemoryBankField",
+          "targetField": "memoryBank.projectContext.azureDevOpsProject",
+          "valueFromSummary": "{{adoName}}"
+        }
+      ]
+    },
+    {
+      "id": "process_risk_register_update",
+      "priority": 20,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@risk-manager-agent"
+        },
+        {
+          "field": "summaryText",
+          "operator": "contains",
+          "value": "risks identified/updated in risk register."
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Report: `{{reportPath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{reportPath}}",
+          "description": "Risk Assessment Report",
+          "documentType": "RiskReport"
+        }
+      ]
+    },
+    {
+      "id": "process_workflow_optimization_suggestions",
+      "priority": 20,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@workflow-optimizer-agent"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Workflow analysis complete. .* Report: `{{reportPath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{reportPath}}",
+          "description": "Workflow Optimization Suggestions",
+          "documentType": "OptimizationReport"
+        }
+      ]
+    },
+    {
+      "id": "process_aks_deployment_status",
+      "priority": 20,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@deployment-agent-aks"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Deployment of {{appName}} v{{version}} to AKS environment \"{{aksEnv}}\" initiated/completed.* Current status: {{deployStatus}}."
+        }
+      ],
+      "actions": [
+        {
+          "type": "appendToMemoryBankSection",
+          "targetSection": "memoryBank.deployments.{{appName}}.{{version}}.{{aksEnv}}",
+          "value": {
+            "status": "{{deployStatus}}",
+            "timestamp": "{{timestamp}}",
+            "logLinkFromSummary": "{{summaryText | extractLogLink}}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "process_swarm_health_report",
+      "priority": 20,
+      "conditions": [
+        {
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@swarm-monitor-agent"
+        },
+        {
+          "field": "summaryText",
+          "operator": "matches",
+          "value": "Swarm health check complete. .* Report: `{{reportPath}}`."
+        }
+      ],
+      "actions": [
+        {
+          "type": "addToDocumentationRegistry",
+          "documentPathFromSummary": "{{reportPath}}",
+          "description": "Pheromind Swarm Health Report",
+          "documentType": "SystemReport"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "systemHealth.lastCheck",
+          "value": "{{timestamp}}"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "systemHealth.status",
+          "valueFromSummary": "{{summaryText | extractOverallStatus}}"
+        }
+      ]
+    }
+  ],
+  "actionImplementations": {
+    "updatePheromoneField": "Updates a direct field in the root of the .pheromone object. Uses dot notation for nested fields.",
+    "appendToPheromoneList": "Appends a value to a list within the .pheromone object. Creates the list if it doesn't exist.",
+    "updateMemoryBankField": "Updates a field within the .pheromone.memoryBank object. Uses dot notation.",
+    "appendToMemoryBankSection": "Appends a value to a list within a specific section of .pheromone.memoryBank. Creates list if needed.",
+    "addToDocumentationRegistry": "Adds or updates an entry in .pheromone.documentationRegistry.",
+    "updateTaskStatusInMemoryBank": "Specific action to find a task by ID in memoryBank.tasks and update its status and statusHistory.",
+    "updateTaskStatusInActiveUserStory": "Specific action to find a task by ID in activeUserStory.tasks and update its status."
+  },
+  "valueExtractors": {
+    "extractFilename": "A function that extracts the filename from a full path string.",
+    "extractKeyFindings": "A function that attempts to get a very short summary of key findings from a longer text.",
+    "extractOverallStatus": "A function that tries to determine an overall status (e.g., OK, Warning, Error, Pass, Fail) from a summary text.",
+    "extractLogLink": "A function that looks for URLs or file paths that seem to be log files in a summary."
+  }
+}

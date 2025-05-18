@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgilePheromind Presentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .slide {
+            display: none;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .active-slide {
+            display: block;
+        }
+        .progress-bar {
+            height: 5px;
+            transition: width 0.3s ease;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-20px);}
+            60% {transform: translateY(-10px);}
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Progress bar -->
+    <div class="fixed top-0 left-0 right-0 h-1 bg-gray-200 z-50">
+        <div id="progress" class="progress-bar bg-blue-600 h-full" style="width: 0%"></div>
+    </div>
+
+    <!-- Navigation buttons -->
+    <div class="fixed bottom-4 right-4 z-40 flex space-x-2">
+        <button id="prevBtn" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all transform hover:scale-110">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <button id="nextBtn" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all transform hover:scale-110">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+
+    <!-- Slide counter -->
+    <div class="fixed bottom-4 left-4 bg-gray-800 text-white px-3 py-1 rounded-full text-sm z-40">
+        <span id="currentSlide">1</span>/<span id="totalSlides">14</span>
+    </div>
+
+    <!-- Slides container -->
+    <div class="relative">
+        <!-- Slide 1: Title -->
+        <div class="slide active-slide bg-gradient-to-br from-blue-900 to-indigo-800 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center items-center text-center px-4">
+                <div class="mb-8">
+                    <i class="fas fa-robot text-6xl mb-4 bounce text-blue-300"></i>
+                    <h1 class="text-5xl font-bold mb-4">AgilePheromind</h1>
+                    <h2 class="text-3xl font-light mb-8">Révolutionnez Votre Développement Agile avec une Assistance IA Intelligente</h2>
+                    <p class="text-xl text-blue-200">Augmentez la productivité, améliorez la qualité et boostez la collaboration de votre équipe .NET/Angular avec un essaim d'IA.</p>
+                </div>
+                <div class="mt-12 p-4 bg-black bg-opacity-20 rounded-lg">
+                    <p class="text-sm italic">[Votre Nom/Logo ici]</p>
+                </div>
+                <div class="absolute bottom-8 left-0 right-0 text-center text-blue-200 text-sm">
+                    <p>Notes pour le Présentateur: Accueillir le public, introduire brièvement le sujet de l'IA dans le développement Agile.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Challenges -->
+        <div class="slide bg-gradient-to-br from-gray-800 to-gray-900 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center px-4">
+                <h2 class="text-4xl font-bold mb-8 text-center text-blue-300">Les Défis Constants du Développement Agile Moderne</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                    <div class="bg-gray-700 bg-opacity-50 p-6 rounded-lg border-l-4 border-blue-400 hover:bg-opacity-70 transition-all">
+                        <h3 class="text-xl font-semibold mb-2 flex items-center">
+                            <i class="fas fa-brain mr-3 text-blue-300"></i> Charge Cognitive Élevée
+                        </h3>
+                        <p class="text-gray-300">Multiplication des tâches et du contexte à gérer.</p>
+                    </div>
+                    
+                    <div class="bg-gray-700 bg-opacity-50 p-6 rounded-lg border-l-4 border-blue-400 hover:bg-opacity-70 transition-all">
+                        <h3 class="text-xl font-semibold mb-2 flex items-center">
+                            <i class="fas fa-redo mr-3 text-blue-300"></i> Tâches Répétitives
+                        </h3>
+                        <p class="text-gray-300">Actions chronophages à faible valeur ajoutée.</p>
+                    </div>
+                    
+                    <div class="bg-gray-700 bg-opacity-50 p-6 rounded-lg border-l-4 border-blue-400 hover:bg-opacity-70 transition-all">
+                        <h3 class="text-xl font-semibold mb-2 flex items-center">
+                            <i class="fas fa-check-circle mr-3 text-blue-300"></i> Maintien de la Qualité
+                        </h3>
+                        <p class="text-gray-300">Détection précoce des bugs, dette technique.</p>
+                    </div>
+                    
+                    <div class="bg-gray-700 bg-opacity-50 p-6 rounded-lg border-l-4 border-blue-400 hover:bg-opacity-70 transition-all">
+                        <h3 class="text-xl font-semibold mb-2 flex items-center">
+                            <i class="fas fa-file-alt mr-3 text-blue-300"></i> Documentation Négligée
+                        </h3>
+                        <p class="text-gray-300">Manque de temps/priorité.</p>
+                    </div>
+                    
+                    <div class="bg-gray-700 bg-opacity-50 p-6 rounded-lg border-l-4 border-blue-400 hover:bg-opacity-70 transition-all">
+                        <h3 class="text-xl font-semibold mb-2 flex items-center">
+                            <i class="fas fa-tools mr-3 text-blue-300"></i> Intégration Complexe
+                        </h3>
+                        <p class="text-gray-300">Synchronisation, utilisation optimale des outils.</p>
+                    </div>
+                    
+                    <div class="bg-gray-700 bg-opacity-50 p-6 rounded-lg border-l-4 border-blue-400 hover:bg-opacity-70 transition-all">
+                        <h3 class="text-xl font-semibold mb-2 flex items-center">
+                            <i class="fas fa-history mr-3 text-blue-300"></i> Migration Legacy
+                        </h3>
+                        <p class="text-gray-300">Fardeau technique important.</p>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <p class="text-xl italic text-blue-200">"Ces défis vous sont-ils familiers ?"</p>
+                </div>
+                
+                <div class="absolute bottom-8 left-0 right-0 text-center text-blue-200 text-sm">
+                    <p>Notes pour le Présentateur: Élaborer sur chaque point avec des exemples concrets que l'équipe pourrait rencontrer. Créer une connexion avec l'audience.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Vision -->
+        <div class="slide bg-gradient-to-br from-indigo-900 to-purple-800 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center items-center text-center px-4">
+                <div class="max-w-4xl">
+                    <h2 class="text-4xl font-bold mb-8">AgilePheromind : L'IA au Service de Votre Équipe Agile</h2>
+                    
+                    <div class="relative mb-12">
+                        <div class="absolute -inset-4 bg-blue-500 rounded-xl blur opacity-25"></div>
+                        <div class="relative bg-gray-900 bg-opacity-50 p-8 rounded-lg border border-blue-400">
+                            <p class="text-2xl leading-relaxed">
+                                "AgilePheromind : un partenaire IA intelligent et collaboratif, intégré à vos processus. Propulsé par une architecture d'essaim d'agents IA spécialisés (Framework Pheromind)."
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-center mb-8">
+                        <div class="relative w-64 h-64">
+                            <!-- Network visualization -->
+                            <div class="absolute inset-0 rounded-full border-2 border-blue-400 animate-pulse"></div>
+                            <div class="absolute inset-8 rounded-full border-2 border-blue-300 animate-pulse" style="animation-delay: 0.2s;"></div>
+                            <div class="absolute inset-16 rounded-full border-2 border-blue-200 animate-pulse" style="animation-delay: 0.4s;"></div>
+                            
+                            <!-- Nodes -->
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                                <i class="fas fa-brain text-2xl"></i>
+                            </div>
+                            
+                            <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                                <i class="fas fa-code text-xl"></i>
+                            </div>
+                            
+                            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-green-600 rounded-full flex items-center justify-center shadow-lg">
+                                <i class="fas fa-tasks text-xl"></i>
+                            </div>
+                            
+                            <div class="absolute top-1/2 left-4 transform -translate-y-1/2 w-12 h-12 bg-yellow-600 rounded-full flex items-center justify-center shadow-lg">
+                                <i class="fas fa-book text-xl"></i>
+                            </div>
+                            
+                            <div class="absolute top-1/2 right-4 transform -translate-y-1/2 w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
+                                <i class="fas fa-shield-alt text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-8 left-0 right-0 text-center text-blue-200 text-sm">
+                    <p>Notes pour le Présentateur: Expliquer que ce n'est pas un simple outil, mais un système intégré. Souligner l'aspect "partenaire".</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Pillars -->
+        <div class="slide bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center px-4">
+                <h2 class="text-4xl font-bold mb-8 text-center text-blue-300">Comment Ça Marche ? Les 5 Piliers d'AgilePheromind</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-t-4 border-blue-500 transform hover:scale-105 transition-all">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-600 p-3 rounded-lg mr-4">
+                                <i class="fas fa-project-diagram text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">Workflows Définis</h3>
+                        </div>
+                        <p class="text-gray-300">Des "programmes" clairs pour chaque action (<code class="bg-gray-700 px-1 rounded">01_AI-RUN/*.md</code>).</p>
+                    </div>
+                    
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-t-4 border-purple-500 transform hover:scale-105 transition-all">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-purple-600 p-3 rounded-lg mr-4">
+                                <i class="fas fa-robot text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">Agents IA Spécialisés</h3>
+                        </div>
+                        <p class="text-gray-300">Une équipe d'experts virtuels dédiés (<code class="bg-gray-700 px-1 rounded">.roomodes</code>).</p>
+                    </div>
+                    
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-t-4 border-green-500 transform hover:scale-105 transition-all">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-green-600 p-3 rounded-lg mr-4">
+                                <i class="fas fa-database text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">État Partagé & Mémoire Collective</h3>
+                        </div>
+                        <p class="text-gray-300">Le "cerveau" central, incluant la <code class="bg-gray-700 px-1 rounded">memoryBank</code> (<code class="bg-gray-700 px-1 rounded">.pheromone</code>).</p>
+                    </div>
+                    
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-t-4 border-yellow-500 transform hover:scale-105 transition-all">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-yellow-600 p-3 rounded-lg mr-4">
+                                <i class="fas fa-network-wired text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">Orchestration Intelligente</h3>
+                        </div>
+                        <p class="text-gray-300">Le trio <code class="bg-gray-700 px-1 rounded">Head-Orchestrator</code>, <code class="bg-gray-700 px-1 rounded">Uber-Orchestrator</code>, et <code class="bg-gray-700 px-1 rounded">Scribe</code>.</p>
+                    </div>
+                    
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-t-4 border-red-500 transform hover:scale-105 transition-all">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-red-600 p-3 rounded-lg mr-4">
+                                <i class="fas fa-plug text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">Connexion au Monde Réel</h3>
+                        </div>
+                        <p class="text-gray-300">Des ponts vers Azure DevOps, Git, SQL DBs, APIs de documentation (MCPs).</p>
+                    </div>
+                </div>
+                
+                <div class="mt-8 max-w-4xl mx-auto bg-gray-800 p-6 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="bg-blue-500 p-3 rounded-lg mr-4">
+                            <i class="fas fa-diagram-project text-xl"></i>
+                        </div>
+                        <p class="text-gray-300">Suggestion de Diagramme: Utilisateur → Orchestrateurs → Scripts 01_AI-RUN → Agents Spécialisés → MCPs → Outils Externes → .pheromone/.swarmConfig</p>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-8 left-0 right-0 text-center text-blue-200 text-sm">
+                    <p>Notes pour le Présentateur: Expliquer brièvement le rôle de chaque pilier et comment ils interagissent, en s'appuyant sur le diagramme. Insister sur l'interaction indirecte via .pheromone.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: MemoryBank -->
+        <div class="slide bg-gradient-to-br from-blue-900 to-indigo-800 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center px-4">
+                <h2 class="text-4xl font-bold mb-8 text-center text-blue-300">La MemoryBank : Le Cœur Apprenant d'AgilePheromind</h2>
+                
+                <div class="flex flex-col md:flex-row items-center max-w-6xl mx-auto">
+                    <div class="md:w-1/2 mb-8 md:mb-0 md:pr-8">
+                        <div class="bg-gray-900 bg-opacity-50 p-8 rounded-xl border border-blue-400">
+                            <div class="mb-6">
+                                <h3 class="text-2xl font-semibold mb-3 flex items-center">
+                                    <i class="fas fa-history mr-3 text-blue-300"></i> Contexte Persistant
+                                </h3>
+                                <p class="text-gray-300">Conserve l'historique (US, tâches, décisions, conventions, risques).</p>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h3 class="text-2xl font-semibold mb-3 flex items-center">
+                                    <i class="fas fa-graduation-cap mr-3 text-blue-300"></i> Apprentissage Contextuel
+                                </h3>
+                                <p class="text-gray-300">Permet des propositions plus pertinentes et une identification de patterns.</p>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-2xl font-semibold mb-3 flex items-center">
+                                    <i class="fas fa-check-double mr-3 text-blue-300"></i> Cohérence Garantie
+                                </h3>
+                                <p class="text-gray-300">Source de vérité unique pour les agents et l'équipe.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="md:w-1/2">
+                        <div class="relative">
+                            <!-- Brain visualization -->
+                            <div class="relative w-64 h-64 mx-auto">
+                                <div class="absolute inset-0 bg-blue-900 rounded-full opacity-30 animate-pulse"></div>
+                                <div class="absolute inset-4 bg-blue-800 rounded-full opacity-40 animate-pulse" style="animation-delay: 0.2s;"></div>
+                                <div class="absolute inset-8 bg-blue-700 rounded-full opacity-50 animate-pulse" style="animation-delay: 0.4s;"></div>
+                                <div class="absolute inset-12 bg-blue-600 rounded-full opacity-60 animate-pulse" style="animation-delay: 0.6s;"></div>
+                                
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-brain text-5xl text-white"></i>
+                                </div>
+                                
+                                <!-- Information nodes -->
+                                <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                                    <i class="fas fa-code text-xs"></i>
+                                </div>
+                                
+                                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center shadow-lg animate-bounce" style="animation-delay: 0.2s;">
+                                    <i class="fas fa-tasks text-xs"></i>
+                                </div>
+                                
+                                <div class="absolute top-1/2 left-4 transform -translate-y-1/2 w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center shadow-lg animate-bounce" style="animation-delay: 0.4s;">
+                                    <i class="fas fa-book text-xs"></i>
+                                </div>
+                                
+                                <div class="absolute top-1/2 right-4 transform -translate-y-1/2 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-lg animate-bounce" style="animation-delay: 0.6s;">
+                                    <i class="fas fa-bug text-xs"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 text-center">
+                                <p class="text-blue-200 italic">Informations convergeant vers un cerveau central, agents y puisant</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-8 left-0 right-0 text-center text-blue-200 text-sm">
+                    <p>Notes pour le Présentateur: Insister sur la différence avec une simple base de données. C'est une connaissance active et évolutive qui rend le système plus intelligent avec le temps.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: PO Scenario -->
+        <div class="slide bg-gradient-to-br from-purple-900 to-indigo-800 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center px-4">
+                <h2 class="text-4xl font-bold mb-8 text-center text-purple-300">Product Owners, Gagnez en Efficacité !</h2>
+                
+                <div class="max-w-5xl mx-auto">
+                    <div class="bg-gray-900 bg-opacity-50 p-8 rounded-xl border border-purple-400 mb-8">
+                        <h3 class="text-2xl font-semibold mb-4 text-purple-300">Analyse de Besoin Client Assistée</h3>
+                        
+                        <div class="mb-6">
+                            <h4 class="text-xl font-medium mb-2 flex items-center">
+                                <i class="fas fa-user-tie mr-3"></i> Input PO
+                            </h4>
+                            <div class="bg-gray-800 p-4 rounded-lg">
+                                <p class="italic">"Les utilisateurs veulent pouvoir filtrer les produits par prix et par catégorie simultanément."</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-xl font-medium mb-2 flex items-center">
+                                <i class="fas fa-robot mr-3"></i> Actions AgilePheromind (<code class="bg-gray-700 px-1 rounded">@po-assistant</code>)
+                            </h4>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <div class="bg-purple-600 p-2 rounded-full mr-3 mt-1">
+                                        <i class="fas fa-1 text-xs"></i>
+                                    </div>
+                                    <div class="bg-gray-800 p-3 rounded-lg flex-1">
+                                        <p>Analyse structurée (via <code class="bg-gray-700 px-1 rounded">Sequential Thinking MCP</code>)</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <div class="bg-purple-600 p-2 rounded-full mr-3 mt-1">
+                                        <i class="fas fa-2 text-xs"></i>
+                                    </div>
+                                    <div class="bg-gray-800 p-3 rounded-lg flex-1">
+                                        <p>Proposition d'User Stories & Critères d'Acceptation</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <div class="bg-purple-600 p-2 rounded-full mr-3 mt-1">
+                                        <i class="fas fa-3 text-xs"></i>
+                                    </div>
+                                    <div class="bg-gray-800 p-3 rounded-lg flex-1">
+                                        <p>Vérification des doublons dans Azure DevOps (via <code class="bg-gray-700 px-1 rounded">Azure DevOps MCP</code>)</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <div class="bg-purple-600 p-2 rounded-full mr-3 mt-1">
+                                        <i class="fas fa-4 text-xs"></i>
+                                    </div>
+                                    <div class="bg-gray-800 p-3 rounded-lg flex-1">
+                                        <p>Rapport d'analyse et interaction avec le PO pour validation/création des US</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-purple-900 bg-opacity-70 p-6 rounded-lg border-l-4 border-purple-300">
+                        <h4 class="text-xl font-semibold mb-2 flex items-center">
+                            <i class="fas fa-bolt mr-3"></i> Bénéfice
+                        </h4>
+                        <p class="text-gray-300">Transformation rapide d'un besoin en éléments de backlog exploitables.</p>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-8 left-0 right-0 text-center text-purple-200 text-sm">
+                    <p>Notes pour le Présentateur: Rendre ce scénario vivant, montrer l'accélération du travail du PO.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Dev Scenario -->
+        <div class="slide bg-gradient-to-br from-gray-800 to-gray-900 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center px-4">
+                <h2 class="text-4xl font-bold mb-8 text-center text-blue-300">Développeurs, Codez Plus Vite et Mieux !</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-t-4 border-blue-500 transform hover:scale-105 transition-all h-full">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-600 p-3 rounded-lg mr-4">
+                                <i class="fas fa-play-circle text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">Démarrer une User Story</h3>
+                        </div>
+                        <ul class="text-gray-300 space-y-2 mb-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-blue-300 mr-2 mt-1 text-xs"></i>
+                                <span>Récupération US</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-blue-300 mr-2 mt-1 text-xs"></i>
+                                <span>Décomposition/estimation (avec <code class="bg-gray-700 px-1 rounded">Context7</code>/<code class="bg-gray-700 px-1 rounded">MSSQL MCPs</code>)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-blue-300 mr-2 mt-1 text-xs"></i>
+                                <span>Création branche Git</span>
+                            </li>
+                        </ul>
+                        <div class="bg-blue-900 bg-opacity-50 p-3 rounded-lg">
+                            <p class="text-sm font-medium">Bénéfice: Prêt à coder rapidement.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-t-4 border-green-500 transform hover:scale-105 transition-all h-full">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-green-600 p-3 rounded-lg mr-4">
+                                <i class="fas fa-vial text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">Génération de Tests Unitaires</h3>
+                        </div>
+                        <ul class="text-gray-300 space-y-2 mb-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-300 mr-2 mt-1 text-xs"></i>
+                                <span>Analyse code/ACs</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-300 mr-2 mt-1 text-xs"></i>
+                                <span>Génération de squelettes de tests (.NET/Angular)</span>
+                            </li>
+                        </ul>
+                        <div class="bg-green-900 bg-opacity-50 p-3 rounded-lg">
+                            <p class="text-sm font-medium">Bénéfice: Gain de temps, meilleure couverture.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-t-4 border-purple-500 transform hover:scale-105 transition-all h-full">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-purple-600 p-3 rounded-lg mr-4">
+                                <i class="fas fa-code-commit text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">Finalisation de Tâche & Commit Standardisé</h3>
+                        </div>
+                        <ul class="text-gray-300 space-y-2 mb-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-purple-300 mr-2 mt-1 text-xs"></i>
+                                <span>Vérification tests/linters</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-purple-300 mr-2 mt-1 text-xs"></i>
+                                <span>Proposition "Conventional Commit"</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-purple-300 mr-2 mt-1 text-xs"></i>
+                                <span>Commit, màj Azure DevOps</span>
+                            </li>
+                        </ul>
+                        <div class="bg-purple-900 bg-opacity-50 p-3 rounded-lg">
+                            <p class="text-sm font-medium">Bénéfice: Processus propre et standardisé.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-8 left-0 right-0 text-center text-blue-200 text-sm">
+                    <p>Notes pour le Présentateur: Mettre l'accent sur l'assistance directe au codage et la réduction des tâches annexes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Tech Lead Scenario -->
+        <div class="slide bg-gradient-to-br from-indigo-900 to-blue-800 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center px-4">
+                <h2 class="text-4xl font-bold mb-8 text-center text-indigo-300">Tech Leads & Architectes, Maîtrisez la Qualité et la Vision !</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                    <div class="bg-indigo-900 bg-opacity-50 p-6 rounded-xl border-l-4 border-blue-400 transform hover:scale-105 transition-all">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-500 p-3 rounded-lg mr-4">
+                                <i class="fas fa-code-pull-request text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">Revue de PR Assistée</h3>
+                        </div>
+                        <ul class="text-gray-300 space-y-2 mb-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-blue-200 mr-2 mt-1 text-xs"></i>
+                                <span>Analyse des diffs (qualité, sécurité avec <code class="bg-indigo-800 px-1 rounded">@security-analyst-agent</code>)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-blue-200 mr-2 mt-1 text-xs"></i>
+                                <span>Rapport dans répertoire de branche</span>
+                            </li>
+                        </ul>
+                        <div class="bg-blue-900 bg-opacity-70 p-3 rounded-lg">
+                            <p class="text-sm font-medium">Bénéfice: Revues plus rapides, focus sur points clés.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-indigo-900 bg-opacity-50 p-6 rounded-xl border-l-4 border-purple-400 transform hover:scale-105 transition-all">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-purple-500 p-3 rounded-lg mr-4">
+                                <i class="fas fa-exchange-alt text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">Analyse de Code Legacy pour Migration</h3>
+                        </div>
+                        <ul class="text-gray-300 space-y-2 mb-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-purple-200 mr-2 mt-1 text-xs"></i>
+                                <span>Rapport détaillé (composants, dépendances)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-purple-200 mr-2 mt-1 text-xs"></i>
+                                <span>Mapping vers .NET Core/Angular</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-purple-200 mr-2 mt-1 text-xs"></i>
+                                <span>Analyse complexité, risques</span>
+                            </li>
+                        </ul>
+                        <div class="bg-purple-900 bg-opacity-70 p-3 rounded-lg">
+                            <p class="text-sm font-medium">Bénéfice: Décisions de migration éclairées.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-indigo-900 bg-opacity-50 p-6 rounded-xl border-l-4 border-green-400 transform hover:scale-105 transition-all">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-green-500 p-3 rounded-lg mr-4">
+                                <i class="fas fa-clipboard-list text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">Gestion de la Dette Technique</h3>
+                        </div>
+                        <ul class="text-gray-300 space-y-2 mb-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-200 mr-2 mt-1 text-xs"></i>
+                                <span>Analyse du projet, identification "code smells"</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-200 mr-2 mt-1 text-xs"></i>
+                                <span>Suggestions refactoring</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-200 mr-2 mt-1 text-xs"></i>
+                                <span>Màj registre de dette</span>
+                            </li>
+                        </ul>
+                        <div class="bg-green-900 bg-opacity-70 p-3 rounded-lg">
+                            <p class="text-sm font-medium">Bénéfice: Vision proactive de la qualité.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 max-w-4xl mx-auto bg-indigo-900 p-6 rounded-lg border border-indigo-400">
+                    <div class="flex items-center">
+                        <div class="bg-blue-500 p-3 rounded-lg mr-4">
+                            <i class="fas fa-bolt text-xl"></i>
+                        </div>
+                        <p class="text-indigo-200">Souligner le rôle de Pheromind comme un "multiplicateur de force" pour le leadership technique.</p>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-8 left-0 right-0 text-center text-indigo-200 text-sm">
+                    <p>Notes pour le Présentateur: Souligner le rôle de Pheromind comme un "multiplicateur de force" pour le leadership technique.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: DevOps Scenario -->
+        <div class="slide bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center px-4">
+                <h2 class="text-4xl font-bold mb-8 text-center text-blue-300">DevOps & Déploiement : Automatisation et Fiabilité Accrues !</h2>
+                
+                <div class="max-w-5xl mx-auto">
+                    <div class="bg-gray-800 bg-opacity-70 p-8 rounded-xl border border-blue-400 mb-8">
+                        <h3 class="text-2xl font-semibold mb-6 text-center text-blue-300">Déploiement sur AKS via Azure Pipelines</h3>
+                        
+                        <div class="flex flex-col md:flex-row gap-8">
+                            <div class="md:w-1/2">
+                                <div class="bg-gray-900 p-6 rounded-lg mb-6">
+                                    <h4 class="text-xl font-medium mb-3 flex items-center">
+                                        <i class="fas fa-terminal mr-3 text-blue-300"></i> Input DevOps
+                                    </h4>
+                                    <div class="bg-gray-700 p-4 rounded">
+                                        <code class="text-green-300">deploy --app=product-service --version=1.2.3 --env=staging</code>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-blue-900 bg-opacity-50 p-4 rounded-lg border-l-4 border-blue-300">
+                                    <h4 class="text-lg font-medium mb-2 flex items-center">
+                                        <i class="fas fa-bolt mr-3"></i> Bénéfice
+                                    </h4>
+                                    <p class="text-gray-300">Processus de déploiement standardisé, tracé, et potentiellement automatisé.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="md:w-1/2">
+                                <h4 class="text-xl font-medium mb-3 flex items-center">
+                                    <i class="fas fa-robot mr-3 text-blue-300"></i> Actions AgilePheromind
+                                </h4>
+                                <div class="space-y-4">
+                                    <div class="flex items-start">
+                                        <div class="bg-blue-600 p-2 rounded-full mr-3 mt-1">
+                                            <i class="fas fa-1 text-xs"></i>
+                                        </div>
+                                        <div class="bg-gray-700 p-3 rounded-lg flex-1">
+                                            <p>Vérification image ACR (build si besoin) via <code class="bg-gray-600 px-1 rounded">@deployment-agent-aks</code></p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="bg-blue-600 p-2 rounded-full mr-3 mt-1">
+                                            <i class="fas fa-2 text-xs"></i>
+                                        </div>
+                                        <div class="bg-gray-700 p-3 rounded-lg flex-1">
+                                            <p>Récupération manifestes K8s</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="bg-blue-600 p-2 rounded-full mr-3 mt-1">
+                                            <i class="fas fa-3 text-xs"></i>
+                                        </div>
+                                        <div class="bg-gray-700 p-3 rounded-lg flex-1">
+                                            <p>Déclenchement pipeline Azure DevOps via <code class="bg-gray-600 px-1 rounded">@devops-connector</code></p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="bg-blue-600 p-2 rounded-full mr-3 mt-1">
+                                            <i class="fas fa-4 text-xs"></i>
+                                        </div>
+                                        <div class="bg-gray-700 p-3 rounded-lg flex-1">
+                                            <p>Suivi et vérifications post-déploiement</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-8 left-0 right-0 text-center text-blue-200 text-sm">
+                    <p>Notes pour le Présentateur: Mettre en avant la capacité d'AgilePheromind à s'intégrer dans la chaîne CI/CD.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Tech Stack -->
+        <div class="slide bg-gradient-to-br from-blue-900 to-indigo-800 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center px-4">
+                <h2 class="text-4xl font-bold mb-8 text-center text-blue-300">Conçu pour Votre Environnement</h2>
+                <p class="text-xl text-center text-blue-200 mb-12">Optimisé pour une intégration native avec votre stack.</p>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-full w-20 h-20 flex items-center justify-center mb-3 shadow-lg">
+                            <i class="fab fa-microsoft text-4xl text-blue-600"></i>
+                        </div>
+                        <p class="font-medium">.NET (C#)</p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-full w-20 h-20 flex items-center justify-center mb-3 shadow-lg">
+                            <i class="fab fa-angular text-4xl text-red-600"></i>
+                        </div>
+                        <p class="font-medium">Angular (TypeScript)</p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-full w-20 h-20 flex items-center justify-center mb-3 shadow-lg">
+                            <i class="fas fa-cloud text-4xl text-blue-400"></i>
+                        </div>
+                        <p class="font-medium">Azure DevOps</p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-full w-20 h-20 flex items-center justify-center mb-3 shadow-lg">
+                            <i class="fas fa-database text-4xl text-blue-500"></i>
+                        </div>
+                        <p class="font-medium">MSSQL (Azure SQL)</p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-full w-20 h-20 flex items-center justify-center mb-3 shadow-lg">
+                            <i class="fab fa-docker text-4xl text-blue-300"></i>
+                        </div>
+                        <p class="font-medium">Docker</p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-full w-20 h-20 flex items-center justify-center mb-3 shadow-lg">
+                            <i class="fas fa-cubes text-4xl text-blue-700"></i>
+                        </div>
+                        <p class="font-medium">AKS</p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-full w-20 h-20 flex items-center justify-center mb-3 shadow-lg">
+                            <i class="fab fa-git-alt text-4xl text-orange-600"></i>
+                        </div>
+                        <p class="font-medium">Git</p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-full w-20 h-20 flex items-center justify-center mb-3 shadow-lg">
+                            <i class="fas fa-server text-4xl text-blue-400"></i>
+                        </div>
+                        <p class="font-medium">Azure Services</p>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-8 left-0 right-0 text-center text-blue-200 text-sm">
+                    <p>Notes pour le Présentateur: Rassurer l'équipe que le système est aligné avec leurs outils actuels.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: MCPs -->
+        <div class="slide bg-gradient-to-br from-gray-800 to-gray-900 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center px-4">
+                <h2 class="text-4xl font-bold mb-8 text-center text-blue-300">Model Context Protocol (MCPs) : Les Mains et les Yeux d'AgilePheromind</h2>
+                
+                <div class="max-w-4xl mx-auto mb-8">
+                    <div class="bg-gray-900 bg-opacity-50 p-6 rounded-xl border border-blue-400">
+                        <p class="text-xl text-center">"Les MCPs permettent à nos agents IA d'agir sur vos outils."</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-l-4 border-blue-400">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fas fa-cloud mr-3 text-blue-300"></i> Azure DevOps MCP
+                        </h3>
+                        <p class="text-gray-300">Interaction avec Boards, Repos, Pipelines</p>
+                    </div>
+                    
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-l-4 border-green-400">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fab fa-git-alt mr-3 text-green-300"></i> Git Tools MCP
+                        </h3>
+                        <p class="text-gray-300">Gestion des branches, commits, PRs</p>
+                    </div>
+                    
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-l-4 border-purple-400">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fas fa-database mr-3 text-purple-300"></i> MSSQL MCP
+                        </h3>
+                        <p class="text-gray-300">Analyse et requêtage des bases de données</p>
+                    </div>
+                    
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-l-4 border-yellow-400">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fas fa-globe mr-3 text-yellow-300"></i> Browser Tools MCP
+                        </h3>
+                        <p class="text-gray-300">Navigation web et recherche d'informations</p>
+                    </div>
+                    
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-l-4 border-red-400">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fas fa-project-diagram mr-3 text-red-300"></i> Context7 MCP
+                        </h3>
+                        <p class="text-gray-300">Analyse contextuelle du code</p>
+                    </div>
+                    
+                    <div class="bg-gray-800 bg-opacity-70 p-6 rounded-xl border-l-4 border-indigo-400">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fas fa-brain mr-3 text-indigo-300"></i> Sequential Thinking MCP
+                        </h3>
+                        <p class="text-gray-300">Raisonnement séquentiel et planification</p>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-8 left-0 right-0 text-center text-blue-200 text-sm">
+                    <p>Notes pour le Présentateur: Expliquer que les MCPs sont essentiels pour l'interaction concrète et évitent que l'IA soit "aveugle" ou "muette".</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Continuous Improvement -->
+        <div class="slide bg-gradient-to-br from-green-900 to-blue-800 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center px-4">
+                <h2 class="text-4xl font-bold mb-8 text-center text-green-300">Un Système Qui Apprend et s'Améliore</h2>
+                
+                <div class="max-w-4xl mx-auto mb-8">
+                    <div class="bg-green-900 bg-opacity-50 p-6 rounded-xl border border-green-400">
+                        <p class="text-xl text-center">"AgilePheromind est conçu pour évoluer et devenir plus intelligent avec votre projet."</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+                    <div class="bg-green-900 bg-opacity-30 p-6 rounded-xl border-l-4 border-blue-400">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-3 text-blue-300"></i> @risk-manager-agent
+                        </h3>
+                        <p class="text-gray-300">Surveillance proactive des risques</p>
+                    </div>
+                    
+                    <div class="bg-green-900 bg-opacity-30 p-6 rounded-xl border-l-4 border-purple-400">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fas fa-tachometer-alt mr-3 text-purple-300"></i> @workflow-optimizer-agent
+                        </h3>
+                        <p class="text-gray-300">Analyse les performances d'AgilePheromind et suggère des optimisations</p>
+                    </div>
+                    
+                    <div class="bg-green-900 bg-opacity-30 p-6 rounded-xl border-l-4 border-yellow-400">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fas fa-heartbeat mr-3 text-yellow-300"></i> @swarm-monitor-agent
+                        </h3>
+                        <p class="text-gray-300">Rapports sur la santé du système Pheromind</p>
+                    </div>
+                    
+                    <div class="bg-green-900 bg-opacity-30 p-6 rounded-xl border-l-4 border-red-400">
+                        <h3 class="text-xl font-semibold mb-3 flex items-center">
+                            <i class="fas fa-chess mr-3 text-red-300"></i> @architecture-advisor-agent
+                        </h3>
+                        <p class="text-gray-300">Aide à maintenir les conventions à jour</p>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-8 left-0 right-0 text-center text-green-200 text-sm">
+                    <p>Notes pour le Présentateur: Souligner que le système n'est pas figé et qu'il est conçu pour s'adapter.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Interaction -->
+        <div class="slide bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center px-4">
+                <h2 class="text-4xl font-bold mb-8 text-center text-blue-300">Prise en Main d'AgilePheromind</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                    <div class="bg-gray-800 bg-opacity-70 p-8 rounded-xl">
+                        <div class="flex items-start mb-6">
+                            <div class="bg-blue-600 p-3 rounded-lg mr-4">
+                                <i class="fas fa-keyboard text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2">Interface</h3>
+                                <p class="text-gray-300">Commandes textuelles (via Roo Code ou similaire).</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start mb-6">
+                            <div class="bg-blue-600 p-3 rounded-lg mr-4">
+                                <i class="fas fa-bullseye text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2">Clarté</h3>
+                                <p class="text-gray-300">Commandes spécifiques → meilleurs résultats (utiliser IDs Azure DevOps <code class="bg-gray-700 px-1 rounded">Azure#...</code>).</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-800 bg-opacity-70 p-8 rounded-xl">
+                        <div class="flex items-start mb-6">
+                            <div class="bg-blue-600 p-3 rounded-lg mr-4">
+                                <i class="fas fa-user-check text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2">Validation Humaine</h3>
+                                <p class="text-gray-300">Le système demande confirmation pour les décisions clés (via <code class="bg-gray-700 px-1 rounded">ask_followup_question</code>).</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="bg-blue-600 p-3 rounded-lg mr-4">
+                                <i class="fas fa-sync-alt text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2">Itération</h3>
+                                <p class="text-gray-300">Fournir du feedback pour affiner les propositions.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 max-w-3xl mx-auto bg-blue-900 bg-opacity-50 p-6 rounded-lg border border-blue-400">
+                    <div class="flex items-center justify-center">
+                        <div class="bg-blue-500 p-3 rounded-lg mr-4">
+                            <i class="fas fa-hand-pointer text-xl"></i>
+                        </div>
+                        <p class="text-blue-200">Démystifier l'interaction. Montrer que l'utilisateur garde le contrôle.</p>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-8 left-0 right-0 text-center text-blue-200 text-sm">
+                    <p>Notes pour le Présentateur: Démystifier l'interaction. Montrer que l'utilisateur garde le contrôle.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Next Steps -->
+        <div class="slide bg-gradient-to-br from-blue-900 to-indigo-800 text-white">
+            <div class="container mx-auto h-full flex flex-col justify-center items-center text-center px-4">
+                <h2 class="text-4xl font-bold mb-8">Prêts à Augmenter Votre Agilité ?</h2>
+                
+                <div class="max-w-4xl mx-auto mb-12">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-indigo-900 bg-opacity-50 p-6 rounded-xl border-l-4 border-blue-400 transform hover:scale-105 transition-all">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-blue-500 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-rocket text-xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold">Session de Bootstrap</h3>
+                            </div>
+                            <p class="text-gray-300">Pour un projet pilote</p>
+                        </div>
+                        
+                        <div class="bg-indigo-900 bg-opacity-50 p-6 rounded-xl border-l-4 border-purple-400 transform hover:scale-105 transition-all">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-purple-500 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-graduation-cap text-xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold">Formation de l'équipe</h3>
+                            </div>
+                            <p class="text-gray-300">Aux commandes clés</p>
+                        </div>
+                        
+                        <div class="bg-indigo-900 bg-opacity-50 p-6 rounded-xl border-l-4 border-green-400 transform hover:scale-105 transition-all">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-green-500 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-cogs text-xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold">Adaptation initiale</h3>
+                            </div>
+                            <p class="text-gray-300">Des configurations Pheromind</p>
+                        </div>
+                        
+                        <div class="bg-indigo-900 bg-opacity-50 p-6 rounded-xl border-l-4 border-yellow-400 transform hover:scale-105 transition-all">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-yellow-500 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-play text-xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold">Commencer petit</h3>
+                            </div>
+                            <p class="text-gray-300">Avec 1-2 workflows critiques</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <p class="text-2xl italic text-blue-200">"Quels cas d'usage vous intéressent le plus ? Questions ?"</p>
+                </div>
+                
+                <div class="bg-black bg-opacity-30 p-6 rounded-lg">
+                    <p class="text-sm italic">[Contact/Infos ici]</p>
+                </div>
+                
+                <div class="absolute bottom-8 left-0 right-0 text-center text-blue-200 text-sm">
+                    <p>Notes pour le Présentateur: Ouvrir la discussion, recueillir les premières réactions et questions. Proposer un plan d'action concret pour l'adoption.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.slide');
+            const totalSlides = slides.length;
+            const progressBar = document.getElementById('progress');
+            const currentSlideElement = document.getElementById('currentSlide');
+            const totalSlidesElement = document.getElementById('totalSlides');
+            let currentSlide = 0;
+            
+            totalSlidesElement.textContent = totalSlides;
+            
+            // Show first slide
+            showSlide(currentSlide);
+            
+            // Next button
+            document.getElementById('nextBtn').addEventListener('click', function() {
+                if (currentSlide < totalSlides - 1) {
+                    currentSlide++;
+                    showSlide(currentSlide);
+                }
+            });
+            
+            // Previous button
+            document.getElementById('prevBtn').addEventListener('click', function() {
+                if (currentSlide > 0) {
+                    currentSlide--;
+                    showSlide(currentSlide);
+                }
+            });
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    if (currentSlide < totalSlides - 1) {
+                        currentSlide++;
+                        showSlide(currentSlide);
+                    }
+                } else if (e.key === 'ArrowLeft') {
+                    if (currentSlide > 0) {
+                        currentSlide--;
+                        showSlide(currentSlide);
+                    }
+                }
+            });
+            
+            function showSlide(index) {
+                // Hide all slides
+                slides.forEach(slide => {
+                    slide.classList.remove('active-slide');
+                });
+                
+                // Show current slide
+                slides[index].classList.add('active-slide');
+                
+                // Update progress bar
+                const progress = ((index + 1) / totalSlides) * 100;
+                progressBar.style.width = `${progress}%`;
+                
+                // Update slide counter
+                currentSlideElement.textContent = index + 1;
+                
+                // Scroll to top
+                window.scrollTo(0, 0);
+            }
+        });
+    </script>
+</body>
+</html>

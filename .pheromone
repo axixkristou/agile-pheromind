@@ -1,0 +1,116 @@
+{
+  "systemVersion": "AgilePheromind-1.0.0",
+  "lastUpdated": "2023-10-28T10:00:00Z",
+  "currentUser": {
+    "id": null,
+    "azureDevOpsUsername": null,
+    "roles": [],
+    "preferences": {
+      "communicationStyle": "concise",
+      "expertiseLevel": "intermediate"
+    },
+    "currentContext": null,
+    "activeSessionId": "session_uuid_example"
+  },
+  "currentProject": {
+    "id": "azure_project_id_example",
+    "name": "NomProjetAzureDevOps",
+    "defaultBranch": "main",
+    "azureDevOpsOrgUrl": "https://dev.azure.com/VotreOrganisation",
+    "repositoryUrl": "https://VotreOrganisation@dev.azure.com/VotreOrganisation/NomProjetAzureDevOps/_git/NomProjetAzureDevOps"
+  },
+  "currentSprint": {
+    "id": null,
+    "name": null,
+    "goal": null,
+    "startDate": null,
+    "endDate": null,
+    "capacityPoints": 0,
+    "userStories": []
+  },
+  "activeWorkflow": {
+    "scriptPath": null,
+    "currentPhase": null,
+    "status": "idle",
+    "startTime": null,
+    "history": []
+  },
+  "activeUserStory": {
+    "id": null,
+    "title": null,
+    "status": null,
+    "tasks": []
+  },
+  "activeTask": {
+    "id": null,
+    "title": null,
+    "status": null,
+    "parentId": null
+  },
+  "documentationRegistry": {
+    "coding_conventions.md": "/02_AI-DOCS/Conventions/coding_conventions.md",
+    "design_conventions.md": "/02_AI-DOCS/Conventions/design_conventions.md",
+    "project_architecture_overview.md": "/02_AI-DOCS/Architecture/project_architecture_overview.md"
+  },
+  "systemHealth": {
+    "lastCheck": "2023-10-28T09:55:00Z",
+    "status": "OK",
+    "mcpStatus": {
+      "azureDevOpsMCP": "OK",
+      "gitToolsMCP": "OK",
+      "context7MCP": "OK"
+    },
+    "errorCountToday": 0
+  },
+  "memoryBank": {
+    "projectContext": {
+      "techStack": [
+        ".NET Core",
+        "C#",
+        "Angular",
+        "TypeScript",
+        "Azure SQL",
+        "MSSQL",
+        "Docker",
+        "AKS",
+        "Azure Pipelines"
+      ],
+      "codingConventionsVersion": "1.0",
+      "designConventionsVersion": "1.0",
+      "defaultGitBranchingStrategy": "GitFlow-like (feature -> develop -> main)"
+    },
+    "userProfiles": {
+      "user_id_example": {
+        "azureDevOpsUsername": "user.name@example.com",
+        "roles": ["Developer", "TechLead"],
+        "expertiseAreas": [".NET", "Angular"],
+        "interactionHistorySummary": "Frequently works on backend features, involved in PR reviews."
+      }
+    },
+    "userStories": {},
+    "tasks": {},
+    "pullRequests": {},
+    "commits": {},
+    "legacyCodeAnalyses": {},
+    "sprintRetrospectivesSummaries": {},
+    "technicalDebtItems": [],
+    "architecturalDecisions": [],
+    "commonIssuesAndSolutions": {},
+    "toolingConfigurations": {
+      "linters": {
+        "dotnet": "Default Roslyn Analyzers + StyleCop",
+        "angular": "ESLint with Angular plugin"
+      },
+      "testFrameworks": {
+        "dotnet": "MSTest/NUnit/xUnit (to be confirmed by project)",
+        "angular": "Jasmine/Karma/Jest (to be confirmed by project)"
+      }
+    },
+    "riskRegister": [],
+    "workflowPerformanceMetrics": {
+      "avgUserStoryLeadTime": null,
+      "avgTaskCycleTime": null
+    }
+  },
+  "notifications": []
+}

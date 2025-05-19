@@ -1,145 +1,17 @@
 {
   "scribeSettings": {
     "defaultPheromoneFile": ".pheromone",
-    "maxMemoryBankSignalsBeforePruning": 0,
-    "signalsToPrune": 0,
+    "backupPheromoneBeforeWrite": true,
     "logLevel": "INFO",
-    "backupPheromoneBeforeWrite": true
+    "defaultLanguageForMemoryBank": "en-US"
   },
   "interpretationLogic": [
     {
-      "id": "process_performance_insight_report",
-      "priority": 25,
-      "conditions": [
-        {
-          "field": "agentName",
-          "operator": "equals",
-          "value": "@performance-optimization-agent"
-        },
-        {
-          "field": "summaryText",
-          "operator": "matches",
-          "value": "Performance analysis for '{{componentName}}' completed. .* Report \\(with reasoning\\): `{{reportPath}}`."
-        }
-      ],
-      "actions": [
-        {
-          "type": "addToDocumentationRegistry",
-          "documentPathFromSummary": "{{reportPath}}",
-          "description": "Performance Optimization Report for {{componentName}}",
-          "documentType": "PerformanceReport"
-        },
-        {
-          "type": "updateMemoryBankField",
-          "targetField": "memoryBank.performanceInsights.componentPerformanceStatus.{{componentName}}",
-          "value": {
-            "summary": "{{summaryText | extractKeyFindings}}",
-            "link": "{{reportPath}}",
-            "timestamp": "{{timestamp}}",
-            "reasoningChainLink": "{{reportPath}}"
-          }
-        }
-      ]
-    },
-    {
-      "id": "process_accessibility_report",
-      "priority": 25,
-      "conditions": [
-        {
-          "field": "agentName",
-          "operator": "equals",
-          "value": "@accessibility-compliance-agent"
-        },
-        {
-          "field": "summaryText",
-          "operator": "matches",
-          "value": "Accessibility check for '{{componentName}}' completed. .* Report \\(with reasoning\\): `{{reportPath}}`."
-        }
-      ],
-      "actions": [
-        {
-          "type": "addToDocumentationRegistry",
-          "documentPathFromSummary": "{{reportPath}}",
-          "description": "Accessibility Compliance Report for {{componentName}}",
-          "documentType": "AccessibilityReport"
-        },
-        {
-          "type": "updateMemoryBankField",
-          "targetField": "memoryBank.accessibilityCompliance.componentAccessibilityStatus.{{componentName}}",
-          "value": {
-            "summary": "{{summaryText | extractKeyFindings}}",
-            "link": "{{reportPath}}",
-            "timestamp": "{{timestamp}}",
-            "reasoningChainLink": "{{reportPath}}"
-          }
-        }
-      ]
-    },
-    {
-      "id": "process_learning_insights_report",
-      "priority": 25,
-      "conditions": [
-        {
-          "field": "agentName",
-          "operator": "equals",
-          "value": "@learning-integration-agent"
-        },
-        {
-          "field": "summaryText",
-          "operator": "matches",
-          "value": "Learning analysis for '{{focus}}' completed. .* Report \\(with reasoning\\): `{{reportPath}}`."
-        }
-      ],
-      "actions": [
-        {
-          "type": "addToDocumentationRegistry",
-          "documentPathFromSummary": "{{reportPath}}",
-          "description": "Learning Insights Report for {{focus}}",
-          "documentType": "LearningInsightsReport"
-        },
-        {
-          "type": "updateMemoryBankField",
-          "targetField": "memoryBank.learningInsights",
-          "valueFromSummary": "{{summaryText | extractKeyFindings}}",
-          "mergeStrategy": "deep"
-        }
-      ]
-    },
-    {
-      "id": "process_refactoring_report",
-      "priority": 25,
-      "conditions": [
-        {
-          "field": "summaryText",
-          "operator": "matches",
-          "value": "Refactoring of '{{componentName}}' completed. .* Report \\(with reasoning\\): `{{reportPath}}`."
-        }
-      ],
-      "actions": [
-        {
-          "type": "addToDocumentationRegistry",
-          "documentPathFromSummary": "{{reportPath}}",
-          "description": "Code Refactoring Report for {{componentName}}",
-          "documentType": "RefactoringReport"
-        },
-        {
-          "type": "updateMemoryBankField",
-          "targetField": "memoryBank.refactoringHistory.completedRefactorings.{{componentName}}",
-          "value": {
-            "summary": "{{summaryText | extractKeyFindings}}",
-            "link": "{{reportPath}}",
-            "timestamp": "{{timestamp}}",
-            "reasoningChainLink": "{{reportPath}}"
-          }
-        }
-      ]
-    },
-    {
-      "id": "log_general_agent_activity",
+      "id": "log_general_agent_activity_en",
       "priority": 999,
       "conditions": [
         {
-          "field": "summaryText",
+          "field": "summaryText_en",
           "operator": "isNotEmpty"
         }
       ],
@@ -151,43 +23,122 @@
             "timestamp": "{{timestamp}}",
             "agent": "{{agentName}}",
             "handoffReason": "{{handoffReasonCode}}",
-            "summary": "{{summaryText | truncate:500}}"
+            "summary_en": "{{summaryText_en | truncate:500}}"
           }
         }
       ]
     },
     {
-      "id": "update_currentUser_from_devops_connector_or_session",
-      "priority": 10,
+      "id": "bootstrap_update_user_and_project_info_v2",
+      "priority": 5,
       "conditions": [
         {
-          "field": "summaryText",
-          "operator": "containsAny",
-          "values": ["Utilisateur '{{azureUser}}' identifié.", "Utilisateur '{{azureUser}}' confirmé."]
+          "field": "agentName",
+          "operator": "equals",
+          "value": "@project-setup-agent"
+        },
+        {
+          "field": "summaryText_en",
+          "operator": "contains",
+          "value": "AgilePheromind User and Project Info for Bootstrap"
+        },
+        {
+          "field": "structuredData.user.azureDevOps.username",
+          "operator": "isNotEmpty"
+        },
+        {
+          "field": "structuredData.projectConnection.gitRepository.localPath",
+          "operator": "isNotEmpty"
         }
       ],
       "actions": [
         {
-          "type": "updatePheromoneField",
-          "targetField": "currentUser.azureDevOpsUsername",
-          "valueFromSummary": "{{azureUser}}"
+          "type": "updateLocalUserInfoFile",
+          "filePath": ".agilepherominduserinfo",
+          "dataFromStructuredData": "user",
+          "mergeStrategy": "deep"
+        },
+        {
+          "type": "updateLocalUserInfoFile",
+          "filePath": ".agilepherominduserinfo",
+          "dataFromStructuredData": "projectConnection",
+          "mergeStrategy": "deep"
         },
         {
           "type": "updatePheromoneField",
-          "targetField": "currentUser.id",
-          "valueFromSummary": "{{azureUser | toLower | replace:'.':'_'}}",
-          "comment": "Generates a Pheromind ID from Azure username; could be more robust."
+          "targetField": "currentUser.pheromindId",
+          "valueFromStructuredData": "user.pheromindId"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentUser.azureDevOpsUsername",
+          "valueFromStructuredData": "user.azureDevOps.username"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentUser.azureDevOpsDisplayName",
+          "valueFromStructuredData": "user.azureDevOps.displayName"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentUser.azureDevOpsUserId",
+          "valueFromStructuredData": "user.azureDevOps.userId"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentUser.preferredLanguage",
+          "valueFromStructuredData": "user.preferences.preferredLanguage"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentUser.lastInteractionLanguage",
+          "valueFromStructuredData": "user.lastKnownInteractionLanguage"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentProject.azureDevOps.organizationUrl",
+          "valueFromStructuredData": "projectConnection.azureDevOps.organizationUrl"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentProject.azureDevOps.projectName",
+          "valueFromStructuredData": "projectConnection.azureDevOps.projectName"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentProject.azureDevOps.projectId",
+          "valueFromStructuredData": "projectConnection.azureDevOps.projectId"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentProject.gitRepository.localPath",
+          "valueFromStructuredData": "projectConnection.gitRepository.localPath"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentProject.gitRepository.remoteUrl",
+          "valueFromStructuredData": "projectConnection.gitRepository.remoteUrl"
+        },
+        {
+          "type": "updatePheromoneField",
+          "targetField": "currentProject.gitRepository.defaultBranchPheromind",
+          "valueFromStructuredData": "projectConnection.gitRepository.defaultBranchPheromind"
+        },
+        {
+          "type": "updatePheromoneFlag",
+          "flagName": "onboardingComplete",
+          "value": true
         }
       ]
     },
     {
-      "id": "process_clarification_request_initiation",
+      "id": "process_clarification_request_initiation_v2_en",
       "priority": 15,
       "conditions": [
         {
-          "field": "summaryText",
+          "field": "summaryText_en",
           "operator": "matches",
-          "value": "Clarification needed from user by agent '{{originalAgent}}' regarding '{{originalPromptContext}}'. Question: '{{clarificationQuestion}}'. Clarification ID: {{clarificationId}}."
+          "value": "Clarification needed by agent '{{originalAgent}}' for '{{originalPromptContext_en}}'. Question \\(English\\): '{{clarificationQuestion_en}}'. Clarification ID: {{clarificationId}}."
         }
       ],
       "actions": [
@@ -197,21 +148,21 @@
           "value": {
             "pendingClarificationId": "{{clarificationId}}",
             "originalAgent": "{{originalAgent}}",
-            "originalPromptContext": "{{originalPromptContext}}",
-            "clarificationQuestion": "{{clarificationQuestion}}",
+            "originalPromptContext_en": "{{originalPromptContext_en}}",
+            "clarificationQuestion_en": "{{clarificationQuestion_en}}",
             "timestampRequested": "{{timestamp}}"
           }
         }
       ]
     },
     {
-      "id": "process_clarification_response_from_user",
+      "id": "process_clarification_response_from_user_v2_en",
       "priority": 16,
       "conditions": [
         {
-          "field": "summaryText",
+          "field": "summaryText_en",
           "operator": "matches",
-          "value": "User response received for clarification ID '{{clarificationId}}': '{{userResponse}}'. Original context was for agent '{{originalAgent}}'."
+          "value": "User response for clarification ID '{{clarificationId}}'. User response \\(original lang\\): '{{userResponseInOriginalLang}}'. Original English question: '{{originalQuestion_en}}'. Agent: '{{originalAgent}}'."
         }
       ],
       "actions": [
@@ -221,12 +172,12 @@
           "value": {
             "clarificationId": "{{clarificationId}}",
             "originalAgent": "{{originalAgent}}",
-            "originalPromptContext": "{{clarificationContext.originalPromptContext}}",
-            "questionToUser": "{{clarificationContext.clarificationQuestion}}",
-            "userResponse": "{{userResponse}}",
+            "originalPromptContext_en": "{{clarificationContext.originalPromptContext_en}}",
+            "questionToUser_en": "{{originalQuestion_en}}",
+            "userResponse_originalLang": "{{userResponseInOriginalLang}}",
             "timestampRequested": "{{clarificationContext.timestampRequested}}",
             "timestampResponded": "{{timestamp}}",
-            "impactOnWorkflow": "Response provided to UO for workflow resumption."
+            "impactOnWorkflow_en": "Response provided to UO for workflow resumption."
           }
         },
         {
@@ -237,183 +188,57 @@
       ]
     },
     {
-      "id": "start_user_story_processing_v2",
+      "id": "process_report_generation_with_reasoning_localized_output",
       "priority": 20,
+      "comment": "Generic rule for agents that produce a main report (potentially localized) and have reasoning.",
       "conditions": [
         {
-          "field": "agentName",
-          "operator": "equals",
-          "value": "@devops-connector"
-        },
-        {
-          "field": "summaryText",
+          "field": "summaryText_en",
           "operator": "matches",
-          "value": "Détails pour US 'Azure#{{usId}}' ('{{usTitle}}') récupérés. Description: '{{usDescription}}'. État Azure: '{{usAzureStatus}}'. Priorité: {{usPriority}}.*"
-        }
-      ],
-      "actions": [
-        {
-          "type": "updatePheromoneField",
-          "targetField": "activeUserStory",
-          "value": {
-            "id": "Azure#{{usId}}",
-            "title": "{{usTitle}}",
-            "descriptionFromAzure": "{{usDescription}}",
-            "status": "InProgressByPheromind",
-            "azureStatus": "{{usAzureStatus}}",
-            "priority": "{{usPriority | toInt}}",
-            "tasks": []
-          }
+          "value": ".* Report \\((in `{{outputLang}}`|English), .*reasoning.*\\) at `{{reportPath}}`."
         },
-        {
-          "type": "updateMemoryBankField",
-          "targetField": "memoryBank.userStories.{{usId}}",
-          "value": {
-            "title": "{{usTitle}}",
-            "descriptionFull": "{{usDescription}}",
-            "azureStatus": "{{usAzureStatus}}",
-            "priority": "{{usPriority | toInt}}",
-            "statusHistory": [
-              { "status": "InProgressByPheromind", "timestamp": "{{timestamp}}", "actor": "AgilePheromindSystem", "developer": "{{currentUser.id}}" }
-            ],
-            "tasks": [],
-            "analysisSummaries": [],
-            "keyDecisions": [],
-            "relatedCommits": [],
-            "uiValidationHistory": [],
-            "reasoningChainLinks": []
-          },
-          "mergeStrategy": "deep"
-        },
-        {
-          "type": "addToDocumentationRegistryIfPath",
-          "documentPathFromSummary": "{{summaryText | extractLogPath}}",
-          "description": "Azure DevOps Work Item Details Log for US Azure#{{usId}}",
-          "documentType": "LogFile"
-        }
-      ]
-    },
-    {
-      "id": "process_task_breakdown_v2",
-      "priority": 25,
-      "conditions": [
         {
           "field": "agentName",
-          "operator": "equals",
-          "value": "@task-breakdown-estimator"
-        },
-        {
-          "field": "summaryText",
-          "operator": "matches",
-          "value": "Analyse et décomposition de l'US 'Azure#{{usId}}' terminées. .* Rapport détaillé de décomposition : `{{reportPath}}`."
+          "operator": "in",
+          "values": [
+            "@po-assistant",
+            "@task-breakdown-estimator",
+            "@test-generator-agent",
+            "@code-reviewer-assistant",
+            "@migration-analyst-agent",
+            "@documentation-writer-agent",
+            "@risk-manager-agent",
+            "@workflow-optimizer-agent",
+            "@deployment-agent-aks",
+            "@performance-optimization-agent",
+            "@accessibility-compliance-agent",
+            "@learning-integration-agent"
+          ]
         }
       ],
       "actions": [
         {
           "type": "addToDocumentationRegistry",
-          "documentPathFromSummary": "{{reportPath}}",
-          "description": "Task breakdown report for US Azure#{{usId}}",
-          "documentType": "TaskBreakdownReport"
+          "documentPathFromSummary_en": "{{reportPath}}",
+          "description_en": "{{agentName}} report (output lang: {{outputLang | or:'en-US'}}), includes reasoning. {{summaryText_en | extractShortPurpose}}",
+          "documentType": "{{agentName | stripAgentPrefix}}Report"
         },
         {
-          "type": "appendToMemoryBankSection",
-          "targetSection": "memoryBank.userStories.{{usId}}.analysisSummaries",
-          "value": {
-            "type": "TaskBreakdownEstimation",
-            "summary": "{{summaryText | extractKeyFindings}}",
-            "link": "{{reportPath}}",
-            "timestamp": "{{timestamp}}"
-          }
-        },
-        {
-          "type": "updateMemoryBankField",
-          "targetField": "memoryBank.userStories.{{usId}}.reasoningChainLinks.taskBreakdown",
-          "valueFromSummary": "{{reportPath}}",
-          "comment": "Assuming report contains reasoning chain"
+          "type": "updateMemoryBankLinkToReasoning",
+          "agentName": "{{agentName}}",
+          "reportPathFromSummary_en": "{{reportPath}}",
+          "contextIdFromPheromone": "{{activeUserStory.id | or: activeTask.id | or: activePullRequest.id | or: 'general'}}"
         }
       ]
     },
     {
-      "id": "process_po_need_analysis_report_v2",
-      "priority": 20,
-      "conditions": [
-        {
-          "field": "agentName",
-          "operator": "equals",
-          "value": "@po-assistant"
-        },
-        {
-          "field": "summaryText",
-          "operator": "matches",
-          "value": "Analyse du besoin client .* terminée. .* Rapport complet avec recommandations disponible à `{{reportPath}}`."
-        }
-      ],
-      "actions": [
-        {
-          "type": "addToDocumentationRegistry",
-          "documentPathFromSummary": "{{reportPath}}",
-          "description": "PO Need Analysis Report",
-          "documentType": "AnalysisReport"
-        },
-        {
-          "type": "updateMemoryBankField",
-          "targetField": "memoryBank.userStories.{{activeUserStory.id | or:'draft_' + reportPath | extractFilenameWithoutExt}}.analysisSummaries[]",
-          "value": {
-            "type": "PO_NeedAnalysis",
-            "summary": "{{summaryText | extractKeyFindings}}",
-            "link": "{{reportPath}}",
-            "timestamp": "{{timestamp}}"
-          }
-        },
-        {
-          "type": "updateMemoryBankField",
-          "targetField": "memoryBank.userStories.{{activeUserStory.id | or:'draft_' + reportPath | extractFilenameWithoutExt}}.reasoningChainLinks.poAnalysis",
-          "valueFromSummary": "{{reportPath}}"
-        }
-      ]
-    },
-    {
-      "id": "process_legacy_analysis_report_v2",
-      "priority": 20,
-      "conditions": [
-        {
-          "field": "agentName",
-          "operator": "equals",
-          "value": "@migration-analyst-agent"
-        },
-        {
-          "field": "summaryText",
-          "operator": "matches",
-          "value": "Analyse de migration du codebase legacy '{{legacyProjectName}}' terminée. .* Rapport détaillé: `{{reportPath}}`."
-        }
-      ],
-      "actions": [
-        {
-          "type": "addToDocumentationRegistry",
-          "documentPathFromSummary": "{{reportPath}}",
-          "description": "Legacy Code Analysis Report for {{legacyProjectName}}",
-          "documentType": "MigrationAnalysisReport"
-        },
-        {
-          "type": "updateMemoryBankField",
-          "targetField": "memoryBank.legacyCodeAnalyses.{{reportPath | extractFilenameWithoutExt}}",
-          "value": {
-            "summary": "{{summaryText | extractKeyFindings}}",
-            "link": "{{reportPath}}",
-            "timestamp": "{{timestamp}}",
-            "reasoningChainLink": "{{reportPath}}"
-          }
-        }
-      ]
-    },
-    {
-      "id": "process_workflow_error_logging",
+      "id": "process_workflow_error_logging_v3_en",
       "priority": 5,
       "conditions": [
         {
-          "field": "summaryText",
+          "field": "summaryText_en",
           "operator": "containsAny",
-          "values": ["ÉCHEC", "ERREUR", "Impossible de continuer", "MCP call failed"]
+          "values": ["FAILURE", "ERROR", "FAILED", "UNABLE TO PROCEED", "MCP_CALL_FAILED", "COMMAND_EXECUTION_FAILED"]
         },
         {
           "field": "agentName",
@@ -427,8 +252,8 @@
           "targetField": "activeWorkflow.lastError",
           "value": {
             "agent": "{{agentName}}",
-            "phase": "{{activeWorkflow.currentPhase}}",
-            "message": "{{summaryText}}",
+            "phase_en": "{{activeWorkflow.currentPhase}}",
+            "message_en": "{{summaryText_en}}",
             "timestamp": "{{timestamp}}"
           }
         },
@@ -443,23 +268,26 @@
   "actionImplementations": {
     "updatePheromoneField": "Updates a direct field in the root of the .pheromone object. Uses dot notation for nested fields. Can create fields if they don't exist.",
     "appendToMemoryBankSection": "Appends a value to a list within a specific section of .pheromone.memoryBank. Creates list if needed. Target field can use '[]' to signify appending to a list.",
-    "updateMemoryBankField": "Updates a field within the .pheromone.memoryBank object. Uses dot notation. Can create fields. Supports '[]' for appending to lists within memoryBank.",
-    "addToDocumentationRegistry": "Adds or updates an entry in .pheromone.documentationRegistry.",
-    "addToDocumentationRegistryIfPath": "Similar to addToDocumentationRegistry, but only acts if a valid path is extracted.",
-    "updateTaskStatusInMemoryBank": "Specific action to find a task by ID in memoryBank.tasks and update its status and statusHistory.",
-    "updateTaskStatusInActiveUserStory": "Specific action to find a task by ID in activeUserStory.tasks and update its status."
+    "updateMemoryBankField": "Updates a field within the .pheromone.memoryBank object. Uses dot notation. Can create fields. Supports '[]' for appending to lists. Can use 'mergeStrategy: \"deep\"'.",
+    "addToDocumentationRegistry": "Adds or updates an entry in .pheromone.documentationRegistry (key: path, value: {description_en, documentType, timestamp}).",
+    "addToDocumentationRegistryIfPath": "Similar to addToDocumentationRegistry, but only acts if a valid path is extracted from summaryText_en.",
+    "updateLocalUserInfoFile": "ACTION RESERVED FOR SCRIBE DURING BOOTSTRAP ONLY. Updates local '.agilepherominduserinfo'. Uses dot notation for target fields. Supports 'mergeStrategy: \"deep\"'.",
+    "updatePheromoneFlag": "Sets a simple boolean flag at root of .pheromone.",
+    "updateMemoryBankLinkToReasoning": "Special action to link a report (containing reasoning) to the relevant entity in memoryBank (e.g., userStory, task, general system learning). Example: for @po-assistant and usId 'Azure#123', sets `memoryBank.userStories.Azure#123.reasoningChainLinks_en.poAnalysis = reportPath`."
   },
   "valueExtractors": {
-    "extractFilename": "A function that extracts the filename from a full path string.",
+    "extractFilename": "Extracts filename from a full path string.",
     "extractFilenameWithoutExt": "Extracts filename without extension.",
-    "extractKeyFindings": "A function that attempts to get a very short summary of key findings from a longer text.",
-    "extractOverallStatus": "A function that tries to determine an overall status (e.g., OK, Warning, Error, Pass, Fail) from a summary text.",
-    "extractLogLink": "A function that looks for URLs or file paths that seem to be log files in a summary.",
-    "extractLogPath": "Extracts a file path if explicitly mentioned for logging.",
+    "extractKeyFindings": "Attempts to get a very short English summary of key findings from a longer English text.",
+    "extractOverallStatus": "Tries to determine an overall status (e.g., OK, Warning, Error, Pass, Fail) from an English summary text.",
+    "extractLogLink": "Looks for URLs or file paths that seem to be log files in an English summary.",
+    "extractLogPath": "Extracts a file path if explicitly mentioned for logging in an English summary.",
     "toInt": "Converts extracted string value to an integer, defaults to 0 if conversion fails.",
     "toLower": "Converts string to lowercase.",
-    "replace": "Replaces occurrences of a substring with another. Usage: {{value | replace:'substring_to_find':'replacement_substring'}}",
-    "truncate": "Truncates a string to a specified length. Usage: {{value | truncate:maxLength}}",
-    "or": "Provides a fallback value if the primary extraction fails or is empty. Usage: {{primaryValue | or:fallbackValue}}"
+    "replace": "Replaces occurrences. Usage: {{value | replace:'find':'replace'}}",
+    "truncate": "Truncates string. Usage: {{value | truncate:maxLength}}",
+    "or": "Fallback value. Usage: {{primaryValue | or:fallbackValue}}",
+    "stripAgentPrefix": "Removes '@' and agent type suffix, e.g. '@po-assistant' becomes 'PO'.",
+    "extractShortPurpose": "Extracts a very brief purpose from a longer summary, e.g. the main noun/verb phrase."
   }
 }

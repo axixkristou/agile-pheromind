@@ -1,6 +1,6 @@
 # Workflow: Legacy Code Analysis for Migration Project (09_Legacy_Migration_Analysis.md)
 
-**Objective:** Provide a detailed and traceable analysis of a legacy codebase (VB6, older .NET, COM+, MSSQL SPs) for migration to .NET Core/Angular. The analysis must identify key components, dependencies, business logic, DB interactions, and propose complexity, risks, and migration strategies, with clear documentation of the agent's "chain of thought". Handle errors in accessing sources or MCPs.
+**Objective:** Provide a detailed and traceable English analysis of a legacy codebase (VB6, old .NET, COM+, MSSQL SPs) for migration to a modern .NET Core/Angular stack. The analysis must identify key components, dependencies, encapsulated business logic, database interactions, and propose complexity, risks, and potential migration strategies, with clear English "chain of thought" documentation. Manages errors in accessing sources or MCPs. The final report provided to the user will be in `currentUser.lastInteractionLanguage`.
 
 **Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@migration-analyst-agent`, `@clarification-agent`.
 
@@ -8,83 +8,81 @@
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** The user (Tech Lead/Architect) specifies the path/repo of the legacy code and the target stack (e.g., `"AgilePheromind analyze VB6 at [path] for migration to .NET Core/Angular."`).
-2.  **`🧐 @uber-orchestrator`** takes control.
+1.  **Initiation:** User (Tech Lead/Architect) specifies path to legacy source code and target stack (e.g., `"AgilePheromind analyze VB6 at [path/repo] for migration to .NET Core/Angular."`). `userLanguage` passed by `🎩 @head-orchestrator` to UO.
+2.  **`🧐 @uber-orchestrator`** (UO) takes control. UO updates `currentUser.lastInteractionLanguage`.
+    *   **Pre-check:** UO verifies `.pheromone.onboardingComplete`.
     *   **Phase 1: Analysis Planning, Code Ingestion, and Context Injection.**
-        *   UO **injects context** (target stack from `memoryBank.projectContext`, past similar migration analyses from `memoryBank.legacyCodeAnalyses`) to `@migration-analyst-agent`.
-        *   `@migration-analyst-agent` uses **Sequential Thinking MCP** to structure its approach. Attempts to ingest the code.
-        *   **onError (Code Ingestion):** If access/reading of legacy code fails, the agent reports it to the UO. The UO may ask the user to verify the path/access or upload the code, potentially via `@clarification-agent`. Workflow paused.
-    *   **Phase 2: Detailed Analysis of Legacy Components (with "Chain of Thought").**
-        *   UO delegates to `@migration-analyst-agent`. Syntactic analysis, modules, UI, business logic, DB access (with **MSSQL MCP**), dependencies (with **Fetch MCP**). **Must document the "chain of thought"** for the identification and interpretation of components.
-        *   **onError (MCP):** If an MCP (MSSQL, Fetch) fails, the agent notes the missing information, continues if possible, and reports it in its report.
-    *   **Phase 3: Mapping to Modern Stack and Strategies (with "Chain of Thought").**
-        *   UO delegates to `@migration-analyst-agent`. Proposal of equivalents, challenges, strategies. Use of **Context7 MCP**. **Must document the "chain of thought"** for mapping proposals.
-    *   **Phase 4: Complexity Estimation and Risks (with "Chain of Thought").**
-        *   UO delegates to `@migration-analyst-agent`. **Must document the "chain of thought"** for evaluations.
-    *   **Phase 5: Generation of Analysis Report (including "Chain of Thought").**
-        *   UO delegates to `@migration-analyst-agent`.
-    *   **Phase 6: Report Recording.**
+        *   UO **injects English context** to `@migration-analyst-agent`. Agent uses **Sequential Thinking MCP** (English) to structure analysis. Attempts code ingestion.
+        *   **onError (Code Ingestion):** If fails, agent reports (English) to UO. UO may ask user (in `userLanguage`) to verify path/access via `@clarification-agent`. Workflow pauses.
+    *   **Phase 2: Detailed Legacy Component Analysis (with English "Chain of Thought").**
+        *   UO delegates to `@migration-analyst-agent`. English analysis of modules, UI, logic, DB (MSSQL MCP), dependencies (Fetch MCP). **Must document English "chain of thought"**.
+        *   **onError (MCP):** Agent notes missing info (English), continues if possible, signals in report.
+    *   **Phase 3: Mapping to Modern Stack and Strategies (with English "Chain of Thought").**
+        *   UO delegates to `@migration-analyst-agent`. English proposals, challenges, strategies. Uses **Context7 MCP**. **Must document English "chain of thought"**.
+    *   **Phase 4: Complexity Estimation and Risks (with English "Chain of Thought").**
+        *   UO delegates to `@migration-analyst-agent`. **Must document English "chain of thought"**.
+    *   **Phase 5: Generation of Migration Analysis Report (English Content, Final Output Localized).**
+        *   UO delegates to `@migration-analyst-agent`. Agent drafts full English report, then translates it to `currentUser.lastInteractionLanguage`.
+    *   **Phase 6: Report Recording (English Data for Scribe, Localized Report Path).**
         *   Scribe records.
 
 ## Phase Details:
 
 ### Phase 1: Analysis Planning, Code Ingestion, and Context Injection
 *   **Responsible Agent:** `@migration-analyst-agent`.
-*   **Inputs (Injected by UO):** Legacy code path/repo, target stack. `memoryBank` context (past migration analyses, detailed target tech stack).
+*   **Inputs (Injected by UO):** Legacy code path/repo, target stack info. English context from `memoryBank` (past migration analyses, detailed target tech stack).
 *   **Actions & Tooling:**
-    1.  **Sequential Thinking MCP** to plan the analysis (steps: ingestion, module identification, dependencies, DB, mapping, strategy, complexity/risks). **The output of this MCP will constitute the first part of the "chain of thought".**
-    2.  **Code Ingestion:** If Git repo, **Git Tools MCP** (`clone_repository`). Otherwise, file access.
-*   **onError (Code Ingestion):**
-    *   If failure, `@migration-analyst-agent` reports to the UO: "Unable to access legacy code at [path/repo]: [Error].".
-    *   UO pauses workflow, delegates to `@clarification-agent` to ask the user to verify/provide valid access.
-*   **Output (internal if successful):** Analysis plan, accessible legacy code.
+    1.  **Sequential Thinking MCP** (English) for analysis plan. Output forms first part of English "chain of thought".
+    2.  **Ingest Code:** Git Tools MCP (`clone_repository`) or file access.
+*   **onError (Code Ingestion):** If failure, `@migration-analyst-agent` reports (English) to UO. UO pauses, delegates to `@clarification-agent` to ask user (in `userLanguage`) to verify/provide access.
+*   **Output (internal if success, English):** Analysis plan, accessible legacy code.
 
-### Phase 2: Detailed Analysis of Legacy Components (with "Chain of Thought")
+### Phase 2: Detailed Legacy Component Analysis (with English "Chain of Thought")
 *   **Responsible Agent:** `@migration-analyst-agent`.
-*   **Inputs:** Legacy code, analysis plan.
+*   **Inputs:** Legacy code, English analysis plan.
 *   **Actions & Tooling:**
-    1.  Static analysis (VB6, .NET Framework etc.): modules, UI, logic, data access.
-    2.  SPs analysis (if applicable): **MSSQL MCP** (`get_database_schema`, `list_stored_procedures`, `get_stored_procedure_definition`). **onError (MSSQL MCP):** If failure, note the inability to analyze SPs and continue if possible. Report it in the report.
-    3.  Dependencies Analysis: DLLs, COM+, third-party libs. For obscure ones, **Fetch MCP** (web scraping) or **Context7 MCP**. **onError (Fetch/Context7):** If doc not found, note the dependency as "unknown/at risk".
-    4.  **"Chain of Thought":** Document in the report (dedicated section or appendix) how the main components were identified, what was their functional interpretation, and how dependencies were traced.
-*   **Output (internal):** Detailed inventory of components, logic, dependencies, with analysis justification.
+    1.  Static code analysis (English observations).
+    2.  SPs analysis (MSSQL MCP). **onError (MSSQL MCP):** Note inability to analyze SPs (English), continue if possible. Signal in report.
+    3.  Dependency Analysis (Fetch/Context7 MCPs). **onError (Fetch/Context7):** Note dependency as "unknown/at risk" (English).
+    4.  **"Chain of Thought" (English):** Document in report how main components were identified, their English functional interpretation, and dependency tracing.
+*   **Output (internal, English):** Detailed inventory, logic, dependencies, with English analysis justification.
 
-### Phase 3: Mapping to Modern Stack and Strategies (with "Chain of Thought")
+### Phase 3: Mapping to Modern Stack and Strategies (with English "Chain of Thought")
 *   **Responsible Agent:** `@migration-analyst-agent`.
-*   **Inputs:** Component analysis (Phase 2). Target stack.
+*   **Inputs:** English component analysis (Phase 2). Target stack info.
 *   **Actions & Tooling:**
-    1.  **Functional Mapping:** Propose rewrite/replacement (VB6/.NET Logic -> .NET Core Services; VB6/WinForms UI -> Angular Components; SPs -> .NET Core API/EF Core).
-    2.  **Modern Documentation (Context7 MCP):** `get_library_docs` for .NET Core/Angular to guide proposals.
-    3.  **Migration Strategies:** Propose (Big Bang, Strangler Fig, Phased). Suggest order, PoCs.
-    4.  **"Chain of Thought":** Document in the report why certain mapping approaches are preferred, alternatives considered and discarded, and the logic behind the proposed migration strategy.
-*   **Output (internal):** Technical mapping proposals, migration strategies, with justifications.
+    1.  **Functional Mapping (English):** Propose rewrites/replacements.
+    2.  **Modern Documentation (Context7 MCP):** For .NET Core/Angular to guide English proposals.
+    3.  **Migration Strategies (English):** Propose (Big Bang, Strangler Fig, Phased). Suggest order, PoCs.
+    4.  **"Chain of Thought" (English):** Document in report why certain English mapping approaches preferred, alternatives, strategy logic.
+*   **Output (internal, English):** Technical mapping proposals, migration strategies, with English justifications.
 
-### Phase 4: Complexity Estimation and Risks (with "Chain of Thought")
+### Phase 4: Complexity Estimation and Risks (with English "Chain of Thought")
 *   **Responsible Agent:** `@migration-analyst-agent`.
-*   **Inputs:** Component analysis, mapping proposals.
+*   **Inputs:** English component analysis, English mapping proposals.
 *   **Actions & Tooling:**
-    1.  **Complexity Estimation:** By component/feature group (Low, Medium, High, Very High). Justify.
-    2.  **Risk Identification:** Technical (undocumented logic, irreplaceable dependencies), data, coexistence.
-    3.  **"Chain of Thought":** Document in the report how complexity was evaluated for each component (which factors weighed most) and how risks were identified and assessed.
-*   **Output (internal):** Complexity evaluations, risk list, with justifications.
+    1.  **Complexity Estimation (English):** By component/feature (Low, Medium, High, Very High). Justify.
+    2.  **Risk Identification (English):** Technical, data, coexistence risks.
+    3.  **"Chain of Thought" (English):** Document in report how English complexity was evaluated and English risks identified/assessed.
+*   **Output (internal, English):** Complexity evaluations, risk list, with English justifications.
 
-### Phase 5: Generation of Migration Analysis Report (including "Chain of Thought")
+### Phase 5: Generation of Migration Analysis Report (English Content, Final Output Localized)
 *   **Responsible Agent:** `@migration-analyst-agent`.
-*   **Inputs:** All information from previous phases.
+*   **Inputs:** All English information from previous phases. `currentUser.lastInteractionLanguage` (from UO as `userLanguageForOutput`).
 *   **Actions & Tooling:**
-    1.  Write MD report (`legacy_analysis_[legacy_project_name]_[timestamp].md`) in `02_AI-DOCS/Migration_Analyses/`.
-    2.  Structure: Intro, Legacy Overview, Component Inventory, Detailed Analysis, Mapping Proposals, Migration Strategy(ies), Complexity Estimates, Risks, Recommendations.
-    3.  **Explicitly integrate "Chain of Thought" sections** or references to appendices documenting the reasoning for each major analysis and proposal step.
-*   **Output (to Scribe):** NL Summary: "Migration analysis '[LegacyProjectName]' to .NET Core/Angular completed. Complexity: [Overall]. [N_risks] major risks. Report (with detailed chain of thought): `legacy_analysis_[legacy_project_name]_[timestamp].md`. Recommendation: [Key]."
+    1.  **Compile English Report Content:** Full structured English Markdown report. Include: Intro, Legacy Overview, Component Inventory, Detailed Analysis, Mapping Proposals, Strategy(ies), Complexity Estimates, Risks, Recommendations. **Must include all English "Chain of Thought" sections.**
+    2.  **Translate Report:** Translate the entire English report content to `userLanguageForOutput`, preserving Markdown and technical accuracy.
+    3.  Save localized report as `legacy_analysis_[legacy_project_name_en]_[timestamp]_{{userLanguageForOutput}}.md` in `02_AI-DOCS/Migration_Analyses/`.
+*   **Output (to Scribe, English NL Summary with path to localized report):** "Legacy migration analysis '[LegacyProjectName_en]' to .NET Core/Angular complete. Complexity (English): [Overall_en]. [N_risks] major risks. Report (in `{{userLanguageForOutput}}`, with English reasoning chain available or summarized within) at `{{localized_report_path}}`. Key English recommendation: [1-2 key recommendations]."
 
-### Phase 6: Report Recording
+### Phase 6: Report Recording (English Data for Scribe, Localized Report Path)
 *   **Responsible Agent:** `✍️ @orchestrator-pheromone-scribe`.
-*   **Inputs:** NL summary from `@migration-analyst-agent`.
+*   **Inputs:** English NL Summary from `@migration-analyst-agent`.
 *   **Actions:**
-    1.  Update `.pheromone`:
-        *   `documentationRegistry`: Add path to `legacy_analysis...md`.
-        *   `memoryBank.legacyCodeAnalyses.{{legacy_project_name}}`: Add `{ summary, linkToReport, timestamp, overallComplexity, keyRisksCount, reasoningChainLink: reportPath }`.
-        *   If specific risks are identified and can be added to the `riskRegister`, create preliminary entries.
-*   **Output:** `.pheromone` updated. UO informed.
+    1.  Update `.pheromone` (English data for `memoryBank`):
+        *   `documentationRegistry`: Add `{{localized_report_path}}`.
+        *   `memoryBank.legacyCodeAnalyses.{{legacy_project_name_en}}`: Add `{ summary_en: "[English summary extract]", linkToReport_localized: "{{localized_report_path}}", timestamp, overallComplexity_en, keyRisksCount, reasoningChainLink_en: "{{english_version_of_report_or_core_reasoning_doc_path}}" }`. (The agent should ideally make its core English reasoning available, even if the main report is translated).
+        *   If specific risks identified, create preliminary English entries in `memoryBank.riskRegister`.
+*   **Output:** `.pheromone` updated. UO informed (can notify user in `userLanguage`).
 
 ---

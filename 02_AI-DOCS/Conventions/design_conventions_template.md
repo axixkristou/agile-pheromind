@@ -1,137 +1,137 @@
-# Conventions de Design et UI/UX du Projet : {{NOM_PROJET_PAR_PHEROMIND}}
+# Project {{PROJECT_NAME_FROM_PHEROMIND}} Design and UI/UX Conventions
 
 **Version:** 1.0
-**Date de Dernière Mise à Jour:** {{TIMESTAMP_PAR_PHEROMIND}}
-**Maintenu par:** `@architecture-advisor-agent` (avec validation humaine du Tech Lead/Design Lead)
+**Last Updated:** {{TIMESTAMP_BY_PHEROMIND_AGENT}}
+**Maintained by:** @architecture-advisor-agent (with human validation from Tech Lead/Design Lead)
 
 ## 1. Introduction
 
-Ce document définit les principes, standards et composants de design à utiliser pour le projet `{{NOM_PROJET_PAR_PHEROMIND}}`. L'objectif est de créer une expérience utilisateur (UX) cohérente, intuitive, accessible, et esthétiquement plaisante, alignée avec l'identité de la marque et les attentes des utilisateurs. Ces conventions guideront le développement frontend (Angular) et l'utilisation de la librairie de style (Tailwind CSS) et de composants (ex: sur base de Shadcn/UI si retenu).
+This document defines the design principles, standards, and UI components to be used for the `{{PROJECT_NAME_FROM_PHEROMIND}}` project. The goal is to create a consistent, intuitive, accessible, and aesthetically pleasing user experience (UX), aligned with the brand identity and user expectations. These conventions will guide frontend development (Angular) and the use of the styling library (Tailwind CSS) and component library (e.g., based on Shadcn/UI if chosen).
 
-Le respect de ces conventions est crucial pour maintenir une haute qualité UI/UX.
+Adherence to these conventions is crucial for maintaining high UI/UX quality. This document is a key part of the project's `memoryBank` and will be used by AI agents like `@developer-agent` and `@tester-ui-validator-agent`.
 
-## 2. Philosophie et Principes de Design UX/UI
+## 2. UX/UI Design Philosophy and Principles
 
-*   **Centré sur l'Utilisateur (User-Centered Design):** Les besoins et les objectifs des utilisateurs finaux sont au cœur de toutes les décisions de design.
-*   **Simplicité et Clarté:** "Moins, c'est plus." Interfaces épurées, informations hiérarchisées, langage clair. Éviter la surcharge cognitive.
-*   **Cohérence (Consistency):** Les éléments UI, les interactions et les parcours utilisateurs doivent être cohérents à travers toute l'application. Utiliser les composants et styles définis ici.
-*   **Intuitivité (Intuitive Design):** L'interface doit être facile à comprendre et à utiliser sans nécessiter d'explications complexes. Les utilisateurs doivent pouvoir anticiper le résultat de leurs actions.
-*   **Feedback Utilisateur (Feedback):** Fournir un retour clair et immédiat aux actions de l'utilisateur (ex: états de chargement, messages de succès/erreur, confirmations visuelles).
-*   **Efficacité (Efficiency):** Permettre aux utilisateurs d'accomplir leurs tâches rapidement et avec un minimum d'effort. Optimiser les flux de travail.
-*   **Accessibilité (A11Y):** Concevoir pour tous. Viser au minimum la conformité WCAG 2.1 AA. (Voir section dédiée).
-*   **Esthétique Fonctionnelle (Aesthetic Integrity):** Le design visuel doit soutenir et améliorer la fonctionnalité, sans la surcharger. L'esthétique doit être alignée avec la "vibe" du projet définie par le client/PO.
-*   **Tolérance aux Erreurs (Forgiveness):** Aider les utilisateurs à éviter les erreurs et à les corriger facilement (ex: messages d'erreur clairs, options d'annulation).
+*   **User-Centered Design:** The needs and goals of end-users are at the heart of all design decisions.
+*   **Simplicity and Clarity:** "Less is more." Clean interfaces, hierarchized information, clear language. Avoid cognitive overload.
+*   **Consistency:** UI elements, interactions, and user flows must be consistent throughout the application. Use components and styles defined herein.
+*   **Intuitive Design:** The interface should be easy to understand and use without complex explanations. Users should be able to anticipate the outcome of their actions.
+*   **User Feedback:** Provide clear and immediate feedback to user actions (e.g., loading states, success/error messages, visual confirmations).
+*   **Efficiency:** Enable users to accomplish tasks quickly and with minimal effort. Optimize workflows.
+*   **Accessibility (A11Y):** Design for everyone. Aim for at least WCAG 2.1 AA compliance. (See dedicated section).
+*   **Aesthetic Integrity:** Visual design should support and enhance functionality, not overwhelm it. Aesthetics should align with the project "vibe" defined by the client/PO.
+*   **Forgiveness (Error Tolerance):** Help users avoid errors and recover from them easily (e.g., clear error messages, undo options).
 
-## 3. Identité Visuelle (Branding - à définir avec le client/PO)
+## 3. Visual Identity (Branding - to be defined with client/PO)
 
 *   **3.1. Logo:**
-    *   [Emplacement pour le logo principal et ses variations. L'agent IA peut suggérer un placeholder ou aider à en générer un via un MCP si demandé.]
-*   **3.2. Palette de Couleurs Principale (Tokens Tailwind CSS):**
-    *   `primary`: [Couleur principale, ex: `colors.blue['500']` - HEX: `#3B82F6`] - Utilisée pour les actions principales, les accents importants.
-    *   `secondary`: [Couleur secondaire, ex: `colors.slate['600']` - HEX: `#475569`] - Utilisée pour les éléments de support, textes secondaires.
-    *   `accent`: [Couleur d'accent, ex: `colors.amber['400']` - HEX: `#FBBF24`] - Utilisée pour les points d'attention, notifications, badges.
-    *   **Neutres:**
-        *   `background`: [Couleur de fond principale, ex: `colors.white` ou `colors.slate['50']`]
-        *   `foreground`: [Couleur de texte principale sur `background`, ex: `colors.slate['900']` ou `colors.slate['700']`]
-        *   `card / surface`: [Couleur pour les conteneurs, cartes, ex: `colors.white` ou `colors.slate['100']`]
-        *   `border / divider`: [Couleur pour les bordures, séparateurs, ex: `colors.slate['200']` ou `colors.slate['300']`]
-    *   **Sémantiques:**
-        *   `destructive / error`: [Couleur pour les actions destructrices, erreurs, ex: `colors.red['500']` - HEX: `#EF4444`]
-        *   `success`: [Couleur pour les confirmations, succès, ex: `colors.green['500']` - HEX: `#22C55E`]
-        *   `warning`: [Couleur pour les avertissements, ex: `colors.yellow['500']` - HEX: `#EAB308`]
-        *   `info`: [Couleur pour les messages informatifs, ex: `colors.sky['500']` - HEX: `#0EA5E9`]
-    *   *Note: Ces couleurs doivent être configurées dans `tailwind.config.js`.*
-*   **3.3. Typographie (Tokens Tailwind CSS):**
-    *   **Police Principale (Body & UI):** [Nom de la police, ex: "Inter", "Roboto", "System UI"]. Spécifier les graisses à utiliser (ex: Regular 400, Medium 500, Semibold 600, Bold 700).
+    *   [Space for primary logo and its variations. AgilePheromind AI agent can suggest a placeholder or assist in generating one via an MCP if requested.]
+*   **3.2. Primary Color Palette (Tailwind CSS Tokens):**
+    *   `primary`: [Main brand color, e.g., `colors.blue['500']` - HEX: `#3B82F6`] - Used for main actions, important accents.
+    *   `secondary`: [Secondary brand color, e.g., `colors.slate['600']` - HEX: `#475569`] - Used for supporting elements, secondary text.
+    *   `accent`: [Accent color, e.g., `colors.amber['400']` - HEX: `#FBBF24`] - Used for highlights, notifications, badges.
+    *   **Neutrals:**
+        *   `background`: [Main background color, e.g., `colors.white` or `colors.slate['50']`]
+        *   `foreground`: [Main text color on `background`, e.g., `colors.slate['900']` or `colors.slate['700']`]
+        *   `card / surface`: [Color for containers, cards, e.g., `colors.white` or `colors.slate['100']`]
+        *   `border / divider`: [Color for borders, dividers, e.g., `colors.slate['200']` or `colors.slate['300']`]
+    *   **Semantic Colors:**
+        *   `destructive / error`: [Color for destructive actions, errors, e.g., `colors.red['500']` - HEX: `#EF4444`]
+        *   `success`: [Color for confirmations, success, e.g., `colors.green['500']` - HEX: `#22C55E`]
+        *   `warning`: [Color for warnings, e.g., `colors.yellow['500']` - HEX: `#EAB308`]
+        *   `info`: [Color for informational messages, e.g., `colors.sky['500']` - HEX: `#0EA5E9`]
+    *   *Note: These colors must be configured in `tailwind.config.js`.*
+*   **3.3. Typography (Tailwind CSS Tokens):**
+    *   **Primary Font (Body & UI):** [Font Name, e.g., "Inter", "Roboto", "System UI"]. Specify weights to use (e.g., Regular 400, Medium 500, Semibold 600, Bold 700).
         *   Fallback: `sans-serif`.
-    *   **Police d'Affichage (Titres, optionnel):** [Nom de la police, ex: "Lexend", "Poppins"]. Spécifier les graisses.
-    *   **Échelle Typographique (Classes Tailwind ou configuration `theme.fontSize`):**
-        *   `text-xs`, `text-sm`, `text-base` (corps), `text-lg`, `text-xl`, `text-2xl`, `text-3xl`, `text-4xl` (titres Hx).
-        *   Définir les `line-height` appropriés pour chaque taille.
-*   **3.4. Iconographie:**
-    *   **Style:** [Choisir un style, ex: Outline, Solid, Two-tone].
-    *   **Librairie Recommandée:** [ex: Heroicons, Lucide Icons, Font Awesome via SVG]. S'assurer de la cohérence.
-    *   Taille de base des icônes: [ex: 20px, 24px].
-*   **3.5. Espacement et Grille (Tokens Tailwind CSS):**
-    *   **Unité d'Espacement de Base:** [ex: 4px]. L'échelle d'espacement de Tailwind (`spacing`) sera basée sur cette unité (ex: `1` -> `0.25rem`, `2` -> `0.5rem`, `4` -> `1rem`).
-    *   **Grille de Mise en Page:** Utiliser les classes de grille de Tailwind (`grid`, `grid-cols-*`) ou Flexbox (`flex`) pour les mises en page principales.
-    *   Marges et Paddings cohérents pour les sections, cartes, éléments de formulaire.
-*   **3.6. Arrondis (Border Radius - Tokens Tailwind CSS):**
-    *   Définir une échelle d'arrondis (ex: `rounded-sm`, `rounded`, `rounded-md`, `rounded-lg`, `rounded-xl`, `rounded-full`).
-    *   Utilisation cohérente pour les boutons, cartes, inputs.
-*   **3.7. Ombres (Box Shadow - Tokens Tailwind CSS):**
-    *   Définir une échelle d'ombres subtiles pour l'élévation (ex: `shadow-sm`, `shadow`, `shadow-md`, `shadow-lg`).
-*   **3.8. "Vibe" Générale du Projet (Rappel des mots-clés du client/PO):**
-    *   [Ex: "Moderne et épuré", "Professionnel et fiable", "Ludique et engageant"]. Ces mots-clés doivent guider les choix esthétiques globaux.
+    *   **Display Font (Headings, optional):** [Font Name, e.g., "Lexend", "Poppins"]. Specify weights.
+    *   **Typographic Scale (Tailwind classes or `theme.fontSize` config):**
+        *   `text-xs`, `text-sm`, `text-base` (body), `text-lg`, `text-xl`, `text-2xl`, `text-3xl`, `text-4xl` (Hx headings).
+        *   Define appropriate `line-height` for each size.
+*   **3.4. Iconography:**
+    *   **Style:** [Choose a style, e.g., Outline, Solid, Two-tone].
+    *   **Recommended Library:** [e.g., Heroicons, Lucide Icons, Font Awesome via SVG]. Ensure consistency.
+    *   Base icon size: [e.g., 20px, 24px].
+*   **3.5. Spacing and Grid (Tailwind CSS Tokens):**
+    *   **Base Spacing Unit:** [e.g., 4px]. Tailwind's `spacing` scale will be based on this (e.g., `1` -> `0.25rem`, `2` -> `0.5rem`, `4` -> `1rem`).
+    *   **Layout Grid:** Use Tailwind's grid classes (`grid`, `grid-cols-*`) or Flexbox (`flex`) for main layouts.
+    *   Consistent margins and paddings for sections, cards, form elements.
+*   **3.6. Corner Radius (Border Radius - Tailwind CSS Tokens):**
+    *   Define a scale (e.g., `rounded-sm`, `rounded`, `rounded-md`, `rounded-lg`, `rounded-xl`, `rounded-full`).
+    *   Consistent use for buttons, cards, inputs.
+*   **3.7. Shadows (Box Shadow - Tailwind CSS Tokens):**
+    *   Define a subtle shadow scale for elevation (e.g., `shadow-sm`, `shadow`, `shadow-md`, `shadow-lg`).
+*   **3.8. Overall Project "Vibe" (Reminder of client/PO keywords):**
+    *   [e.g., "Modern and clean", "Professional and reliable", "Playful and engaging"]. These keywords must guide overall aesthetic choices.
 
-## 4. Composants UI Standards (Basés sur Shadcn/UI ou librairie choisie, personnalisés)
+## 4. Standard UI Components (Based on Shadcn/UI or chosen library, customized)
 
-*L'agent `@architecture-advisor-agent` ou `@developer-agent` (guidé par le design) doit documenter ici les composants clés, leurs variantes, et leur utilisation, en s'assurant qu'ils respectent la personnalisation définie par les tokens de ce document.*
+*The `@architecture-advisor-agent` or `@developer-agent` (guided by design) should document key components here, their variants, and usage, ensuring they adhere to the customization defined by this document's tokens.*
 
-*   **4.1. Boutons (`<button>`, `<a>` stylés):**
-    *   Variantes: `primary`, `secondary`, `destructive`, `outline`, `ghost`, `link`.
-    *   États: `default`, `hover`, `focus`, `active`, `disabled`.
-    *   Tailles: `sm`, `default` (md), `lg`, `icon`.
-*   **4.2. Champs de Formulaire (`<input>`, `<textarea>`, `<select>`):**
-    *   Types d'input: `text`, `email`, `password`, `number`, `date`, etc.
-    *   États: `default`, `hover`, `focus`, `disabled`, `error`, `success`.
-    *   Labels, messages d'aide, messages d'erreur.
+*   **4.1. Buttons (`<button>`, `<a>` styled):**
+    *   Variants: `primary`, `secondary`, `destructive`, `outline`, `ghost`, `link`.
+    *   States: `default`, `hover`, `focus`, `active`, `disabled`.
+    *   Sizes: `sm`, `default` (md), `lg`, `icon`.
+*   **4.2. Form Fields (`<input>`, `<textarea>`, `<select>`):**
+    *   Input types: `text`, `email`, `password`, `number`, `date`, etc.
+    *   States: `default`, `hover`, `focus`, `disabled`, `error`, `success`.
+    *   Labels, help text, error messages.
     *   Checkbox, Radio buttons.
-*   **4.3. Cartes (Cards):**
-    *   Structure de base (header, content, footer).
-    *   Variantes (ex: avec image, actions).
-*   **4.4. Modales (Dialogs):**
-    *   Structure (titre, contenu, actions).
-    *   Comportement (fermeture, focus trapping).
+*   **4.3. Cards:**
+    *   Base structure (header, content, footer).
+    *   Variants (e.g., with image, actions).
+*   **4.4. Modals (Dialogs):**
+    *   Structure (title, content, actions).
+    *   Behavior (closing, focus trapping).
 *   **4.5. Notifications (Toasts, Alerts):**
     *   Types: `info`, `success`, `warning`, `error`.
-    *   Positionnement, durée d'affichage.
+    *   Positioning, display duration.
 *   **4.6. Navigation:**
-    *   Barre de navigation principale (header).
-    *   Navigation latérale (sidebar, si applicable).
-    *   Fil d'Ariane (Breadcrumbs).
+    *   Main navigation bar (header).
+    *   Side navigation (sidebar, if applicable).
+    *   Breadcrumbs.
     *   Pagination.
     *   Tabs.
-*   **4.7. Tables de Données:**
-    *   Structure, tri, filtrage (basique), actions par ligne.
+*   **4.7. Data Tables:**
+    *   Structure, sorting, basic filtering, row actions.
 *   **4.8. Avatars, Badges, Tooltips, Dropdowns, Accordions, etc.**
-    *   [Documenter les autres composants réutilisables nécessaires.]
+    *   [Document other necessary reusable components.]
 
-## 5. Principes d'Interaction et Animations
+## 5. Interaction Principles and Animations
 
-*   **Feedback Immédiat:** Toute action utilisateur doit avoir un retour visuel (même subtil).
-*   **Transitions Fluides:** Animations et transitions doivent être douces (ex: `duration-200`, `ease-in-out` de Tailwind) et servir à guider l'œil ou à indiquer un changement d'état, sans être distrayantes.
-*   **États de Chargement (Loading States):** Utiliser des indicateurs de chargement clairs (spinners, skeletons) pour les opérations asynchrones. Les boutons doivent avoir un état de chargement.
-*   **Micro-interactions:** Des animations subtiles sur les hovers, focus, ou clics peuvent améliorer l'expérience si bien dosées.
+*   **Immediate Feedback:** Every user action must have visual feedback (even subtle).
+*   **Smooth Transitions:** Animations and transitions should be smooth (e.g., Tailwind's `duration-200`, `ease-in-out`) and purposeful (guide attention, indicate state change), not distracting.
+*   **Loading States:** Use clear loading indicators (spinners, skeletons) for asynchronous operations. Buttons must have loading states.
+*   **Micro-interactions:** Subtle animations on hovers, focus, or clicks can enhance the experience if well-dosed.
 
-## 6. Accessibilité (A11Y)
+## 6. Accessibility (A11Y)
 
-*   **Contraste des Couleurs:** Respecter les ratios de contraste WCAG AA (4.5:1 pour texte normal, 3:1 pour grand texte). Utiliser des outils de vérification.
-*   **Navigation au Clavier:** Tous les éléments interactifs doivent être accessibles et opérables au clavier. L'ordre de focus doit être logique.
-*   **ARIA (Accessible Rich Internet Applications):** Utiliser les attributs ARIA de manière appropriée pour améliorer la sémantique des composants complexes (modales, onglets, menus déroulants).
-*   **Texte Alternatif pour Images:** Toutes les images informatives doivent avoir un attribut `alt` descriptif. Les images décoratives peuvent avoir `alt=""`.
-*   **Labels pour Formulaires:** Tous les champs de formulaire doivent avoir des labels associés (`<label for="...">`).
-*   **Sémantique HTML:** Utiliser les balises HTML de manière sémantique (`<nav>`, `<main>`, `<aside>`, `<article>`, `<button>`, etc.).
-*   **Tests d'Accessibilité:** Utiliser des outils automatisés (ex: Axe DevTools) et effectuer des tests manuels (navigation clavier, lecteur d'écran basique).
+*   **Color Contrast:** Adhere to WCAG AA contrast ratios (4.5:1 for normal text, 3:1 for large text). Use verifier tools.
+*   **Keyboard Navigation:** All interactive elements must be keyboard accessible and operable. Focus order must be logical.
+*   **ARIA (Accessible Rich Internet Applications):** Use ARIA attributes appropriately to enhance semantics of complex components (modals, tabs, dropdowns).
+*   **Alternative Text for Images:** All informative images must have a descriptive `alt` attribute. Decorative images can have `alt=""`.
+*   **Labels for Forms:** All form fields must have associated labels (`<label for="...">`).
+*   **Semantic HTML:** Use HTML tags semantically (`<nav>`, `<main>`, `<aside>`, `<article>`, `<button>`, etc.).
+*   **Accessibility Testing:** Use automated tools (e.g., Axe DevTools) and perform manual testing (keyboard navigation, basic screen reader).
 
 ## 7. Responsive Design
 
-*   **Approche Mobile-First:** Concevoir d'abord pour les petits écrans, puis adapter pour les plus grands.
-*   **Points de Rupture (Breakpoints) Tailwind CSS:** Utiliser les breakpoints par défaut de Tailwind (`sm`, `md`, `lg`, `xl`, `2xl`) de manière cohérente.
-*   Tester sur des tailles d'écran et appareils réels ou simulés.
-*   Assurer la lisibilité et la facilité d'interaction sur toutes les tailles d'écran.
+*   **Mobile-First Approach:** Design for small screens first, then adapt for larger ones.
+*   **Tailwind CSS Breakpoints:** Use Tailwind's default breakpoints (`sm`, `md`, `lg`, `xl`, `2xl`) consistently.
+*   Test on real or simulated screen sizes and devices.
+*   Ensure readability and ease of interaction on all screen sizes.
 
-## 8. Outils et Ressources
+## 8. Tools and Resources
 
-*   **Librairie UI:** [Nom de la librairie de base si autre que Tailwind/Shadcn pur, ex: Angular Material mais stylé avec Tailwind].
-*   **Librairie d'Icônes:** [Nom et lien, ex: Lucide Icons].
-*   **Outil de Design (si utilisé pour mockups):** [Ex: Figma, Penpot]. Fournir des liens vers les maquettes maîtresses.
-*   **Vérificateur de Contraste:** [Lien vers un outil, ex: WebAIM Contrast Checker].
-*   **Extension d'Accessibilité Navigateur:** [Ex: Axe DevTools].
+*   **UI Library:** [Name of base library if other than pure Tailwind/Shadcn, e.g., Angular Material styled with Tailwind].
+*   **Icon Library:** [Name and link, e.g., Lucide Icons].
+*   **Design Tool (if used for mockups):** [e.g., Figma, Penpot]. Provide links to master mockups.
+*   **Contrast Checker:** [Link to tool, e.g., WebAIM Contrast Checker].
+*   **Browser Accessibility Extension:** [e.g., Axe DevTools].
 
-## 9. Processus de Mise à Jour
+## 9. Update Process
 
-*   Ce document est vivant. Les propositions de nouveaux composants ou de modifications aux conventions existantes doivent être discutées avec le Tech Lead / Design Lead.
-*   L'agent `@architecture-advisor-agent` est responsable de maintenir ce document à jour après validation des changements.
+*   This is a living document. Proposals for new components or changes to existing conventions must be discussed with the Tech Lead / Design Lead.
+*   The `@architecture-advisor-agent` is responsible for keeping this document up-to-date after changes are validated.
 
 ---

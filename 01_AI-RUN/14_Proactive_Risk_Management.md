@@ -1,91 +1,90 @@
-# Workflow: Gestion Proactive des Risques du Projet (14_Proactive_Risk_Management.md)
+# Workflow: Proactive Project Risk Management (14_Proactive_Risk_Management.md)
 
-**Objectif:** Identifier, évaluer, et suivre les risques potentiels du projet de manière proactive et traçable. Ce workflow utilise l'analyse de `.pheromone` et des données d'Azure DevOps pour maintenir un registre des risques à jour, documenter la "chaîne de pensée" pour l'évaluation des risques, et proposer des mitigations. Il intègre la gestion des erreurs et des clarifications si besoin.
+**Objective:** Proactively identify, assess, and track potential project risks. This workflow utilizes analysis of `.pheromone` (English `memoryBank`, task/US states, workflow history) and Azure DevOps data to maintain an up-to-date risk register (in English). It documents the "chain of thought" for risk assessment and proposes mitigations. Error handling and clarifications (user interaction in `currentUser.lastInteractionLanguage`) are integrated.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@risk-manager-agent`, `@devops-connector`, `@clarification-agent`.
+**Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@risk-manager-agent`, `@devops-connector`, `@clarification-agent`.
 
-**MCPs Utilisés:** Azure DevOps MCP, Sequential Thinking MCP.
+**MCPs Used:** Azure DevOps MCP, Sequential Thinking MCP.
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** Manuelle (Scrum Master/Tech Lead: `"AgilePheromind analyse risques projet"`) ou automatique (planifiée).
-2.  **`🧐 @uber-orchestrator`** prend le contrôle.
-    *   **Phase 1: Collecte de Données et Identification des Indicateurs de Risque.**
-        *   UO **injecte contexte** à `@risk-manager-agent`: `currentSprint.id`, `currentProject.id`, `memoryBank.projectContext.riskMatrix` (si définie), historique des risques passés.
-        *   `@risk-manager-agent` scanne `.pheromone` (Memory Bank, état tâches/US, historique workflows).
-        *   `@risk-manager-agent` demande à `@devops-connector` de récupérer les items "Risk"/"Impediment" d'Azure DevOps (via **ADO MCP**).
-        *   **onError (ADO MCP):** Si échec, notifier l'utilisateur, l'analyse se basera sur `.pheromone` uniquement avec un avertissement.
-    *   **Phase 2: Évaluation et Priorisation des Risques (avec "Chaîne de Pensée").**
-        *   UO délègue à `@risk-manager-agent`. Attribution d'impact, probabilité. Utilisation de **Sequential Thinking MCP** pour structurer l'évaluation. **Doit documenter la "chaîne de pensée"** pour l'évaluation de chaque risque majeur.
-        *   Si un indicateur est ambigu, `@risk-manager-agent` peut le signaler à l'UO pour clarification via `@clarification-agent` (ex: demander plus de détails sur un impediment).
-    *   **Phase 3: Mise à Jour du Registre des Risques (`memoryBank.riskRegister`).**
-        *   UO délègue à `@risk-manager-agent` pour préparer les mises à jour.
-        *   Scribe met à jour `.pheromone`.
-    *   **Phase 4: Proposition de Plans de Mitigation (avec "Chaîne de Pensée", Optionnel).**
-        *   Si risques critiques, UO demande à `@risk-manager-agent` de suggérer des mitigations (via **Sequential Thinking MCP**), en **documentant la "chaîne de pensée"**.
-    *   **Phase 5: Rapport et Notification.**
-        *   `@risk-manager-agent` génère rapport (incluant "chaînes de pensée").
-        *   Scribe enregistre. UO notifie.
+1.  **Initiation:**
+    *   **Manual:** User (Scrum Master/Tech Lead) requests risk management session (e.g., `"AgilePheromind run project risk analysis"`). `userLanguage` passed by `🎩 @head-orchestrator`.
+    *   **Automatic:** Scheduled trigger. (UO uses default English for report summaries, or configured language).
+2.  **`🧐 @uber-orchestrator`** (UO) takes control. UO updates `currentUser.lastInteractionLanguage` if manually triggered.
+    *   **Pre-check:** UO verifies `.pheromone.onboardingComplete`.
+    *   **Phase 1: Data Collection and Risk Indicator Identification.**
+        *   UO **injects English context** to `@risk-manager-agent`: `currentSprint.id`, `currentProject.id`, `memoryBank.projectContext.riskMatrix_en` (if defined), past risk history.
+        *   `@risk-manager-agent` scans `.pheromone` (English `memoryBank`).
+        *   `@risk-manager-agent` requests `@devops-connector` to retrieve "Risk"/"Impediment" items from Azure DevOps (via **ADO MCP**).
+        *   **onError (ADO MCP):** If fails, notify user (in `userLanguage`), analysis proceeds based on `.pheromone` only, with a warning.
+    *   **Phase 2: Risk Assessment and Prioritization (with English "Chain of Thought").**
+        *   UO delegates to `@risk-manager-agent`. Attributes impact, probability. Uses **Sequential Thinking MCP** (English) for structured assessment. **Must document English "chain of thought"** for each major risk.
+        *   If an indicator is ambiguous, `@risk-manager-agent` may report (English) to UO for clarification via `@clarification-agent` (question to user in `userLanguage`).
+    *   **Phase 3: Risk Register Update (English Data).**
+        *   UO delegates to `@risk-manager-agent` to prepare updates.
+        *   Scribe updates `memoryBank.riskRegister` in `.pheromone` (all English entries).
+    *   **Phase 4: Mitigation Plan Proposal (English, with "Chain of Thought", Optional).**
+        *   If critical risks, UO requests `@risk-manager-agent` to suggest English mitigations (via **Sequential Thinking MCP**), documenting English "chain of thought".
+    *   **Phase 5: Report (Localized Summary) and Notification.**
+        *   `@risk-manager-agent` generates English report content (including English "chains of thought"). Translates a summary/key findings to `userLanguage` for UO.
+        *   Scribe records English report. UO notifies stakeholders (in `userLanguage`).
 
-## Détails des Phases:
+## Phase Details:
 
-### Phase 1: Collecte de Données et Identification des Indicateurs de Risque
-*   **Agent Responsable:** `@risk-manager-agent` (coordonne avec `@devops-connector`).
-*   **Inputs (Injectés par l'UO):** `currentSprint.id`, `currentProject.id`. Contexte de `memoryBank` (matrice de risques, historique des risques).
+### Phase 1: Data Collection and Risk Indicator Identification
+*   **Responsible Agent:** `@risk-manager-agent` (coordinates with `@devops-connector`).
+*   **Inputs (Injected by UO):** `currentSprint.id`, `currentProject.id`. English context from `memoryBank` (risk matrix, past risks).
 *   **Actions (`@risk-manager-agent`):**
-    1.  **Scanner `.pheromone.memoryBank`:** `tasks` (Blocked, Delayed, estimations dépassées), `technicalDebtItems` (critiques), `sprintRetrospectivesSummaries` (impediments récurrents), `architecturalDecisions` (risquées).
-    2.  **Scanner `.pheromone.activeWorkflow.history`:** Agents/scripts échouant fréquemment.
-    3.  **Demander à `@devops-connector` pour Azure DevOps:**
-        *   `get_work_items_with_state {projectName, state:'Impediment'}` ou `search_work_items {query:"[System.Tags] CONTAINS 'Risk' OR [System.WorkItemType] = 'Risk'"}`.
-*   **onError (ADO MCP via `@devops-connector`):**
-    *   `@devops-connector` signale l'échec à `@risk-manager-agent`.
-    *   `@risk-manager-agent` inclut un avertissement dans son résumé final: "La synchronisation avec Azure DevOps pour les risques/impediments a échoué. L'analyse est basée sur les données Pheromind uniquement."
-*   **Output (interne à `@risk-manager-agent`):** Liste d'observations et indicateurs de risque.
+    1.  **Scan `.pheromone.memoryBank` (English data):** `tasks` (Blocked, Delayed), `technicalDebtItems_en` (critical), `sprintRetrospectivesSummaries_en` (recurring impediments), `architecturalDecisions_en` (risky ones).
+    2.  **Scan `.pheromone.activeWorkflow.history`:** Frequently failing agents/scripts.
+    3.  **Request ADO Data via `@devops-connector`:** "Fetch 'Risk' or 'Impediment' work items from ADO project `{{currentProject.name}}`."
+*   **onError (ADO MCP via `@devops-connector`):** `@devops-connector` signals failure (English) to `@risk-manager-agent`. Agent includes English warning in its final summary: "Azure DevOps sync for risks/impediments failed. Analysis based on Pheromind data only."
+*   **Output (internal to `@risk-manager-agent`, English):** List of observations and risk indicators.
 
-### Phase 2: Évaluation et Priorisation des Risques (avec "Chaîne de Pensée")
-*   **Agent Responsable:** `@risk-manager-agent`, UO, `@clarification-agent`.
-*   **Inputs:** Indicateurs de risque (Phase 1). `memoryBank.projectContext.riskMatrix` (injectée par UO).
+### Phase 2: Risk Assessment and Prioritization (with English "Chain of Thought")
+*   **Responsible Agent:** `@risk-manager-agent`, UO, `@clarification-agent`.
+*   **Inputs:** English risk indicators (Phase 1). `memoryBank.projectContext.riskMatrix_en` (injected by UO).
 *   **Actions (`@risk-manager-agent`):**
-    1.  Utiliser **Sequential Thinking MCP** pour chaque indicateur majeur afin de formaliser le risque :
-        *   `set_goal`: "Évaluer l'indicateur de risque : [Indicateur]."
-        *   `add_step`: "Décrire le risque (si l'indicateur se confirme)."
-        *   `add_step`: "Identifier la catégorie (Technique, Planning, etc.)."
-        *   `add_step`: "Analyser les causes potentielles."
-        *   `add_step`: "Évaluer l'impact potentiel (Faible, Moyen, Élevé, Critique) sur le projet, en justifiant."
-        *   `add_step`: "Évaluer la probabilité d'occurrence (Faible, Moyenne, Élevée, Très Élevée), en justifiant."
-        *   `add_step`: "Calculer le score de risque (si matrice fournie)."
-        *   `run_sequence`. **Conserver la sortie de ce MCP comme "chaîne de pensée" pour ce risque.**
-    2.  Prioriser les risques.
-    3.  **Gestion d'Ambiguïté:** Si l'évaluation d'un indicateur est bloquée par manque d'information :
-        *   Signaler à l'UO: "Impossible d'évaluer pleinement l'indicateur '[Indicateur]' car [information manquante]. Suggestion de question pour [PO/TechLead/Dev]: '[Question précise]'".
-        *   L'UO peut initier clarification via `@clarification-agent`. L'évaluation de cet indicateur est mise en pause.
-*   **Output (interne):** Liste de risques formalisés, évalués (avec "chaîne de pensée" pour chacun), priorisés.
+    1.  Use **Sequential Thinking MCP** (English) for each major indicator to formalize risk:
+        *   `set_goal`: "Assess risk indicator: [English Indicator]."
+        *   Steps: Describe English risk, category, causes, impact (Low, Medium, High, Critical - justify), probability (Low, Medium, High, Very High - justify), calculate score (if matrix).
+        *   **Retain MCP output as English "chain of thought".**
+    2.  Prioritize English risks.
+    3.  **Ambiguity Management:** If indicator evaluation blocked by missing info: Report (English) to UO: "Cannot fully assess indicator '[Indicator_en]' due to [missing info_en]. Suggest question for [PO/TechLead/Dev_en]: '[Precise English question]'". UO may use `@clarification-agent` (translating question for user).
+*   **Output (internal, English):** List of formalized, assessed, prioritized English risks (each with "chain of thought").
 
-### Phase 3: Mise à Jour du Registre des Risques (`memoryBank.riskRegister`)
-*   **Agent Responsable:** `@risk-manager-agent` (préparation), Scribe (écriture).
-*   **Inputs:** Risques évalués (Phase 2). `memoryBank.riskRegister` existant (injecté par UO).
+### Phase 3: Risk Register Update (English Data)
+*   **Responsible Agent:** `@risk-manager-agent` (preparation), Scribe (writing).
+*   **Inputs:** Assessed English risks (Phase 2). Existing English `memoryBank.riskRegister` (injected by UO).
 *   **Actions (`@risk-manager-agent`):**
-    1.  Comparer, préparer ajouts/mises à jour pour `memoryBank.riskRegister`.
-    2.  Chaque entrée: `id`, `description`, `category`, `impactLevel`, `probabilityLevel`, `riskScore`, `status`, `dateIdentified`, `lastAssessed`, `owner`, `mitigationPlanLink`, `reasoningChainSummary` (résumé de la chaîne de pensée de l'évaluation, ou lien vers la section du rapport).
-*   **Output (`@risk-manager-agent` -> Scribe):** Données structurées pour `memoryBank.riskRegister`. Résumé NL des changements.
-*   **Actions (Scribe):** Mettre à jour `memoryBank.riskRegister` dans `.pheromone`.
+    1.  Compare, prepare additions/updates for English `memoryBank.riskRegister`.
+    2.  Each English entry: `id`, `description_en`, `category_en`, `impactLevel_en`, `probabilityLevel_en`, `riskScore_en`, `status_en`, `dateIdentified`, `lastAssessed`, `owner_en` (optional), `mitigationPlanLink_en` (optional), `reasoningChainSummary_en` (or link to report section).
+*   **Output (`@risk-manager-agent` -> Scribe, English):** Structured data for `memoryBank.riskRegister`. English NL summary of changes.
+*   **Actions (Scribe):** Update `memoryBank.riskRegister` in `.pheromone` (all English).
 
-### Phase 4: Proposition de Plans de Mitigation (avec "Chaîne de Pensée", Optionnel)
-*   **Agent Responsable:** `@risk-manager-agent`.
-*   **Inputs:** Risques critiques/élevés de `memoryBank.riskRegister` (injectés par UO).
+### Phase 4: Mitigation Plan Proposal (English, with "Chain of Thought", Optional)
+*   **Responsible Agent:** `@risk-manager-agent`.
+*   **Inputs:** Critical/high English risks from `memoryBank.riskRegister` (injected by UO).
 *   **Actions:**
-    1.  Pour les risques ciblés, utiliser **Sequential Thinking MCP** pour brainstormer mitigations (réduire probabilité, réduire impact, plans de contingence).
-    2.  **"Chaîne de Pensée":** Documenter le raisonnement derrière chaque plan de mitigation proposé.
-*   **Output (interne, pour rapport Phase 5):** Suggestions de plans de mitigation avec justifications.
+    1.  For targeted risks, use **Sequential Thinking MCP** (English) to brainstorm English mitigations.
+    2.  **"Chain of Thought" (English):** Document English reasoning for each proposed mitigation plan.
+*   **Output (internal, for Phase 5 report, English):** Suggested English mitigation plans with justifications.
 
-### Phase 5: Rapport et Notification
-*   **Agent Responsable:** `@risk-manager-agent` (rapport), Scribe (enregistrement), UO (notification).
-*   **Inputs:** Registre des risques à jour, propositions de mitigation.
+### Phase 5: Report (Localized Summary) and Notification
+*   **Responsible Agent:** `@risk-manager-agent` (report), Scribe (recording), UO (notification).
+*   **Inputs:** Updated English risk register, English mitigation proposals. `currentUser.lastInteractionLanguage`.
 *   **Actions (`@risk-manager-agent`):**
-    1.  Générer rapport MD (`risk_assessment_report_[timestamp].md`) dans `03_SPECS/Risk_Management/`. Inclure: Résumé risques critiques, registre des risques (ou changements), **détails de la "chaîne de pensée" pour l'évaluation des risques majeurs**, plans de mitigation (avec leur "chaîne de pensée"). Mentionner les échecs de collecte de données (ex: ADO).
-*   **Output (`@risk-manager-agent` -> Scribe):** Résumé NL: "Analyse risques terminée. [N_open] risques ouverts ([N_crit] critiques). [N_new] identifiés. [N_mitigations] proposées. Rapport (avec chaînes de pensée): `risk_assessment_report_[timestamp].md`."
-*   **Actions (Scribe):** Enregistrer rapport dans `documentationRegistry`. Mettre à jour `memoryBank.riskRegister` (si des liens vers le rapport doivent être ajoutés aux items de risque pour leur `reasoningChainLink`).
-*   **Actions (UO):** Notifier parties prenantes. Utiliser `ask_followup_question` pour actions sur risques critiques.
-*   **Output:** `.pheromone` à jour. Parties prenantes informées.
+    1.  **Generate English Report Content:** Markdown (`risk_assessment_report_[timestamp].md`). Include: Summary of critical English risks, full English risk register (or significant changes), **detailed English "chain of thought" for major risk assessments**, proposed English mitigation plans (with their "chain of thought"). Note data collection failures (e.g., ADO).
+    2.  **Translate Key Findings/Summary for UO:** Provide UO with a concise English summary of the most critical findings and the overall risk posture.
+    3.  The full detailed report remains in English for the `memoryBank` and technical team.
+*   **Output (`@risk-manager-agent` -> Scribe, English NL Summary with path to English report):** "Proactive risk analysis complete. [N_total_open] open English risks, [N_high_critical] critical/high. [N_new] new risks. [N_mitigations] English mitigations proposed. English Report (with chains of thought): `risk_assessment_report_[timestamp].md`." (Path in `03_SPECS/Risk_Management/`).
+*   **Actions (Scribe):**
+    1.  Record English report in `documentationRegistry`.
+    2.  Ensure `memoryBank.riskRegister` (English) is up-to-date. Link English `reasoningChainLink_en` for risks to report sections.
+*   **Actions (UO):**
+    1.  Translate the concise summary (from `@risk-manager-agent`) to `currentUser.lastInteractionLanguage`.
+    2.  Notify stakeholders (Scrum Master, PO, Tech Lead) in `userLanguage`: "[Translated concise summary]. Full English technical report available at `{{report_path}}`. Review of critical risks requested." Use `ask_followup_question` for actions on critical risks.
+*   **Output:** `.pheromone` updated with English risk data. Stakeholders informed in their language.
 
 ---

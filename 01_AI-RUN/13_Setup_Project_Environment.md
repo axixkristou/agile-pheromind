@@ -1,110 +1,125 @@
-# Workflow: Mise en Place de l'Environnement de Projet .NET/Angular (13_Setup_Project_Environment.md)
+# Workflow: Interactive Project Environment Setup (.NET/Angular) (13_Setup_Project_Environment.md)
 
-**Objectif:** Initialiser un nouvel environnement de projet pour une application .NET (API Backend) et Angular (Frontend). Cela comprend la création de la structure de dossiers, la génération des fichiers de configuration de base via les CLIs .NET et Angular, l'initialisation d'un dépôt Git, la création de Dockerfiles et de stubs de pipeline Azure DevOps pour AKS, et la connexion au projet Azure DevOps spécifié. Une gestion robuste des erreurs pour les commandes CLI et les appels MCP est intégrée.
+**Objective:** Interactively guide the user to set up their project environment for AgilePheromind. The user can choose to: a) clone an existing Git repository containing backend and/or frontend code, or b) initialize new .NET backend and/or Angular frontend projects locally. The workflow collects necessary paths and Azure DevOps details, initializes Git if new projects are created, creates Dockerfiles/Pipeline stubs (English), and updates `.pheromone`. Error handling and user clarification are integrated. User interaction is in `currentUser.lastInteractionLanguage`.
 
-**Agents IA Clés:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@project-setup-agent`, `@clarification-agent`.
+**Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@project-setup-agent`, `@clarification-agent`, `@devops-connector`.
 
-**MCPs Utilisés:** Git Tools MCP, Azure DevOps MCP, `command_line_tool` (pour exécuter `dotnet new` et `ng new` si des MCPs dédiés ne sont pas disponibles/utilisés).
+**MCPs Used:** Git Tools MCP, Azure DevOps MCP, `command_line_tool`.
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** L'utilisateur (Tech Lead/Architecte) demande la création d'un nouveau projet, en fournissant le nom de l'application, le nom de l'organisation Azure DevOps et le nom du projet Azure DevOps (ex: `"AgilePheromind initialise projet 'SuperApp' pour ADO org 'MaOrg', projet ADO 'SuperAppProject'"`).
-2.  **`🧐 @uber-orchestrator`** prend le contrôle.
-    *   **Phase 1: Validation des Paramètres et Création de la Structure de Base.**
-        *   UO délègue à `@project-setup-agent`.
-        *   **onError:** Si les noms fournis sont invalides pour des chemins de dossier, UO demande clarification à l'utilisateur via `@clarification-agent`.
-    *   **Phase 2: Initialisation du Backend .NET (avec gestion d'erreur CLI).**
-        *   UO délègue à `@project-setup-agent`.
-        *   **onError:** Si les commandes `dotnet new` échouent, l'agent loggue l'erreur, le signale à l'UO qui notifie l'utilisateur et peut arrêter ou proposer des solutions.
-    *   **Phase 3: Initialisation du Frontend Angular (avec gestion d'erreur CLI).**
-        *   UO délègue à `@project-setup-agent`.
-        *   **onError:** Si `ng new` échoue, gestion similaire à la Phase 2.
-    *   **Phase 4: Configuration Docker et Azure Pipelines (Stubs).**
-        *   UO délègue à `@project-setup-agent`.
-    *   **Phase 5: Initialisation du Dépôt Git et Connexion Azure DevOps.**
-        *   UO délègue à `@project-setup-agent`.
-        *   **onError:** Si Git MCP ou ADO MCP échouent, logguer, notifier l'utilisateur. Le workflow peut continuer avec un repo local non synchronisé si la connexion ADO échoue, avec un avertissement.
-    *   **Phase 6: Mise à Jour de `.pheromone` et Rapport Final.**
-        *   Scribe enregistre les informations.
+1.  **Initiation:** User (Tech Lead/Architect) requests project setup (ex: `"AgilePheromind setup project environment"`). This workflow assumes prior successful *user* onboarding (`00_System_Bootstrap.md` Phase 1 & 2 for user details), so `currentUser` info is mostly set. This script focuses on *project* setup. `userLanguage` passed by `🎩 @head-orchestrator`.
+2.  **`🧐 @uber-orchestrator`** (UO) takes control. UO uses `currentUser.lastInteractionLanguage`.
+    *   **Pre-check:** UO verifies user part of `.pheromone.onboardingComplete` is true.
+    *   **Phase 1: Determine User's Project Setup Path (Clone or Init New).**
+        *   UO, via `@project-setup-agent` (or `@clarification-agent`), asks user their preferred setup method.
+    *   **Phase 2: Handle Existing Git Repository (If Chosen).**
+        *   UO delegates to `@project-setup-agent`. Collect Git remote URL, local clone path. Clone repo using **Git Tools MCP**. Attempt to identify backend/frontend roots within the cloned repo.
+        *   **onError (Git Clone/Access):** Notify, ask for correction.
+    *   **Phase 3: Handle New Backend .NET Initialization (If Chosen).**
+        *   UO delegates to `@project-setup-agent`. Collect local path for backend. Initialize .NET projects via CLI.
+        *   **onError (dotnet CLI):** Notify, ask for correction or to skip.
+    *   **Phase 4: Handle New Frontend Angular Initialization (If Chosen).**
+        *   UO delegates to `@project-setup-agent`. Collect local path for frontend. Initialize Angular project via CLI.
+        *   **onError (ng CLI):** Notify, ask for correction or to skip.
+    *   **Phase 5: Azure DevOps Project Connection.**
+        *   UO (via `@clarification-agent` if needed) collects ADO Org URL & Project Name.
+        *   UO delegates to `@devops-connector` to validate ADO project.
+        *   **onError (ADO):** Notify, ask for correction.
+    *   **Phase 6: Dockerfiles & Azure Pipeline Stubs (Based on Identified/Created Projects).**
+        *   UO delegates to `@project-setup-agent`.
+    *   **Phase 7: Git Finalization (Init/Add Remote if new, or confirm existing remote).**
+        *   UO delegates to `@project-setup-agent`.
+    *   **Phase 8: `.pheromone` Update & Final Report.**
+        *   `@project-setup-agent` provides structured data to Scribe. Scribe updates `.agilepherominduserinfo` (for project paths) and `.pheromone`.
 
-## Détails des Phases:
+## Phase Details:
 
-### Phase 1: Validation des Paramètres et Création de la Structure de Base
-*   **Agent Responsable:** `@project-setup-agent`, UO, `@clarification-agent`.
-*   **Inputs:** Nom projet applicatif, nom org ADO, nom projet ADO (de l'UO).
+### Phase 1: Determine User's Project Setup Path (Clone or Init New)
+*   **Responsible Agent:** UO (using `ask_followup_question`, possibly with `@project-setup-agent` formulating options).
+*   **Inputs:** `currentUser.lastInteractionLanguage`.
+*   **Actions (UO):**
+    1.  Ask user (in `userLanguage`): "How would you like to set up your project for AgilePheromind?
+        1. Clone an existing Git repository that already contains your .NET backend and/or Angular frontend.
+        2. Initialize new .NET backend and/or Angular frontend projects locally.
+        3. A combination (e.g., clone backend, init new frontend).
+        Please choose an option (1, 2, or 3)."
+    2.  Based on response, UO will direct subsequent phases. Store choice in `activeWorkflow.setupChoice`.
+*   **Output (internal to UO):** User's preferred setup method.
+
+### Phase 2: Handle Existing Git Repository (If Chosen in Phase 1)
+*   **Responsible Agent:** `@project-setup-agent`, UO, `@clarification-agent`.
+*   **Inputs:** User choice from Phase 1. `userLanguage`.
+*   **Actions (`@project-setup-agent` / UO via `ask_followup_question`):**
+    1.  Ask user (in `userLanguage`):
+        *   "Please provide the Git remote URL of your existing repository."
+        *   "Please provide the full local absolute path where you want to clone this repository (or where it's already cloned)."
+    2.  (`@project-setup-agent`) Use **Git Tools MCP** (`clone_repository {remoteUrl, localPath}`). If repo already exists at `localPath`, confirm it's the correct one and `git_pull` latest.
+    3.  (`@project-setup-agent`) Attempt to identify backend/frontend root paths within the cloned repo (e.g., look for `.sln` files, `angular.json`). This might be heuristic.
+    4.  Ask user to confirm/provide paths if auto-detection is unsure: "I've cloned/found the repo at `{{localPath}}`. Is the .NET backend root at `{{detected_backend_path_or_ask}}`? Is the Angular frontend root at `{{detected_frontend_path_or_ask}}`?"
+*   **onError (Git Clone/Access):** If `clone_repository` fails or path issues: `@project-setup-agent` reports (English) to UO. UO (via `@clarification-agent`) asks user (in `userLanguage`) to verify URL/path or permissions. Loop.
+*   **Output (to UO/Scribe):** `gitRemoteUrl`, `gitLocalPath`, confirmed `backendRootPath` (if any), `frontendRootPath` (if any).
+
+### Phase 3: Handle New Backend .NET Initialization (If Chosen in Phase 1 or as part of combination)
+*   **Responsible Agent:** `@project-setup-agent`, UO, `@clarification-agent`.
+*   **Inputs:** User choice. `userLanguage`. `gitLocalPath` (if part of a larger new project structure).
+*   **Actions (`@project-setup-agent` / UO):**
+    1.  If not already defined by a cloned repo, ask user (in `userLanguage`): "Please provide the full local absolute path where the new .NET backend should be initialized (e.g., `{{gitLocalPath}}/backend`)." Let this be `newBackendPath`.
+    2.  Ask user for .NET Solution & Project App Name (e.g., `MySolution`, `MyProjectName.Api`).
+    3.  (`@project-setup-agent`) Execute `dotnet new` commands (as in previous version of this script) within `newBackendPath`.
+*   **onError (dotnet CLI):** `@project-setup-agent` reports (English) to UO. UO notifies user (in `userLanguage`). Loop or option to skip.
+*   **Output (to UO/Scribe):** `backendRootPath = newBackendPath`. Status of .NET init.
+
+### Phase 4: Handle New Frontend Angular Initialization (If Chosen in Phase 1 or as part of combination)
+*   **Responsible Agent:** `@project-setup-agent`, UO, `@clarification-agent`.
+*   **Inputs:** User choice. `userLanguage`. `gitLocalPath`.
+*   **Actions (`@project-setup-agent` / UO):**
+    1.  If not already defined, ask user (in `userLanguage`): "Please provide the full local absolute path for the new Angular frontend (e.g., `{{gitLocalPath}}/frontend`)." Let this be `newFrontendPath`.
+    2.  Ask user for Angular Project App Name (e.g., `my-angular-app`).
+    3.  (`@project-setup-agent`) Execute `ng new` (as in previous script) within `newFrontendPath`.
+*   **onError (ng CLI):** `@project-setup-agent` reports (English) to UO. UO handles as in Phase 3.
+*   **Output (to UO/Scribe):** `frontendRootPath = newFrontendPath`. Status of Angular init.
+
+### Phase 5: Azure DevOps Project Connection
+*   **Responsible Agent:** UO (or `@clarification-agent`), `@devops-connector`.
+*   **Inputs:** `userLanguage`.
+*   **Actions (UO):**
+    1.  Ask user (in `userLanguage`, if not already in `.agilepherominduserinfo`): "Azure DevOps Organization URL?" and "Azure DevOps Project Name?"
+    2.  Delegate to `@devops-connector`: "Validate ADO project and get ID/remote repo URL (if not set from cloned repo): Org='...', Project='...'."
+*   **Actions (`@devops-connector`):** **ADO MCP** `get_project_details`.
+*   **onError (ADO):** `@devops-connector` reports (English) to UO. UO (via `@clarification-agent`) re-prompts.
+*   **Output (to UO/Scribe):** `adoOrganizationUrl`, `adoProjectName`, `adoProjectId`. `gitRemoteUrl` (if not set from cloned repo, ADO might provide a default).
+
+### Phase 6: Dockerfiles & Azure Pipeline Stubs (Based on Identified/Created Projects)
+*   **Responsible Agent:** `@project-setup-agent`.
+*   **Inputs:** `backendRootPath` (if any), `frontendRootPath` (if any).
+*   **Actions:**
+    1.  If `backendRootPath` exists, create `{{backendRootPath}}/Dockerfile` (English comments).
+    2.  If `frontendRootPath` exists, create `{{frontendRootPath}}/Dockerfile` (English comments).
+    3.  If both, create `{{gitLocalPath}}/docker-compose.yml` stub.
+    4.  Create `{{gitLocalPath}}/.azuredevops/azure-pipelines.yml` stub (English comments, stages for identified backend/frontend).
+*   **Output (to UO/Scribe):** Paths to created Dockerfiles/pipeline stub.
+
+### Phase 7: Git Finalization (Init/Add Remote if new, or confirm existing remote)
+*   **Responsible Agent:** `@project-setup-agent`.
+*   **Inputs:** `gitLocalPath`, `gitRemoteUrl` (from ADO or user if cloned existing).
+*   **Actions (Git Tools MCP):**
+    1.  If projects were newly initialized (not cloned): `git_init` at `gitLocalPath`. `create_gitignore`. `add_all_changes`. `commit_files {message: "feat: initial project setup by AgilePheromind"}`.
+    2.  If `gitRemoteUrl` is set (either from cloned repo or ADO project) and local repo has no remote 'origin', or if a new repo was init'd: `add_remote {remoteName: "origin", remoteUrl}`.
+    3.  If new repo was init'd and remote added: `push_commits {remoteName: "origin", branchName: "main", setUpstream: true}`.
+*   **onError (Git):** Report (English) to UO. UO notifies user (in `userLanguage`).
+*   **Output (to UO/Scribe):** Status of Git operations.
+
+### Phase 8: `.pheromone` Update & Final Report
+*   **Responsible Agent:** `@project-setup-agent` (data prep), Scribe (recording).
+*   **Inputs:** All collected/confirmed paths and project details.
 *   **Actions (`@project-setup-agent`):**
-    1.  Valider les noms pour les chemins de dossiers. S'ils contiennent des caractères invalides, le signaler à l'UO.
-    2.  Si OK, créer répertoire racine, puis `backend/`, `frontend/`, `docs/`, `scripts/`, `.azuredevops/`.
-*   **onError (Validation Noms par UO):**
-    *   Si `@project-setup-agent` signale des noms invalides:
-        *   UO met workflow en pause (`activeWorkflow.status: 'PendingClarification_ProjectNames'`).
-        *   UO délègue à `@clarification-agent` pour demander à l'utilisateur de corriger les noms.
-        *   Attendre réponse via `01_AI-RUN/XX_Handle_Clarification_Response.md`.
-*   **Output (interne si succès):** Structure de dossiers de base créée.
-
-### Phase 2: Initialisation du Backend .NET (avec gestion d'erreur CLI)
-*   **Agent Responsable:** `@project-setup-agent`.
-*   **Inputs:** Chemin `backend/`, NomProjetApplicatif.
-*   **Actions (Utilisation de `command_line_tool` pour `dotnet`):**
-    1.  `cd backend/`
-    2.  `dotnet new sln -n {{NomProjetApplicatif}}Solution`
-    3.  `dotnet new webapi -n {{NomProjetApplicatif}}.Api ...`
-    4.  `dotnet new classlib ...` (pour Application, Domain, Infrastructure)
-    5.  `dotnet sln add ...`
-    6.  Ajouter dépendances de base (`dotnet add package ...`).
-    7.  Créer/Modifier `appsettings.json`, `Program.cs`/`Startup.cs` stubs.
-*   **onError (Commandes `dotnet`):**
-    *   Si une commande `dotnet` échoue, `@project-setup-agent` capture la sortie d'erreur.
-    *   Signale à l'UO: "Échec commande `dotnet {{commande}}` dans `backend/`. Erreur: [sortie d'erreur].".
-    *   UO loggue via Scribe (`activeWorkflow.lastError`), notifie l'utilisateur. Le workflow peut s'arrêter ou l'UO peut demander à l'utilisateur s'il veut ignorer cette étape et continuer (avec un backend partiellement configuré).
-*   **Output (interne si succès):** Projets .NET de base.
-
-### Phase 3: Initialisation du Frontend Angular (avec gestion d'erreur CLI)
-*   **Agent Responsable:** `@project-setup-agent`.
-*   **Inputs:** Chemin `frontend/`, NomProjetApplicatif.
-*   **Actions (Utilisation de `command_line_tool` pour `ng`):**
-    1.  `cd frontend/`
-    2.  `ng new {{NomProjetApplicatif}}App --routing --style=scss ...`
-    3.  Configurer structure modules (`core`, `features`, `shared`), `proxy.conf.json`.
-*   **onError (Commande `ng new`):**
-    *   Si `ng new` échoue, `@project-setup-agent` capture la sortie d'erreur.
-    *   Signale à l'UO: "Échec commande `ng new` dans `frontend/`. Erreur: [sortie d'erreur].".
-    *   Gestion par l'UO similaire à la Phase 2.
-*   **Output (interne si succès):** Projet Angular de base.
-
-### Phase 4: Configuration Docker et Azure Pipelines (Stubs)
-*   **Agent Responsable:** `@project-setup-agent`.
-*   **Inputs:** Chemins vers projets API et App, `.azuredevops/`.
-*   **Actions:**
-    1.  Créer `Dockerfile` pour API .NET.
-    2.  Créer `Dockerfile` pour App Angular.
-    3.  Créer `docker-compose.yml` stub (optionnel).
-    4.  Créer `.azuredevops/azure-pipelines.yml` stub (build .NET, build Angular, build Docker, push ACR, deploy AKS).
-*   **onError (Création Fichiers):** Si erreur d'écriture de fichier, logguer et notifier. Le setup peut continuer mais ces fichiers seront manquants.
-*   **Output (interne):** Dockerfiles et stub de pipeline.
-
-### Phase 5: Initialisation du Dépôt Git et Connexion Azure DevOps
-*   **Agent Responsable:** `@project-setup-agent`.
-*   **Inputs:** Infos projet ADO (sera mis à jour dans `currentProject`).
-*   **Actions (Git Tools MCP & Azure DevOps MCP):**
-    1.  **Git Tools MCP:** `git_init`, `create_gitignore` (.NET & Node/Angular), `add_all_changes`, `commit_files {message: "feat: initial project structure for .NET API and Angular App"}`.
-    2.  **Azure DevOps MCP:** `get_project_details {organizationName, projectName}`.
-        *   **onError (ADO `get_project_details`):** Si échec, `@project-setup-agent` signale à l'UO: "Projet ADO '{{projectName}}' introuvable ou inaccessible: [Erreur MCP].". L'UO peut demander à l'utilisateur de vérifier/créer le projet dans ADO et fournir le nom correct, ou continuer sans configurer le remote Git.
-    3.  Si ADO projet OK, obtenir URL repo et configurer remote: `Git Tools MCP` (`add_remote`, `push_commits`).
-        *   **onError (Git Push/Remote):** Si échec, logguer, notifier le dev. Le repo local existe mais n'est pas sur ADO.
-*   **Output (vers Scribe):** Résumé NL: "Init Git local OK. Commit initial. Connexion projet ADO '{{NomProjetAzure}}' [réussie/échouée (raison)]. Remote Git [configuré et pushé/non configuré]."
-
-### Phase 6: Mise à Jour de `.pheromone` et Rapport Final
-*   **Agent Responsable:** `✍️ @orchestrator-pheromone-scribe`.
-*   **Inputs:** Résumés des phases, particulièrement de `@project-setup-agent`.
-*   **Actions:**
-    1.  Interpréter résumés via `.swarmConfig`.
-    2.  Mettre à jour `.pheromone`:
-        *   `currentProject`: Infos ADO (ID, nom, org URL, repo URL si succès).
-        *   `memoryBank.projectContext`: Stack, nom projet ADO, versions conventions "1.0_initial".
-        *   `documentationRegistry`: Ajouter rapport de setup (`project_setup_details...md` créé par `@project-setup-agent` dans `02_AI-DOCS/Setup/`), Dockerfiles, `azure-pipelines.yml`.
-        *   `systemHealth.mcpStatus.azureDevOpsMCP` (OK/Failed).
-        *   `activeWorkflow.lastError` si des erreurs non bloquantes ont eu lieu.
-*   **Output:** `.pheromone` à jour. UO informe l'utilisateur du statut final du setup.
+    1.  Assemble `structuredData` for `.agilepherominduserinfo` (with `gitLocalPath`, `gitRemoteUrl`, ADO details) and for `.pheromone` (`currentProject` section, `memoryBank.projectContext`).
+*   **Output (`@project-setup-agent` to Scribe, English):** Special NL summary "AgilePheromind Project Connection Info for Bootstrap. StructuredData attached..." + `structuredData`.
+*   **Actions (Scribe, per `.swarmConfig` rule `bootstrap_update_user_and_project_info_v2`):**
+    1.  Update/Create `.agilepherominduserinfo` section `projectConnection`.
+    2.  Update `.pheromone`: `currentProject` (ADO info, Git info including `localPath`, `remoteUrl`). `memoryBank.projectContext` updated. Add Dockerfiles/pipeline to `documentationRegistry`. Mark project part of `onboardingComplete` flag if distinct from user part.
+*   **Actions (UO):** Inform user (in `userLanguage`): "Project environment setup/connection complete for '{{currentProject.azureDevOps.projectName}}'. AgilePheromind is now configured to use the repository at `{{currentProject.gitRepository.localPath}}`." Resume original workflow if any.
+*   **Outcome:** AgilePheromind is configured for the user's chosen project setup.
 
 ---

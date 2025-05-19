@@ -1,6 +1,6 @@
 # Workflow: Product Owner Assistance - Customer Need Analysis (03_PO_Analyze_Need.md)
 
-**Objective:** Help the Product Owner (PO) analyze a customer need expressed in natural language. The system must decompose the need in a structured way (using the `Sequential Thinking MCP` and recording the "chain of thought"), propose potential User Stories (US) with initial Acceptance Criteria (ACs), check for similar existing US (via Azure DevOps MCP), manage ambiguities in the need via `@clarification-agent`, and record the complete analysis in the Memory Bank.
+**Objective:** Assist the Product Owner (PO) in analyzing a customer need expressed in their natural language. The system will structurally decompose the need (using `Sequential Thinking MCP` and recording the English "chain of thought"), propose potential User Stories (US) with initial Acceptance Criteria (ACs) (all in English for internal storage), check for similar existing US (via Azure DevOps MCP), manage ambiguities in the need via `@clarification-agent`, and record the complete English analysis in the Memory Bank. The final analysis report provided to the PO will be in `currentUser.lastInteractionLanguage`.
 
 **Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@po-assistant`, `@devops-connector`, `@clarification-agent`.
 
@@ -8,96 +8,84 @@
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** The PO submits a description of the customer need to AgilePheromind (e.g., `"AgilePheromind analyze need: 'Our users complain that the registration process is too long...'"`).
-2.  **`🧐 @uber-orchestrator`** takes control.
-    *   **Phase 1: Structured Analysis of Customer Need and Identification of Ambiguities.**
-        *   UO **injects relevant context** (e.g., existing personas, business glossary from `memoryBank`) to `@po-assistant`.
-        *   `@po-assistant` uses **Sequential Thinking MCP** for decomposition. It must **detail its "chain of thought"**.
-        *   If major ambiguities are detected in the customer need, `@po-assistant` reports them to the UO. The UO can then engage `@clarification-agent` to request clarification from the PO. The workflow awaits the response.
-        *   **onError:** If the initial analysis fails or remains too vague, notify the PO.
-    *   **Phase 2: Generation of User Story Proposals and Acceptance Criteria.**
-        *   UO delegates to `@po-assistant` (using clarified information if Phase 1b occurred).
-    *   **Phase 3: Search for Existing User Stories in the Backlog.**
-        *   UO delegates to `@po-assistant`, which queries `@devops-connector`.
-        *   **onError:** If ADO MCP fails, inform the PO that duplicate checking could not be done.
-    *   **Phase 4: Compilation of Analysis Report and Interaction with the PO.**
-        *   `@po-assistant` generates a report (including the analysis "chain of thought").
-        *   Scribe records the report and draft US in `.pheromone`.
-        *   UO presents a summary to the PO and proposes follow-up actions.
+1.  **Initiation:** PO submits a customer need description to AgilePheromind (e.g., `"AgilePheromind analyze need: 'Our users complain that the registration process is too long...'"`). `userLanguage` (of the PO's input) passed by `🎩 @head-orchestrator` to UO.
+2.  **`🧐 @uber-orchestrator`** (UO) takes control. UO updates `currentUser.lastInteractionLanguage`.
+    *   **Pre-check:** UO verifies `.pheromone.onboardingComplete`.
+    *   **Phase 1: Structured Analysis of Customer Need (Internal English Processing) and Ambiguity Identification.**
+        *   UO **injects relevant English context** (e.g., existing English personas, English business glossary from `memoryBank`) to `@po-assistant`. The PO's input need (in `userLanguage`) is also passed.
+        *   `@po-assistant` (whose internal logic is English) understands the need (conceptually translating if `userLanguage` is not English). Uses **Sequential Thinking MCP** for decomposition (English). Must **detail its English "chain of thought"**.
+        *   If major ambiguities are detected in the need, `@po-assistant` reports them (English) to UO. UO engages `@clarification-agent` to ask PO for clarification (question translated to `userLanguage`). Workflow pauses.
+        *   **onError:** If initial analysis fails or remains too vague, notify PO (in `userLanguage`).
+    *   **Phase 2: Generation of User Story Proposals and Acceptance Criteria (All English Internally).**
+        *   UO delegates to `@po-assistant` (using clarified information if Phase 1b occurred). All generated US/ACs drafts are in English.
+    *   **Phase 3: Search for Existing User Stories in Backlog.**
+        *   UO delegates to `@po-assistant`, who queries `@devops-connector` (using English keywords for search against ADO content which may be in various languages).
+        *   **onError:** If ADO MCP fails, inform PO (in `userLanguage`) that duplicate check failed.
+    *   **Phase 4: Compilation of Analysis Report (English Content, Final Output Localized) and Interaction with PO.**
+        *   `@po-assistant` generates an English report (including "chain of thought"). Then translates this report to `userLanguage`.
+        *   Scribe records the path to the localized report and stores English draft US in `.pheromone`.
+        *   UO presents a summary (translated to `userLanguage`) to PO and proposes follow-up actions.
 
 ## Phase Details:
 
-### Phase 1: Structured Analysis of Customer Need and Identification of Ambiguities
-*   **Responsible Agent:** `@po-assistant` (with UO support for clarification if needed via `@clarification-agent`).
+### Phase 1: Structured Analysis of Customer Need (Internal English Processing) and Ambiguity Identification
+*   **Responsible Agent:** `@po-assistant` (with UO support for clarification via `@clarification-agent`).
 *   **Inputs (Injected by UO):**
-    *   Customer need description.
-    *   Context from `memoryBank.projectContext` (e.g., `targetAudienceDescription`, `businessGoals`).
-    *   List of existing personas (`memoryBank.userPersonas`).
-    *   Business glossary (`memoryBank.glossary`).
+    *   Customer need description (in original `userLanguageOfInput`).
+    *   `userLanguageOfInput` code (for `@po-assistant` to know if translation needed for its understanding).
+    *   English context from `memoryBank.projectContext` (e.g., `targetAudienceDescription_en`, `businessGoals_en`).
+    *   List of existing English personas (`memoryBank.userPersonas_en`).
+    *   English business glossary (`memoryBank.glossary_en`).
 *   **Actions & Tooling (`@po-assistant`):**
-    1.  Use **Sequential Thinking MCP** for detailed analysis:
-        *   `set_goal`: "Analyze customer need: '{{customerNeed}}' to identify problems, solutions, and benefits."
-        *   `add_step`: "Identify concerned actors/personas (using the provided persona list as reference)."
-        *   `add_step`: "Extract specific problems ('pain points')."
-        *   `add_step`: "Identify explicit or implicit solutions/desires."
-        *   `add_step`: "Deduce expected benefits."
-        *   `add_step`: "Identify constraints or assumptions."
-        *   `add_step`: "**Evaluate the clarity of the need.** List ambiguous points or missing information that prevent clear decomposition into US."
+    1.  **Understand Need:** If `userLanguageOfInput` is not English, internally translate/understand the input need to English. All subsequent internal processing and "chain of thought" MUST be in English.
+    2.  Use **Sequential Thinking MCP** for detailed analysis (English steps):
+        *   `set_goal`: "Analyze customer need (English version: '{{translatedNeed_en}}') to identify problems, solutions, benefits."
+        *   `add_step`: "Identify concerned English actors/personas (using provided English persona list)."
+        *   `add_step`: "Extract specific English problems ('pain points')."
+        *   `add_step`: "Identify explicit or implicit English solutions/desires."
+        *   `add_step`: "Deduce expected English benefits."
+        *   `add_step`: "Identify English constraints or assumptions."
+        *   `add_step`: "**Evaluate clarity of the need (English).** List ambiguous points or missing information."
         *   `run_sequence`.
-    2.  **Document the "Chain of Thought":** Preserve the detailed log of this sequential analysis for inclusion in the final report.
-    3.  **Report Ambiguities to UO:** If the "Evaluate clarity" step identifies critical ambiguities:
-        *   Formulate the ambiguity points.
-        *   Suggest specific questions for the PO.
+    3.  **Document "Chain of Thought" (English):** Preserve detailed log of this sequential analysis for final report.
+    4.  **Report Ambiguities to UO (English):** If "Evaluate clarity" identifies critical ambiguities: Formulate ambiguity points (English). Suggest specific English questions for PO.
 *   **onError / Ambiguity Management (by UO):**
-    1.  If `@po-assistant` reports ambiguities:
-        *   UO pauses the workflow (`activeWorkflow.status: 'PendingClarification_UserNeed'`).
-        *   UO delegates to `@clarification-agent` with the need context and questions suggested by `@po-assistant`.
-        *   The response will be processed by `01_AI-RUN/XX_Handle_Clarification_Response.md`, which will update the `memoryBank` and reactivate this workflow.
-    2.  If the Sequential Thinking MCP fails, Scribe logs the error, UO notifies the PO.
-*   **Output (internal to `@po-assistant` after clarification if necessary):** Structured analysis of the customer need (potentially enriched by PO responses).
+    1.  If `@po-assistant` reports ambiguities: Pause workflow. Delegate to `@clarification-agent` with English context and English questions. `@clarification-agent` will translate questions to `currentUser.lastInteractionLanguage` for PO. Await response via `01_AI-RUN/XX_Handle_Clarification_Response.md`.
+    2.  If Sequential Thinking MCP fails, Scribe logs English error. UO notifies PO (in `currentUser.lastInteractionLanguage`).
+*   **Output (internal to `@po-assistant` after clarification if necessary, English):** Structured English analysis of customer need.
 
-### Phase 2: Generation of User Story Proposals and Acceptance Criteria
-*   **Responsible Agent:** `@po-assistant`
-*   **Inputs:** Structured analysis of the need (clarified if needed in Phase 1).
+### Phase 2: Generation of User Story Proposals and Acceptance Criteria (All English Internally)
+*   **Responsible Agent:** `@po-assistant`.
+*   **Inputs:** Structured English analysis of need (clarified if needed in Phase 1).
 *   **Actions & Tooling:**
-    1.  For each {Problem -> Solution -> Benefit} set:
-        *   Formulate US ("As a..., I want..., so that...").
-        *   Draft initial ACs (Gherkin or lists).
-    2.  **Document the "Chain of Thought":** Briefly explain in the final report why each US was formulated this way in relation to the need analysis.
-*   **Memory Bank Interaction (via Scribe in Phase 4):**
-    *   Draft US and ACs will be stored.
-*   **Output (internal to `@po-assistant`):** List of candidate US with ACs.
+    1.  For each English {Problem -> Solution -> Benefit} set: Formulate English US ("As a..., I want..., so that..."). Draft initial English ACs (Gherkin or lists).
+    2.  **Document "Chain of Thought" (English):** Briefly explain in final English report why each English US was formulated.
+*   **Output (internal, English):** List of candidate English US with English ACs.
 
-### Phase 3: Search for Existing User Stories in the Backlog
+### Phase 3: Search for Existing User Stories in Backlog
 *   **Responsible Agent:** `@po-assistant` (coordinating with `@devops-connector`).
-*   **Inputs:** Candidate US (Phase 2). `.pheromone.currentProject.name`.
+*   **Inputs:** Candidate English US (Phase 2). `.pheromone.currentProject.azureDevOps.projectName`.
 *   **Actions & Tooling:**
-    1.  `@po-assistant` identifies keywords for each candidate US.
-    2.  `@po-assistant` asks `@devops-connector`: "Search existing US in ADO project `{{currentProject.name}}` for keywords: [list]."
-    3.  `@devops-connector` uses **Azure DevOps MCP** (`search_work_items`).
-*   **onError Strategy (for UO if `@devops-connector` reports MCP failure):**
-    1.  Scribe logs the error.
-    2.  UO informs `@po-assistant` that the ADO search failed. The analysis will continue without this information, but the final report will mention it.
-*   **Output (`@devops-connector` to `@po-assistant`):** List of potentially similar ADO US IDs/titles.
+    1.  `@po-assistant` identifies relevant English keywords from candidate US.
+    2.  `@po-assistant` requests `@devops-connector`: "Search ADO project `{{currentProject.name}}` for existing US with English keywords: [list]."
+    3.  `@devops-connector` uses **Azure DevOps MCP** (`search_work_items` with English query terms. ADO search itself might be language-aware depending on ADO project settings).
+*   **onError Strategy (for UO):** If ADO MCP fails, Scribe logs English error. UO informs `@po-assistant` (English). Report will note failed search.
+*   **Output (`@devops-connector` to `@po-assistant`):** List of ADO US IDs/titles (titles in original ADO language).
 
-### Phase 4: Compilation of Analysis Report and Interaction with the PO
-*   **Responsible Agent:** `@po-assistant` (report), Scribe (recording), UO (PO interaction).
-*   **Inputs:** Results from previous phases.
-*   **Actions & Tooling (`@po-assistant`):**
-    1.  Compile a Markdown report (`po_need_analysis_[timestamp].md`) in `02_AI-DOCS/PO_Analyses/`. It should include:
-        *   Initial customer need.
-        *   **Detailed structured analysis (with the "chain of thought" from Phase 1).**
-        *   Candidate US with ACs (and the "chain of thought" for their formulation).
-        *   ADO search results (or mention of failure if Phase 3 failed).
-        *   Recommendations (create, merge, initial priorities).
-*   **Output (`@po-assistant` to Scribe):** NL Summary: "Customer need analysis '[summary]' completed. [N_us] US proposed. [N_exist] existing US found. Report (with chain of thought): `po_need_analysis_[timestamp].md`. Recommendations: [keys]."
-*   **Actions & Tooling (Scribe):**
-    1.  Record report in `documentationRegistry`.
-    2.  Store candidate US (with ACs, links to existing US, and a link to the "chain of thought" section of the report) in `memoryBank.draftUserStories` or `memoryBank.userStories.{{usId_draft}}.analysisSummaries[]` (if draft IDs are generated).
-*   **Actions & Tooling (UO):**
-    1.  Use `ask_followup_question` to present summary and options to the PO: "Need analysis completed. [Summary]. Detailed analysis report available. Options: 1. View report. 2. Create suggested new US in ADO. 3. Discuss a US."
-*   **Memory Bank Interaction (via Scribe):**
-    *   Archiving of the report, draft US, and link to the "chain of thought".
-*   **Outcome:** The PO receives a thorough and traceable analysis, actionable US, and clear options, even if clarifications were necessary.
+### Phase 4: Compilation of Analysis Report (English Content, Final Output Localized) and Interaction with PO
+*   **Agent Responsable:** `@po-assistant` (report), Scribe (recording), UO (PO interaction).
+*   **Inputs:** Results of previous phases. `currentUser.lastInteractionLanguage`.
+*   **Actions (`@po-assistant`):**
+    1.  **Compile English Report Content:** Create full English Markdown report content. Include: Initial customer need (original and English summary), **Detailed structured English analysis (with "chain of thought")**, Candidate English US with English ACs (and "chain of thought"), ADO search results, English Recommendations.
+    2.  **Translate Report:** Translate the entire English report content to `currentUser.lastInteractionLanguage`, preserving Markdown. Save as `po_need_analysis_[timestamp]_{{currentUser.lastInteractionLanguage}}.md` in `02_AI-DOCS/PO_Analyses/`.
+*   **Output (`@po-assistant` to Scribe, English NL Summary with path to localized report):** "Customer need '{{english_need_summary}}' analysis complete. [N_us] English US proposed. [N_exist] existing US found. Report (in `{{currentUser.lastInteractionLanguage}}`, English reasoning available) at `{{localized_report_path}}`. Key English recommendations: [1-2]."
+*   **Actions (Scribe):**
+    1.  Record localized report path in `documentationRegistry`.
+    2.  Store candidate English US (with English ACs, links to existing US, link to English reasoning chain from the untranslated report version or a specific section) in `memoryBank.draftUserStories_en`.
+*   **Actions (UO):**
+    1.  Generate a summary of findings and recommendations in English (from `@po-assistant`'s internal English report).
+    2.  Translate this summary to `currentUser.lastInteractionLanguage`.
+    3.  Use `ask_followup_question` to present translated summary and options to PO: "Need analysis complete. [Translated Summary]. Detailed report (in `{{currentUser.lastInteractionLanguage}}`) available. Options (in `currentUser.lastInteractionLanguage`): 1. View detailed report? 2. Create suggested new US in ADO (will use English titles/desc by default, can be edited in ADO)? 3. Discuss a specific US?"
+*   **Output:** PO receives actionable insights and a report in their language, while `memoryBank` and core analyses remain consistently English.
 
 ---

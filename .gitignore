@@ -1,0 +1,12 @@
+# AgilePheromind User Specific Info - DO NOT COMMIT
+.agilepherminduserinfo
+
+# Pheromind state and logs - Often specific to a run/environment
+.pheromone
+.pheromone.bak
+memlog/
+03_SPECS/AzureDevOps_Logs/
+03_SPECS/Verification_Failures/
+03_SPECS/Verification_Logs/
+03_SPECS/UI_Validation_Screenshots/
+04_PR_REVIEWS/

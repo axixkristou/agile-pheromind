@@ -1,6 +1,6 @@
-# Workflow: User Interface Validation (UI Test Validation) (12_UI_Test_Validation.md)
+# Workflow: User Interface (UI) Test Validation (12_UI_Test_Validation.md)
 
-**Objective:** Assist the tester in manual or semi-automated validation of the user interface (UI) of a feature or User Story (US). The agent uses the Browser Tools MCP for interactions/captures, compares against design specifications (with a "chain of thought" for significant discrepancies), and handles errors or ambiguities in the specs.
+**Objective:** Assist the tester in manual or semi-automated validation of a feature's or User Story's (US) UI. The agent uses the Browser Tools MCP for interactions/captures, compares results against English design specifications and ACs, documents its "chain of thought" in English for significant deviations, and produces a final report in `currentUser.lastInteractionLanguage`. Handles errors or ambiguities in specs.
 
 **Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@tester-ui-validator-agent`, `@devops-connector`, `@clarification-agent`.
 
@@ -8,89 +8,77 @@
 
 ## Pheromind Workflow Overview:
 
-1.  **Initiation:** Tester/PO requests UI validation for US/Feature + test environment URL (e.g., `"AgilePheromind validate UI US Azure#12323 on https://test.myapp.com"`).
-2.  **`🧐 @uber-orchestrator`** takes control.
-    *   **Phase 1: Specifications Retrieval, ACs and Context Injection.**
-        *   UO delegates to `@devops-connector` for ACs (via **ADO MCP**).
-        *   UO **injects context** to `@tester-ui-validator-agent`: ACs, `design_conventions.md`, mockups (from `documentationRegistry`/`memoryBank`).
-        *   UO evaluates clarity of UI specs. If ambiguous (e.g., design contradicts ACs), UO initiates clarification via `@clarification-agent` with PO/Designer.
-        *   **onError:** If ADO MCP or specs access fails, notify, stop.
-    *   **Phase 2: Detailed UI Test Scenario Definition.**
-        *   UO delegates to `@tester-ui-validator-agent`.
+1.  **Initiation:** User (Tester/PO) requests UI validation for US/Feature + test env URL (e.g., `"AgilePheromind validate UI US Azure#12323 on https://test.myapp.com"`). `userLanguage` passed by `🎩 @head-orchestrator` to UO.
+2.  **`🧐 @uber-orchestrator`** (UO) takes control. UO updates `currentUser.lastInteractionLanguage`.
+    *   **Pre-check:** UO verifies `.pheromone.onboardingComplete`.
+    *   **Phase 1: Specification & AC Retrieval, English Context Injection.**
+        *   UO delegates to `@devops-connector` for US ACs (original language from ADO). Scribe/UO ensures English versions (`acceptanceCriteria_en`) are in `memoryBank`.
+        *   UO **injects English context** to `@tester-ui-validator-agent`: English ACs, English `design_conventions.md`, English mockups (from `documentationRegistry`/`memoryBank`).
+        *   UO evaluates clarity of English UI specs. If ambiguous, UO initiates clarification via `@clarification-agent` (question to PO/Designer in their language).
+        *   **onError:** If ADO MCP or specs access fails, notify user (in `userLanguage`), stop.
+    *   **Phase 2: Detailed UI Test Scenario Definition (English).**
+        *   UO delegates to `@tester-ui-validator-agent` to create an English UI test plan.
     *   **Phase 3: Interactions Execution and Captures via Browser Tools MCP.**
         *   UO delegates to `@tester-ui-validator-agent`.
-        *   **onError (Browser Tools MCP):** If MCP fails (e.g., element not found, navigation impossible), the agent notes it, tries to continue if possible, and reports it in the report.
-    *   **Phase 4: Results Analysis and Report Generation (with "Chain of Thought" for Discrepancies).**
-        *   UO delegates to `@tester-ui-validator-agent`. For major discrepancies, the agent **documents its "chain of thought"** (why it considers it a deviation from specs).
-    *   **Phase 5: Report Recording and Bug Creation (Optional).**
-        *   Scribe records. UO can propose bug creation in ADO via `@devops-connector`.
+        *   **onError (Browser Tools MCP):** Agent notes (English), tries to continue, signals in report.
+    *   **Phase 4: Results Analysis and Report Generation (English Content, "Chain of Thought" for Deviations, Final Output Localized).**
+        *   UO delegates to `@tester-ui-validator-agent`. For major deviations, agent **documents English "chain of thought"**. Agent drafts full English report, then translates to `currentUser.lastInteractionLanguage`.
+    *   **Phase 5: Report Recording and Optional Bug Creation.**
+        *   Scribe records localized report path. UO may propose ADO bug creation (via `@devops-connector`).
 
 ## Phase Details:
 
-### Phase 1: Specifications Retrieval, ACs and Context Injection
-*   **Responsible Agent:** UO, `@devops-connector`, `@clarification-agent`.
-*   **Inputs:** US/Feature ID, test env URL.
+### Phase 1: Specification & AC Retrieval, English Context Injection
+*   **Responsible Agent:** UO, `@devops-connector`, Scribe, `@clarification-agent`.
+*   **Inputs:** US ID/Feature name, test env URL. `userLanguage`.
 *   **Actions (UO & `@devops-connector`):**
-    1.  `@devops-connector` retrieves ACs of the US (if US ID) via **ADO MCP** `get_work_item_details`.
-    2.  **onError (ADO MCP):** UO logs via Scribe, notifies, stops/continues with warning.
-    3.  Scribe updates `memoryBank.userStories.{{usId}}.acceptanceCriteria`.
-    4.  UO injects to `@tester-ui-validator-agent`:
-        *   Retrieved ACs.
-        *   Path to `design_conventions.md` (from `documentationRegistry`).
-        *   Paths to mockups/prototypes for the US/feature (from `memoryBank.userStories.{{usId}}.designArtifactLinks` or `documentationRegistry`).
-        *   (Optional) Previous UI validation reports for similar features.
+    1.  If US ID: `@devops-connector` gets ACs/desc from ADO (**ADO MCP** `get_work_item_details`).
+    2.  **onError (ADO MCP):** UO logs (English), notifies user (in `userLanguage`), stops/warns.
+    3.  Scribe (with UO help for translation if needed) updates `memoryBank.userStories.{{usId}}` with `acceptanceCriteria_en` and `descriptionFull_en`.
+    4.  UO injects to `@tester-ui-validator-agent`: English ACs, path to English `design_conventions.md`, paths to English mockups/prototypes (from `memoryBank.userStories.{{usId}}.designArtifactLinks_en` or `documentationRegistry`).
 *   **Actions (UO - Clarity Evaluation):**
-    1.  The UO evaluates if the ACs and injected design specs are consistent and sufficiently precise.
-    2.  **If major ambiguity** (e.g., AC describes behavior X, mockup shows Y):
-        *   Pause workflow (`activeWorkflow.status: 'PendingClarification_UITestSpec'`).
-        *   Delegate to `@clarification-agent` with context and a question for the PO/Designer (e.g., "For US Azure#{{usId}}, AC X says [behavior], but mockup Y shows [something else]. What is the correct expectation for UI validation?").
-        *   Wait for response via `01_AI-RUN/XX_Handle_Clarification_Response.md`.
-*   **Output:** Rich and clarified (if needed) context for `@tester-ui-validator-agent`.
+    1.  UO evaluates if English ACs and design specs are coherent/precise.
+    2.  **If major ambiguity:** Pause workflow. Delegate to `@clarification-agent` with English context and English question (to be translated to `userLanguage` for PO/Designer). Await response.
+*   **Output:** Rich and clarified English context for `@tester-ui-validator-agent`.
 
-### Phase 2: Detailed UI Test Scenario Definition
+### Phase 2: Detailed UI Test Scenario Definition (English)
 *   **Responsible Agent:** `@tester-ui-validator-agent`.
-*   **Inputs:** Injected context (Phase 1).
-*   **Actions:**
-    1.  Define validation steps (actions, visual/functional expectations) based on ACs and design specs.
-    2.  Document scenario (for final report).
-*   **Output (internal):** UI test plan.
+*   **Inputs:** Injected English context (Phase 1).
+*   **Actions:** Define English validation steps (actions, visual/functional expectations) based on English ACs and design specs. Document scenario (for English draft of final report).
+*   **Output (internal, English):** UI test plan.
 
 ### Phase 3: Interactions Execution and Captures via Browser Tools MCP
 *   **Responsible Agent:** `@tester-ui-validator-agent`.
-*   **Inputs:** Test scenario (Phase 2), test env URL.
-*   **Actions (Browser Tools MCP - Puppeteer/Playwright):**
-    1.  For each step: `navigate`, `click`, `fill_form_field`, `take_screenshot` (different viewports, in `04_PR_REVIEWS/[branch]/screenshots/` or `03_SPECS/UI_Validation_Screenshots/[feature]/`), `execute_script` (CSS, content), `get_console_logs`.
-*   **onError (Browser Tools MCP):**
-    *   If an MCP action fails (e.g., `click {selector}` because element not found):
-        *   The agent logs the precise MCP error.
-        *   Tries to continue the scenario if the failure is not blocking for subsequent steps.
-        *   All MCP failures will be explicitly listed in the validation report.
-*   **Output (internal):** Screenshots, browser data, MCP error logs.
+*   **Inputs:** English test scenario (Phase 2), test env URL.
+*   **Actions (Browser Tools MCP):** For each step: `navigate`, `click`, `fill_form_field`, `take_screenshot` (various viewports, into `04_PR_REVIEWS/[branch]/screenshots/` or `03_SPECS/UI_Validation_Screenshots/[feature]/`), `execute_script` (CSS, content), `get_console_logs`.
+*   **onError (Browser Tools MCP):** Agent logs precise English MCP error. Tries to continue. All MCP failures listed in English in final report.
+*   **Output (internal, English context):** Screenshots, browser data, English MCP error logs.
 
-### Phase 4: Results Analysis and Report Generation (with "Chain of Thought" for Discrepancies)
+### Phase 4: Results Analysis and Report Generation (English Content, "Chain of Thought" for Deviations, Final Output Localized)
 *   **Responsible Agent:** `@tester-ui-validator-agent`.
-*   **Inputs:** Data from Phase 3, specs from Phase 1.
+*   **Inputs:** Data from Phase 3. English specs from Phase 1. `currentUser.lastInteractionLanguage` (from UO as `userLanguageForOutput`).
 *   **Actions:**
-    1.  Compare captures/data with mockups/conventions/ACs. Check console logs.
-    2.  Write MD report (`ui_validation_report_[US_ID_or_Feature]_[timestamp].md`) in `03_SPECS/UI_Validation_Reports/` or PR dir.
-        *   Structure: Scope, Summary, Validation points (Expected, Observed (with screenshot/data), Status, Comment).
-        *   **"Chain of Thought" for Significant Discrepancies:** For each major "Failure", explain *why* it's a deviation from specs (e.g., "Button X uses color `colors.red['300']` while `design_conventions.md` Section 4.1 specifies `colors.red['500']` for destructive actions. This lacks contrast and doesn't respect the defined semantics.").
-        *   List MCP failures from Phase 3.
-        *   List bugs/issues with severity.
-*   **Output (to Scribe):** NL Summary: "UI validation '[US_ID/Feature]' completed. Status: [Global]. [N_bugs] bugs. Report (with chain of thought for discrepancies): `ui_validation_report...md`."
+    1.  Compare captures/data with English mockups/conventions/ACs. Check console logs.
+    2.  **Draft English Report Content:**
+        *   Structure: Scope, Summary, Validation points (English Expected, Observed (with screenshot/data), Status, English Comment).
+        *   **"Chain of Thought" (English) for Significant Deviations:** For each major "Failure", explain *why* it's a deviation from English specs.
+        *   List English MCP failures from Phase 3. List English bugs/issues with severity.
+    3.  **Translate Report:** Translate entire English report content to `userLanguageForOutput`, preserving Markdown.
+    4.  Save localized report as `ui_validation_report_[US_ID_or_Feature]_[timestamp]_{{userLanguageForOutput}}.md` in dir (e.g., `03_SPECS/UI_Validation_Reports/`).
+*   **Output (to Scribe, English NL Summary with path to localized report):** "UI validation '[US_ID/Feature_en]' completed. Global status (English): [Conformant/With Issues/Non-Conformant]. [N_bugs] English bugs identified. Report (in `{{userLanguageForOutput}}`, English reasoning available) at `{{localized_report_path}}`."
 
-### Phase 5: Report Recording and Bug Creation (Optional)
+### Phase 5: Report Recording and Optional Bug Creation
 *   **Responsible Agent:** Scribe, UO, `@devops-connector`.
-*   **Inputs:** NL summary from `@tester-ui-validator-agent`.
+*   **Inputs:** English NL Summary from `@tester-ui-validator-agent`. `currentUser.lastInteractionLanguage`.
 *   **Actions (Scribe):**
-    1.  Update `.pheromone`:
-        *   `documentationRegistry`: Add report path.
-        *   `memoryBank.userStories.{{usId}}.uiValidationHistory[]`: Add `{reportPath, status, timestamp}`.
-        *   `memoryBank.userStories.{{usId}}.reasoningChainLinks.uiValidation`: Link to report (containing chain of thought for discrepancies).
-        *   (Optional) `memoryBank.identifiedBugs`: Add listed bugs.
+    1.  Update `.pheromone` (English data for `memoryBank`):
+        *   `documentationRegistry`: Add `{{localized_report_path}}`.
+        *   `memoryBank.userStories.{{usId_if_contextual}}.uiValidationHistory_localized[]`: Add `{ reportPath_localized: "{{localized_report_path}}", status_en: "[English Global Status]", timestamp }`.
+        *   `memoryBank.userStories.{{usId_if_contextual}}.reasoningChainLinks_en.uiValidation`: Link to an English version of reasoning if kept separately, or note it's within localized report.
+        *   (Optional) `memoryBank.identifiedBugs_en`: Add English bug details.
 *   **Actions (UO):**
-    1.  If major bugs: `ask_followup_question` to user "UI bugs found. Do you want to create Bug items in ADO for: [list of major bugs]?".
-    2.  If yes, UO delegates to `@devops-connector` (**ADO MCP** `create_work_item {type: "Bug", ...}`).
+    1.  If major bugs: `ask_followup_question` to user (in `userLanguage`): "UI bugs found for [US_ID/Feature_en]. Create ADO Bug items for: [English list of major bugs, translated for display] ?".
+    2.  If yes, UO delegates to `@devops-connector` (**ADO MCP** `create_work_item {type: "Bug", title_en: "...", description_en: "..."}` - title/desc can be English or translated by UO for ADO).
 *   **Output:** `.pheromone` updated. Bugs potentially created in ADO.
 
 ---

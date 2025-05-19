@@ -32,9 +32,9 @@
 *   **Responsible Agent:** `@migration-analyst-agent`.
 *   **Inputs (Injected by UO):** Legacy code path/repo, target stack info. English context from `memoryBank` (past migration analyses, detailed target tech stack).
 *   **Actions & Tooling:**
-    1.  **Sequential Thinking MCP** (English) for analysis plan. Output forms first part of English "chain of thought".
-    2.  **Ingest Code:** Git Tools MCP (`clone_repository`) or file access.
-*   **onError (Code Ingestion):** If failure, `@migration-analyst-agent` reports (English) to UO. UO pauses, delegates to `@clarification-agent` to ask user (in `userLanguage`) to verify/provide access.
+    1.  Use **Sequential Thinking MCP** (English) for analysis plan. Output forms first part of English "chain of thought".
+    2.  **Ingest Code:** If Git repo, **Git Tools MCP** (`clone_repository`). Else, file access.
+*   **onError (Code Ingestion):** If failure, `@migration-analyst-agent` reports (English) to UO: "Unable to access legacy code at [path/repo]: [Error]." UO pauses, delegates to `@clarification-agent` to ask user (in `userLanguage`) to verify/provide valid access.
 *   **Output (internal if success, English):** Analysis plan, accessible legacy code.
 
 ### Phase 2: Detailed Legacy Component Analysis (with English "Chain of Thought")
@@ -82,7 +82,7 @@
     1.  Update `.pheromone` (English data for `memoryBank`):
         *   `documentationRegistry`: Add `{{localized_report_path}}`.
         *   `memoryBank.legacyCodeAnalyses.{{legacy_project_name_en}}`: Add `{ summary_en: "[English summary extract]", linkToReport_localized: "{{localized_report_path}}", timestamp, overallComplexity_en, keyRisksCount, reasoningChainLink_en: "{{english_version_of_report_or_core_reasoning_doc_path}}" }`. (The agent should ideally make its core English reasoning available, even if the main report is translated).
-        *   If specific risks identified, create preliminary English entries in `memoryBank.riskRegister`.
+        *   If specific risks identified, create preliminary English entries in `memoryBank.riskRegister_en`.
 *   **Output:** `.pheromone` updated. UO informed (can notify user in `userLanguage`).
 
 ---

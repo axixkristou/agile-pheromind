@@ -1,6 +1,6 @@
 # Workflow: AgilePheromind System Optimization Suggestion (15_Optimize_Workflow_Suggestion.md)
 
-**Objective:** Analyze performance metrics, operational history, and `memoryBank` structure of the AgilePheromind system to identify bottlenecks, inefficiencies, or areas for improvement. The system must propose concrete and justified English optimizations (with "chain of thought") for `01_AI-RUN/*.md` scripts, agent definitions in `.roomodes`, or Scribe's interpretation logic in `.swarmConfig`. The final report for the user/admin is provided in `currentUser.lastInteractionLanguage`.
+**Objective:** Analyze performance metrics, operational history, and `memoryBank` structure of the AgilePheromind system to identify bottlenecks, inefficiencies, or areas for improvement. The system must propose concrete and justified English optimizations (with "chain of thought") for `01_AI-RUN/*.md` scripts, agent definitions in `.roomodes`, or Scribe's interpretation logic in `.swarmConfig`. The final report summary for the user/admin is provided in `currentUser.lastInteractionLanguage`.
 
 **Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@workflow-optimizer-agent`, `@swarm-monitor-agent` (can provide input data).
 
@@ -10,14 +10,14 @@
 
 1.  **Initiation:**
     *   **Manual:** System Admin/Tech Lead requests optimization analysis (e.g., `"AgilePheromind analyze your workflows for optimization"`). `userLanguage` passed by `🎩 @head-orchestrator`.
-    *   **Automatic:** Scheduled trigger or triggered by `@swarm-monitor-agent` if performance thresholds are abnormal. (UO uses default English for report, or configured language).
+    *   **Automatic:** Scheduled trigger or by `@swarm-monitor-agent`. (UO uses default English for report, or configured language for notifications).
 2.  **`🧐 @uber-orchestrator`** (UO) takes control. UO updates `currentUser.lastInteractionLanguage` if manually triggered.
     *   **Pre-check:** UO verifies `.pheromone.onboardingComplete`.
-    *   **Phase 1: Swarm Performance Data Collection and Analysis.**
-        *   UO **injects relevant English context** to `@workflow-optimizer-agent`: `.pheromone.activeWorkflow.history`, `memoryBank.workflowPerformanceMetrics`, English reports from `@swarm-monitor-agent` (via `documentationRegistry`), and (conceptually) current English `.roomodes` and `.swarmConfig` structure.
+    *   **Phase 1: Swarm Performance Data Collection and Analysis (English Context).**
+        *   UO **injects relevant English context** to `@workflow-optimizer-agent`: `.pheromone.activeWorkflow.history`, `memoryBank.workflowPerformanceMetrics`, English reports from `@swarm-monitor-agent`, and (conceptually) current English `.roomodes` and `.swarmConfig` structure.
     *   **Phase 2: Structured Identification of Optimization Axes (English, with "Chain of Thought").**
         *   UO delegates to `@workflow-optimizer-agent`. Agent uses **Sequential Thinking MCP** (English) to identify problems and root causes. **Must document its English "chain of thought."**
-        *   **onError:** If performance data is insufficient, agent signals (English).
+        *   **onError:** If performance data insufficient, agent signals (English).
     *   **Phase 3: Generation of Specific Optimization Suggestions (English, with "Chain of Thought").**
         *   UO delegates to `@workflow-optimizer-agent`. **Must document English "chain of thought"** justifying each suggestion.
     *   **Phase 4: Report of Suggestions (Localized Summary) and Recording.**
@@ -26,27 +26,21 @@
 
 ## Phase Details:
 
-### Phase 1: Swarm Performance Data Collection and Analysis
+### Phase 1: Swarm Performance Data Collection and Analysis (English Context)
 *   **Responsible Agent:** `@workflow-optimizer-agent`.
-*   **Inputs (Injected by UO, English context):**
-    *   `.pheromone` access (`activeWorkflow.history`, `memoryBank.workflowPerformanceMetrics`, `systemHealth`).
-    *   Paths to English reports from `@swarm-monitor-agent`.
-    *   (Conceptual) Read access to current English `.roomodes` and `.swarmConfig`.
+*   **Inputs (Injected by UO, English context):** `.pheromone` access, paths to English reports from `@swarm-monitor-agent`, (conceptual) read access to current English `.roomodes` and `.swarmConfig`.
 *   **Actions & Tooling:**
     1.  Analyze `activeWorkflow.history`: execution/phase durations, agent errors, script usage frequency.
     2.  Analyze `memoryBank.workflowPerformanceMetrics`.
     3.  Consult `@swarm-monitor-agent` English reports.
-    4.  Identify frequently slow/failing MCPs (via `systemHealth.mcpStatus` or `agentActivityLog`).
+    4.  Identify frequently slow/failing MCPs.
 *   **Output (internal, English):** Raw/aggregated data on Pheromind system performance.
 
 ### Phase 2: Structured Identification of Optimization Axes (English, with "Chain of Thought")
 *   **Responsible Agent:** `@workflow-optimizer-agent`.
 *   **Inputs:** English performance data (Phase 1).
 *   **Actions & Tooling:**
-    1.  Use **Sequential Thinking MCP** (English) for methodical analysis:
-        *   `set_goal`: "Identify optimization axes for AgilePheromind based on performance data."
-        *   Steps: "Slowest/most error-prone `01_AI-RUN/*.md` scripts/phases? Problematic agents (`.roomodes`)? Scribe (`.swarmConfig`) interpretation issues? Inefficient `memoryBank` usage?"
-        *   `run_sequence`.
+    1.  Use **Sequential Thinking MCP** (English) for methodical analysis: Goal "Identify optimization axes for AgilePheromind." Steps: "Slowest/error-prone scripts/phases? Problematic agents? Scribe interpretation issues? Inefficient `memoryBank` use?" Run.
     2.  **"Chain of Thought" (English):** Detailed output of this Sequential Thinking forms the English "chain of thought" for problem identification.
 *   **onError:** If data insufficient, agent reports (English) to UO. UO may indicate limited analysis or postpone.
 *   **Output (internal, English):** List of performance issues, inefficiencies, potential root causes, with English "chain of thought".
@@ -55,12 +49,9 @@
 *   **Responsible Agent:** `@workflow-optimizer-agent`.
 *   **Inputs:** English problems and analysis (Phase 2).
 *   **Actions & Tooling:**
-    1.  For each identified problem, use **Sequential Thinking MCP** (English) to brainstorm solutions:
-        *   `set_goal`: "Propose optimizations for problem: [English Problem Description]."
-        *   Steps: "If `01_AI-RUN/*.md` issue: Reorder/parallelize phases, add clarification, improve agent instructions, better error handling. If `.roomodes` agent issue: Rewrite `customInstructions` (clarity, error handling, context use), split role, add capability. If `.swarmConfig` Scribe issue: New `interpretationLogic` rules, robust `valueExtractors`. If `MemoryBank` issue: Structure changes, conceptual indexes, efficient access patterns."
-        *   `run_sequence`.
+    1.  For each identified problem, use **Sequential Thinking MCP** (English) to brainstorm solutions: Goal "Propose optimizations for: [English Problem]." Steps for script, agent, Scribe, or MemoryBank improvements. Run.
     2.  **"Chain of Thought" (English):** MCP output and agent elaboration forms English "chain of thought" for each suggestion.
-    3.  Prioritize suggestions (potential impact vs. feasibility).
+    3.  Prioritize suggestions (impact vs. feasibility).
 *   **Output (internal, English):** List of specific, prioritized English optimization suggestions with justifications.
 
 ### Phase 4: Report of Suggestions (Localized Summary) and Recording
@@ -73,7 +64,7 @@
 *   **Output (`@workflow-optimizer-agent` to Scribe, English NL Summary with path to English report):** "AgilePheromind system optimization analysis complete. [N_sugg] English suggestions proposed. Key areas: [list]. Full English Report (with chain of thought): `system_optimization_suggestions_[timestamp].md`."
 *   **Actions (Scribe):**
     1.  Record English report in `documentationRegistry`.
-    2.  Add entry to `memoryBank.systemImprovementProposals`: `{ reportPath_en: "...", timestamp, status_en: "PendingReview", summary_en: "[English Extract]" , reasoningChainLink_en: reportPath_en }`.
+    2.  Add entry to `memoryBank.systemImprovementProposals_en`: `{ reportPath_en: "...", timestamp, status_en: "PendingReview", summary_en: "[English Extract]" , reasoningChainLink_en: reportPath_en }`.
 *   **Actions (UO):**
     1.  Translate the concise summary (from `@workflow-optimizer-agent`) to `currentUser.lastInteractionLanguage`.
     2.  Notify System Admin/Tech Lead (in `userLanguage`): "[Translated concise summary]. Full English technical report with detailed suggestions and reasoning available at `{{report_path}}`. Review and action are recommended."

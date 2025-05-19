@@ -1,26 +1,27 @@
 {
   "systemVersion": "AgilePheromind-1.1.0",
-  "lastUpdated": "2023-10-30T11:00:00Z",
+  "lastUpdated": "2025-05-19T20:04:35Z",
+  "onboardingComplete": true,
   "currentUser": {
-    "pheromindId": null,
-    "azureDevOpsUsername": null,
-    "azureDevOpsDisplayName": null,
-    "azureDevOpsUserId": null,
-    "preferredLanguage": "en-US",
-    "lastInteractionLanguage": "en-US",
+    "pheromindId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+    "azureDevOpsUsername": "akristou@tf1.fr",
+    "azureDevOpsDisplayName": "KRISTOU.OMNILOG, Abdessalam",
+    "azureDevOpsUserId": "23c28fd1-632a-4a92-ab39-f5f08cc4c4ad",
+    "preferredLanguage": "fr",
+    "lastInteractionLanguage": "fr",
     "roles": [],
     "currentContext": null,
     "activeSessionId": null
   },
   "currentProject": {
-    "pheromindProjectId": "generated_uuid_for_project_context",
+    "pheromindProjectId": "f9e8d7c6-b5a4-3210-fedc-ba9876543210",
     "azureDevOps": {
-      "organizationUrl": null,
-      "projectName": null,
-      "projectId": null
+      "organizationUrl": "https://dev.azure.com/groupe-tf1",
+      "projectName": "PPP-Applicatif",
+      "projectId": "2e247dff-b815-46c3-b79f-bf8b4918c96b"
     },
     "gitRepository": {
-      "localPath": null,
+      "localPath": "C:\\Users\\akristou\\source\\repos\\agile-pheromind",
       "remoteUrl": null,
       "defaultBranchPheromind": "develop"
     }
@@ -35,9 +36,9 @@
     "userStories": []
   },
   "activeWorkflow": {
-    "scriptPath": null,
-    "currentPhase": null,
-    "status": "idle",
+    "scriptPath": "01_AI-RUN/00_System_Bootstrap.md",
+    "currentPhase": "Completion",
+    "status": "complete",
     "startTime": null,
     "lastError": null,
     "retryAttempts": 0,
@@ -65,7 +66,8 @@
   "documentationRegistry": {
     "coding_conventions.md": "/02_AI-DOCS/Conventions/coding_conventions.md",
     "design_conventions.md": "/02_AI-DOCS/Conventions/design_conventions.md",
-    "project_architecture_overview.md": "/02_AI-DOCS/Architecture/project_architecture_overview.md"
+    "project_architecture_overview.md": "/02_AI-DOCS/Architecture/project_architecture_overview.md",
+    "bootstrap_completion_report_2025-05-19.md": "/02_AI-DOCS/System_Reports/bootstrap_completion_report_2025-05-19.md"
   },
   "systemHealth": {
     "lastCheck": null,
@@ -73,7 +75,7 @@
     "mcpStatus": {},
     "errorCountToday": 0,
     "lastPheromoneWriteSuccess": true,
-    "pheromoneBackupTimestamp": null
+    "pheromoneBackupTimestamp": "2025-05-19T20:04:35Z"
   },
   "memoryBank": {
     "projectContext": {
@@ -96,9 +98,22 @@
       "azureContainerRegistryUrl": null,
       "azurePipelines": {
         "aksDeploymentPipelineId": null
+      },
+      "azureDevOpsProject": {
+        "organizationUrl": "https://dev.azure.com/groupe-tf1",
+        "projectName": "PPP-Applicatif",
+        "projectId": "2e247dff-b815-46c3-b79f-bf8b4918c96b"
+      },
+      "gitRepositoryLocalPath": "C:\\Users\\akristou\\source\\repos\\agile-pheromind"
+    },
+    "userProfiles": {
+      "a1b2c3d4-e5f6-7890-1234-567890abcdef": {
+        "azureDevOpsUsername": "akristou@tf1.fr",
+        "azureDevOpsDisplayName": "KRISTOU.OMNILOG, Abdessalam",
+        "azureDevOpsUserId": "23c28fd1-632a-4a92-ab39-f5f08cc4c4ad",
+        "preferredLanguage": "fr"
       }
     },
-    "userProfiles": {},
     "userStories": {},
     "tasks": {},
     "pullRequests": {},
@@ -121,12 +136,185 @@
     "riskRegister": [],
     "workflowPerformanceMetrics": {},
     "clarificationHistory": [],
-    "agentActivityLog": [],
+    "agentActivityLog": [
+      {
+        "timestamp": "2025-05-19T19:58:00Z",
+        "agent": "orchestrator-pheromone-scribe",
+        "action": "update_state",
+        "details": "Updated currentUser.lastInteractionLanguage to 'fr'"
+      },
+      {
+        "timestamp": "2025-05-19T20:04:24Z",
+        "agent": "orchestrator-pheromone-scribe",
+        "action": "update_state",
+        "details": "AgilePheromind User and Project Info for Bootstrap. StructuredData attached. Update '.agilepherominduserinfo' and relevant '.pheromone' sections. Set onboardingComplete flag."
+      },
+      {
+        "timestamp": "2025-05-19T20:04:35Z",
+        "agent": "orchestrator-pheromone-scribe",
+        "action": "update_state",
+        "details": "AgilePheromind Bootstrap/Onboarding complete for user 'KRISTOU.OMNILOG, Abdessalam' and project 'PPP-Applicatif'. User and project info recorded. Onboarding flag set. System ready."
+      }
+    ],
     "lastAdoSyncTimestamp": null,
     "deployments": {},
     "draftUserStories_en": {},
     "systemImprovementProposals": [],
     "glossary_en": {}
   },
-  "notifications_localized": []
+  "notifications_localized": [],
+  "availableWorkflows": [
+      {
+        "id": "bootstrap_system",
+        "name_en": "System Bootstrap and Initial Configuration",
+        "description_en": "Initializes or verifies AgilePheromind's core setup, user, and project information. Run if onboarding is incomplete.",
+        "scriptPath": "01_AI-RUN/00_System_Bootstrap.md",
+        "typicalUserRoles": ["SystemAdmin", "TechLead"],
+        "exampleCommand_template_en": "AgilePheromind run onboarding setup"
+      },
+      {
+        "id": "start_us",
+        "name_en": "Start a User Story",
+        "description_en": "Initiates work on a specific Azure DevOps User Story, including task breakdown and Git branch setup.",
+        "scriptPath": "01_AI-RUN/01_Start_User_Story.md",
+        "typicalUserRoles": ["Developer"],
+        "exampleCommand_template_en": "AgilePheromind start US Azure#{{US_ID}}"
+      },
+      {
+        "id": "continue_task",
+        "name_en": "Continue a Development Task",
+        "description_en": "Resumes work on a specific Azure DevOps task with full context.",
+        "scriptPath": "01_AI-RUN/02_Continue_Task.md",
+        "typicalUserRoles": ["Developer"],
+        "exampleCommand_template_en": "AgilePheromind continue task Azure#{{TASK_ID}}"
+      },
+      {
+        "id": "po_analyze_need",
+        "name_en": "PO Assistance: Analyze Customer Need",
+        "description_en": "Helps Product Owner analyze a customer need, draft User Stories and ACs (internal drafts in English, report in user language).",
+        "scriptPath": "01_AI-RUN/03_PO_Analyze_Need.md",
+        "typicalUserRoles": ["ProductOwner"],
+        "exampleCommand_template_en": "AgilePheromind analyze need: \"{{CUSTOMER_NEED_DESCRIPTION}}\""
+      },
+      {
+        "id": "generate_unit_tests",
+        "name_en": "Generate Unit Test Skeletons",
+        "description_en": "Generates unit test skeletons for a specified code method/class (English comments in code, scenarios report in user language).",
+        "scriptPath": "01_AI-RUN/04_Generate_Unit_Tests.md",
+        "typicalUserRoles": ["Developer"],
+        "exampleCommand_template_en": "AgilePheromind generate unit tests for method {{METHOD_NAME}} in class {{CLASS_NAME}}"
+      },
+      {
+        "id": "review_pr",
+        "name_en": "Assist Pull Request Review",
+        "description_en": "Analyzes an Azure DevOps PR for quality, security, and conventions (report in user language).",
+        "scriptPath": "01_AI-RUN/05_Review_Pull_Request.md",
+        "typicalUserRoles": ["TechLead", "Developer"],
+        "exampleCommand_template_en": "AgilePheromind analyze PR Azure#{{PR_ID}}"
+      },
+      {
+        "id": "finalize_task_commit",
+        "name_en": "Finalize Task and Prepare Commit",
+        "description_en": "Runs pre-commit checks, generates an English Conventional Commit message for validation, commits, and updates ADO status.",
+        "scriptPath": "01_AI-RUN/06_Finalize_Task_Commit.md",
+        "typicalUserRoles": ["Developer"],
+        "exampleCommand_template_en": "AgilePheromind: Task Azure#{{TASK_ID}} is complete. Prepare commit for US Azure#{{US_ID}}."
+      },
+      {
+        "id": "sprint_planning_assist",
+        "name_en": "Sprint Planning Assistance",
+        "description_en": "Assists in sprint planning by estimating candidate US and proposing a sprint scope (plan summary in user language).",
+        "scriptPath": "01_AI-RUN/07_Sprint_Planning_Assistant.md",
+        "typicalUserRoles": ["ProductOwner", "ScrumMaster", "TechLead"],
+        "exampleCommand_template_en": "AgilePheromind plan sprint. US: Azure#{{US_ID_1}}, Azure#{{US_ID_2}}. Capacity: {{POINTS}} points."
+      },
+      {
+        "id": "daily_standup_support",
+        "name_en": "Daily Stand-up Support",
+        "description_en": "Generates a daily sprint progress summary (summary can be in user language if manually triggered).",
+        "scriptPath": "01_AI-RUN/08_Daily_Standup_Support.md",
+        "typicalUserRoles": ["ScrumMaster", "Team"],
+        "exampleCommand_template_en": "AgilePheromind prepare Daily summary"
+      },
+      {
+        "id": "legacy_migration_analysis",
+        "name_en": "Legacy Code Migration Analysis",
+        "description_en": "Analyzes legacy code for migration (report in user language).",
+        "scriptPath": "01_AI-RUN/09_Legacy_Migration_Analysis.md",
+        "typicalUserRoles": ["TechLead", "Architect"],
+        "exampleCommand_template_en": "AgilePheromind analyze {{LEGACY_CODE_TYPE}} at {{PATH_TO_CODE}} for migration to .NET Core/Angular."
+      },
+      {
+        "id": "generate_tech_docs",
+        "name_en": "Generate Technical Documentation",
+        "description_en": "Generates/updates technical documentation for a module/feature (doc in user language).",
+        "scriptPath": "01_AI-RUN/10_Generate_Tech_Docs.md",
+        "typicalUserRoles": ["Developer", "TechLead"],
+        "exampleCommand_template_en": "AgilePheromind document module {{MODULE_NAME}}"
+      },
+      {
+        "id": "analyze_tech_debt",
+        "name_en": "Analyze Technical Debt",
+        "description_en": "Analyzes codebase for technical debt and code smells (report in user language).",
+        "scriptPath": "01_AI-RUN/11_Analyze_Tech_Debt.md",
+        "typicalUserRoles": ["TechLead", "Architect"],
+        "exampleCommand_template_en": "AgilePheromind analyze tech debt for project"
+      },
+      {
+        "id": "ui_test_validation",
+        "name_en": "UI Test Validation",
+        "description_en": "Assists in UI validation using Browser Tools MCP (report in user language).",
+        "scriptPath": "01_AI-RUN/12_UI_Test_Validation.md",
+        "typicalUserRoles": ["Tester", "QA", "ProductOwner"],
+        "exampleCommand_template_en": "AgilePheromind validate UI US Azure#{{US_ID}} on {{TEST_ENV_URL}}"
+      },
+      {
+        "id": "setup_project_interactive",
+        "name_en": "Interactive Project Environment Setup",
+        "description_en": "Guides user to setup project by cloning existing Git repo or initializing new .NET/Angular projects.",
+        "scriptPath": "01_AI-RUN/13_Setup_Project_Environment.md",
+        "typicalUserRoles": ["TechLead", "Developer"],
+        "exampleCommand_template_en": "AgilePheromind setup project environment"
+      },
+      {
+        "id": "proactive_risk_management",
+        "name_en": "Proactive Project Risk Management",
+        "description_en": "Identifies, assesses, and tracks project risks (report summary in user language).",
+        "scriptPath": "01_AI-RUN/14_Proactive_Risk_Management.md",
+        "typicalUserRoles": ["ScrumMaster", "TechLead", "ProductOwner"],
+        "exampleCommand_template_en": "AgilePheromind run project risk analysis"
+      },
+      {
+        "id": "optimize_system_workflows",
+        "name_en": "Suggest AgilePheromind System Optimizations",
+        "description_en": "Analyzes Pheromind's own performance and suggests improvements (report summary in user language).",
+        "scriptPath": "01_AI-RUN/15_Optimize_Workflow_Suggestion.md",
+        "typicalUserRoles": ["SystemAdmin", "PheromindDeveloper"],
+        "exampleCommand_template_en": "AgilePheromind analyze its workflows for optimization"
+      },
+      {
+        "id": "manage_docker_images",
+        "name_en": "Manage Docker Images (Build & Push to ACR)",
+        "description_en": "Builds and pushes Docker images for project applications to Azure Container Registry.",
+        "scriptPath": "01_AI-RUN/16_Manage_Docker_Images.md",
+        "typicalUserRoles": ["DevOps", "TechLead"],
+        "exampleCommand_template_en": "AgilePheromind build and push {{APP_NAME}} version {{VERSION_TAG}}"
+      },
+      {
+        "id": "maintain_project_conventions",
+        "name_en": "Maintain Project Coding and Design Conventions",
+        "description_en": "Updates project's English convention documents based on best practices and team decisions (interaction in user language).",
+        "scriptPath": "01_AI-RUN/17_Maintain_Project_Conventions.md",
+        "typicalUserRoles": ["TechLead", "Architect"],
+        "exampleCommand_template_en": "AgilePheromind update coding conventions"
+      },
+      {
+        "id": "maintain_available_workflows_registry",
+        "name_en": "Maintain Available Workflows Registry",
+        "description_en": "Updates the list of available workflows in the MemoryBank. Typically for admin use.",
+        "scriptPath": "01_AI-RUN/18_Maintain_Available_Workflows.md",
+        "typicalUserRoles": ["SystemAdmin", "PheromindDeveloper"],
+        "exampleCommand_template_en": "AgilePheromind update available workflows registry"
+      }
+    ]
 }

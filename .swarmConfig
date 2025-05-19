@@ -7,7 +7,7 @@
   },
   "interpretationLogic": [
     {
-      "id": "log_general_agent_activity_en",
+      "id": "log_general_agent_activity_en_v2",
       "priority": 999,
       "conditions": [
         {
@@ -29,7 +29,7 @@
       ]
     },
     {
-      "id": "bootstrap_update_user_and_project_info_v2",
+      "id": "bootstrap_update_user_and_project_info_v3",
       "priority": 5,
       "conditions": [
         {
@@ -44,10 +44,6 @@
         },
         {
           "field": "structuredData.user.azureDevOps.username",
-          "operator": "isNotEmpty"
-        },
-        {
-          "field": "structuredData.projectConnection.gitRepository.localPath",
           "operator": "isNotEmpty"
         }
       ],
@@ -64,75 +60,23 @@
           "dataFromStructuredData": "projectConnection",
           "mergeStrategy": "deep"
         },
-        {
-          "type": "updatePheromoneField",
-          "targetField": "currentUser.pheromindId",
-          "valueFromStructuredData": "user.pheromindId"
-        },
-        {
-          "type": "updatePheromoneField",
-          "targetField": "currentUser.azureDevOpsUsername",
-          "valueFromStructuredData": "user.azureDevOps.username"
-        },
-        {
-          "type": "updatePheromoneField",
-          "targetField": "currentUser.azureDevOpsDisplayName",
-          "valueFromStructuredData": "user.azureDevOps.displayName"
-        },
-        {
-          "type": "updatePheromoneField",
-          "targetField": "currentUser.azureDevOpsUserId",
-          "valueFromStructuredData": "user.azureDevOps.userId"
-        },
-        {
-          "type": "updatePheromoneField",
-          "targetField": "currentUser.preferredLanguage",
-          "valueFromStructuredData": "user.preferences.preferredLanguage"
-        },
-        {
-          "type": "updatePheromoneField",
-          "targetField": "currentUser.lastInteractionLanguage",
-          "valueFromStructuredData": "user.lastKnownInteractionLanguage"
-        },
-        {
-          "type": "updatePheromoneField",
-          "targetField": "currentProject.azureDevOps.organizationUrl",
-          "valueFromStructuredData": "projectConnection.azureDevOps.organizationUrl"
-        },
-        {
-          "type": "updatePheromoneField",
-          "targetField": "currentProject.azureDevOps.projectName",
-          "valueFromStructuredData": "projectConnection.azureDevOps.projectName"
-        },
-        {
-          "type": "updatePheromoneField",
-          "targetField": "currentProject.azureDevOps.projectId",
-          "valueFromStructuredData": "projectConnection.azureDevOps.projectId"
-        },
-        {
-          "type": "updatePheromoneField",
-          "targetField": "currentProject.gitRepository.localPath",
-          "valueFromStructuredData": "projectConnection.gitRepository.localPath"
-        },
-        {
-          "type": "updatePheromoneField",
-          "targetField": "currentProject.gitRepository.remoteUrl",
-          "valueFromStructuredData": "projectConnection.gitRepository.remoteUrl"
-        },
-        {
-          "type": "updatePheromoneField",
-          "targetField": "currentProject.gitRepository.defaultBranchPheromind",
-          "valueFromStructuredData": "projectConnection.gitRepository.defaultBranchPheromind"
-        },
-        {
-          "type": "updatePheromoneFlag",
-          "flagName": "onboardingComplete",
-          "value": true
-        }
+        { "type": "updatePheromoneField", "targetField": "currentUser.pheromindId", "valueFromStructuredData": "user.pheromindId" },
+        { "type": "updatePheromoneField", "targetField": "currentUser.azureDevOpsUsername", "valueFromStructuredData": "user.azureDevOps.username" },
+        { "type": "updatePheromoneField", "targetField": "currentUser.azureDevOpsDisplayName", "valueFromStructuredData": "user.azureDevOps.displayName" },
+        { "type": "updatePheromoneField", "targetField": "currentUser.azureDevOpsUserId", "valueFromStructuredData": "user.azureDevOps.userId" },
+        { "type": "updatePheromoneField", "targetField": "currentUser.preferredLanguage", "valueFromStructuredData": "user.preferences.preferredLanguage" },
+        { "type": "updatePheromoneField", "targetField": "currentUser.lastInteractionLanguage", "valueFromStructuredData": "user.lastKnownInteractionLanguage" },
+        { "type": "updatePheromoneField", "targetField": "currentProject.azureDevOps.organizationUrl", "valueFromStructuredData": "projectConnection.azureDevOps.organizationUrl" },
+        { "type": "updatePheromoneField", "targetField": "currentProject.azureDevOps.projectName", "valueFromStructuredData": "projectConnection.azureDevOps.projectName" },
+        { "type": "updatePheromoneField", "targetField": "currentProject.azureDevOps.projectId", "valueFromStructuredData": "projectConnection.azureDevOps.projectId" },
+        { "type": "updatePheromoneField", "targetField": "currentProject.gitRepository.localPath", "valueFromStructuredData": "projectConnection.gitRepository.localPath" },
+        { "type": "updatePheromoneField", "targetField": "currentProject.gitRepository.remoteUrl", "valueFromStructuredData": "projectConnection.gitRepository.remoteUrl" },
+        { "type": "updatePheromoneField", "targetField": "currentProject.gitRepository.defaultBranchPheromind", "valueFromStructuredData": "projectConnection.gitRepository.defaultBranchPheromind" },
+        { "type": "updatePheromoneFlag", "flagName": "onboardingComplete", "value": true }
       ]
     },
     {
-      "id": "process_clarification_request_initiation_v2_en",
+      "id": "process_clarification_request_initiation_v3_en",
       "priority": 15,
       "conditions": [
         {
@@ -156,7 +100,7 @@
       ]
     },
     {
-      "id": "process_clarification_response_from_user_v2_en",
+      "id": "process_clarification_response_from_user_v3_en",
       "priority": 16,
       "conditions": [
         {
@@ -175,6 +119,7 @@
             "originalPromptContext_en": "{{clarificationContext.originalPromptContext_en}}",
             "questionToUser_en": "{{originalQuestion_en}}",
             "userResponse_originalLang": "{{userResponseInOriginalLang}}",
+            "userResponse_en": "{{summaryText_en | extractEnglishResponseTranslation}}",
             "timestampRequested": "{{clarificationContext.timestampRequested}}",
             "timestampResponded": "{{timestamp}}",
             "impactOnWorkflow_en": "Response provided to UO for workflow resumption."
@@ -188,30 +133,23 @@
       ]
     },
     {
-      "id": "process_report_generation_with_reasoning_localized_output",
+      "id": "process_report_generation_localized_output_v2",
       "priority": 20,
-      "comment": "Generic rule for agents that produce a main report (potentially localized) and have reasoning.",
+      "comment": "Generic rule for agents producing a main report (localized) with English reasoning links.",
       "conditions": [
         {
           "field": "summaryText_en",
           "operator": "matches",
-          "value": ".* Report \\((in `{{outputLang}}`|English), .*reasoning.*\\) at `{{reportPath}}`."
+          "value": ".*Report \\(in `{{outputLang}}`.*\\) at `{{reportPath}}`."
         },
         {
           "field": "agentName",
           "operator": "in",
           "values": [
-            "@po-assistant",
-            "@task-breakdown-estimator",
-            "@test-generator-agent",
-            "@code-reviewer-assistant",
-            "@migration-analyst-agent",
-            "@documentation-writer-agent",
-            "@risk-manager-agent",
-            "@workflow-optimizer-agent",
-            "@deployment-agent-aks",
-            "@performance-optimization-agent",
-            "@accessibility-compliance-agent",
+            "@po-assistant", "@task-breakdown-estimator", "@test-generator-agent",
+            "@code-reviewer-assistant", "@migration-analyst-agent", "@documentation-writer-agent",
+            "@risk-manager-agent", "@workflow-optimizer-agent", "@deployment-agent-aks",
+            "@performance-optimization-agent", "@accessibility-compliance-agent",
             "@learning-integration-agent"
           ]
         }
@@ -219,75 +157,79 @@
       "actions": [
         {
           "type": "addToDocumentationRegistry",
-          "documentPathFromSummary_en": "{{reportPath}}",
-          "description_en": "{{agentName}} report (output lang: {{outputLang | or:'en-US'}}), includes reasoning. {{summaryText_en | extractShortPurpose}}",
+          "documentPath": "{{reportPath}}",
+          "description_en": "{{agentName | stripAgentPrefix}} report (output lang: {{outputLang}}; English reasoning available internally/linked). Focus: {{summaryText_en | extractFocusFromReportSummary}}",
+          "language": "{{outputLang}}",
           "documentType": "{{agentName | stripAgentPrefix}}Report"
         },
         {
-          "type": "updateMemoryBankLinkToReasoning",
+          "type": "updateMemoryBankLinkToReportAndReasoning",
           "agentName": "{{agentName}}",
-          "reportPathFromSummary_en": "{{reportPath}}",
-          "contextIdFromPheromone": "{{activeUserStory.id | or: activeTask.id | or: activePullRequest.id | or: 'general'}}"
+          "reportPath_localized": "{{reportPath}}",
+          "reportLanguage": "{{outputLang}}",
+          "englishReasoningSummaryOrLink": "{{summaryText_en | extractEnglishReasoningLinkOrSummary}}",
+          "contextId": "{{activeUserStory.id | or: activeTask.id | or: activePullRequest.id | or: 'general'}}"
         }
       ]
     },
     {
-      "id": "process_workflow_error_logging_v3_en",
-      "priority": 5,
+      "id": "process_ado_work_item_retrieval_for_start_us_en",
+      "priority": 22,
       "conditions": [
-        {
-          "field": "summaryText_en",
-          "operator": "containsAny",
-          "values": ["FAILURE", "ERROR", "FAILED", "UNABLE TO PROCEED", "MCP_CALL_FAILED", "COMMAND_EXECUTION_FAILED"]
-        },
-        {
-          "field": "agentName",
-          "operator": "notEquals",
-          "value": "✍️ @orchestrator-pheromone-scribe"
-        }
+        { "field": "agentName", "operator": "equals", "value": "@devops-connector" },
+        { "field": "summaryText_en", "operator": "matches", "value": "User '{{azureUser}}' confirmed. Full details for US 'Azure#{{usId}}' \\('{{usTitleFromADO_origLang}}'\\) retrieved. Description \\(orig lang\\): '{{usDescriptionFromADO_origLang}}'.*ACs \\(orig lang\\): '{{usACsFromADO_origLang}}'.*" }
       ],
       "actions": [
-        {
-          "type": "updatePheromoneField",
-          "targetField": "activeWorkflow.lastError",
-          "value": {
-            "agent": "{{agentName}}",
-            "phase_en": "{{activeWorkflow.currentPhase}}",
-            "message_en": "{{summaryText_en}}",
-            "timestamp": "{{timestamp}}"
-          }
-        },
-        {
-          "type": "updatePheromoneField",
-          "targetField": "activeWorkflow.status",
-          "value": "Error"
-        }
+        { "type": "updatePheromoneField", "targetField": "activeUserStory.id", "value": "Azure#{{usId}}" },
+        { "type": "updatePheromoneField", "targetField": "activeUserStory.title_en", "valueFromSummary_en": "{{usTitleFromADO_origLang | translateToEnglishIfDifferent: .currentUser.lastInteractionLanguage}}" },
+        { "type": "updatePheromoneField", "targetField": "activeUserStory.descriptionFull_en", "valueFromSummary_en": "{{usDescriptionFromADO_origLang | translateToEnglishIfDifferent: .currentUser.lastInteractionLanguage}}" },
+        { "type": "updatePheromoneField", "targetField": "activeUserStory.acceptanceCriteria_en", "valueFromSummary_en": "{{usACsFromADO_origLang | translateToEnglishIfDifferent: .currentUser.lastInteractionLanguage}}" },
+        { "type": "updatePheromoneField", "targetField": "activeUserStory.status", "value": "InProgressByPheromind" },
+        { "type": "updateMemoryBankField", "targetField": "memoryBank.userStories.{{usId}}.title_en", "valueFromSummary_en": "{{usTitleFromADO_origLang | translateToEnglishIfDifferent: .currentUser.lastInteractionLanguage}}" },
+        { "type": "updateMemoryBankField", "targetField": "memoryBank.userStories.{{usId}}.title_originalLang", "valueFromSummary_en": "{{usTitleFromADO_origLang}}" },
+        { "type": "updateMemoryBankField", "targetField": "memoryBank.userStories.{{usId}}.descriptionFull_en", "valueFromSummary_en": "{{usDescriptionFromADO_origLang | translateToEnglishIfDifferent: .currentUser.lastInteractionLanguage}}" },
+        { "type": "updateMemoryBankField", "targetField": "memoryBank.userStories.{{usId}}.description_originalLang", "valueFromSummary_en": "{{usDescriptionFromADO_origLang}}" }
+      ]
+    },
+    {
+      "id": "process_workflow_error_logging_v4_en",
+      "priority": 5,
+      "conditions": [
+        { "field": "summaryText_en", "operator": "containsAny", "values": ["FAILURE", "ERROR", "FAILED", "UNABLE TO PROCEED", "MCP_CALL_FAILED", "COMMAND_EXECUTION_FAILED"] },
+        { "field": "agentName", "operator": "notEquals", "value": "✍️ @orchestrator-pheromone-scribe" }
+      ],
+      "actions": [
+        { "type": "updatePheromoneField", "targetField": "activeWorkflow.lastError", "value": { "agent": "{{agentName}}", "phase_en": "{{activeWorkflow.currentPhase}}", "message_en": "{{summaryText_en}}", "timestamp": "{{timestamp}}" }},
+        { "type": "updatePheromoneField", "targetField": "activeWorkflow.status", "value": "Error" }
       ]
     }
   ],
   "actionImplementations": {
-    "updatePheromoneField": "Updates a direct field in the root of the .pheromone object. Uses dot notation for nested fields. Can create fields if they don't exist.",
-    "appendToMemoryBankSection": "Appends a value to a list within a specific section of .pheromone.memoryBank. Creates list if needed. Target field can use '[]' to signify appending to a list.",
-    "updateMemoryBankField": "Updates a field within the .pheromone.memoryBank object. Uses dot notation. Can create fields. Supports '[]' for appending to lists. Can use 'mergeStrategy: \"deep\"'.",
-    "addToDocumentationRegistry": "Adds or updates an entry in .pheromone.documentationRegistry (key: path, value: {description_en, documentType, timestamp}).",
-    "addToDocumentationRegistryIfPath": "Similar to addToDocumentationRegistry, but only acts if a valid path is extracted from summaryText_en.",
-    "updateLocalUserInfoFile": "ACTION RESERVED FOR SCRIBE DURING BOOTSTRAP ONLY. Updates local '.agilepherominduserinfo'. Uses dot notation for target fields. Supports 'mergeStrategy: \"deep\"'.",
-    "updatePheromoneFlag": "Sets a simple boolean flag at root of .pheromone.",
-    "updateMemoryBankLinkToReasoning": "Special action to link a report (containing reasoning) to the relevant entity in memoryBank (e.g., userStory, task, general system learning). Example: for @po-assistant and usId 'Azure#123', sets `memoryBank.userStories.Azure#123.reasoningChainLinks_en.poAnalysis = reportPath`."
+    "updatePheromoneField": "Updates a direct field in the root of the .pheromone object. Uses dot notation.",
+    "appendToMemoryBankSection": "Appends a value to a list within .pheromone.memoryBank.",
+    "updateMemoryBankField": "Updates a field within .pheromone.memoryBank. Supports 'mergeStrategy: \"deep\"'.",
+    "addToDocumentationRegistry": "Adds/updates entry in .pheromone.documentationRegistry (key: path, value: {description_en, documentType, language, timestamp}).",
+    "updateLocalUserInfoFile": "BOOTSTRAP ONLY: Updates local '.agilepherominduserinfo'.",
+    "updatePheromoneFlag": "Sets a boolean flag at root of .pheromone.",
+    "updateMemoryBankLinkToReportAndReasoning": "Links a report (potentially localized) to an entity in memoryBank, noting the report's language and where English reasoning can be found (e.g., within the report if translated, or a separate English artifact if applicable)."
   },
   "valueExtractors": {
-    "extractFilename": "Extracts filename from a full path string.",
+    "extractFilename": "Extracts filename from path.",
     "extractFilenameWithoutExt": "Extracts filename without extension.",
-    "extractKeyFindings": "Attempts to get a very short English summary of key findings from a longer English text.",
-    "extractOverallStatus": "Tries to determine an overall status (e.g., OK, Warning, Error, Pass, Fail) from an English summary text.",
-    "extractLogLink": "Looks for URLs or file paths that seem to be log files in an English summary.",
-    "extractLogPath": "Extracts a file path if explicitly mentioned for logging in an English summary.",
-    "toInt": "Converts extracted string value to an integer, defaults to 0 if conversion fails.",
+    "extractKeyFindings": "Extracts short English summary of key findings.",
+    "extractOverallStatus": "Determines status (OK, Warning, Error, Pass, Fail) from English summary.",
+    "extractLogLink": "Finds log file URLs/paths in English summary.",
+    "extractLogPath": "Extracts file path for logging from English summary.",
+    "toInt": "Converts string to integer.",
     "toLower": "Converts string to lowercase.",
-    "replace": "Replaces occurrences. Usage: {{value | replace:'find':'replace'}}",
+    "replace": "Replaces substring. Usage: {{value | replace:'find':'replace'}}",
     "truncate": "Truncates string. Usage: {{value | truncate:maxLength}}",
-    "or": "Fallback value. Usage: {{primaryValue | or:fallbackValue}}",
-    "stripAgentPrefix": "Removes '@' and agent type suffix, e.g. '@po-assistant' becomes 'PO'.",
-    "extractShortPurpose": "Extracts a very brief purpose from a longer summary, e.g. the main noun/verb phrase."
+    "or": "Fallback. Usage: {{primaryValue | or:fallbackValue}}",
+    "stripAgentPrefix": "Removes '@' and suffix like '-agent'.",
+    "extractShortPurpose": "Extracts brief purpose from English summary.",
+    "extractEnglishResponseTranslation": "Conceptual: If summaryText_en contains 'User response (original lang): ... English interpretation/summary of response: ...', this extracts the English interpretation.",
+    "extractEnglishReasoningLinkOrSummary": "Conceptual: Extracts a link to an English reasoning document or a direct English summary of reasoning, if present in summaryText_en.",
+    "extractFocusFromReportSummary": "Conceptual: Extracts the main focus/topic of a report from its summary.",
+    "translateToEnglishIfDifferent": "Conceptual: Takes a value and a language code. If language code is not 'en-US' (or similar), translates value to English. Otherwise, returns original value. This is a powerful placeholder for Scribe's/UO's LLM capabilities."
   }
 }

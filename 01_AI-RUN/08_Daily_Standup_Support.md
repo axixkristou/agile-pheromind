@@ -44,7 +44,7 @@
 
 ### Phase 2: Identification of Progress, Attention Points, and Blockers (English Analysis)
 *   **Responsible Agent:** `@scrum-facilitator-agent`.
-*   **Inputs:** Consolidated English data (Phase 1). `memoryBank.riskRegister` (English).
+*   **Inputs:** Consolidated English data (Phase 1). `memoryBank.riskRegister_en`.
 *   **Actions & Tooling:**
     1.  **Analyze Progress (English):** Tasks "Done". US completed. Commits.
     2.  **Analyze Attention Points/Blockers (English):** "InProgress" tasks with no recent English activity. Overdue tasks. English `developerNotes_en` mentioning "blocker", "issue". Task dependencies. Active risks. Pending clarifications.
@@ -73,8 +73,8 @@
 *   **Actions (UO - Optional Distribution):**
     1.  If manually triggered by user AND notification MCP configured:
         *   Take key points from English summary.
-        *   Conceptually translate to `currentUser.lastInteractionLanguage`.
-        *   Use notification MCP to send translated summary/link.
+        *   Conceptually translate these points to `currentUser.lastInteractionLanguage`.
+        *   Use notification MCP to send translated summary/link to team or user.
     2.  If automated, distribution defaults to English or pre-configured channel/language.
 *   **Output:** `.pheromone` updated. Team potentially notified.
 

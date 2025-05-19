@@ -25,7 +25,7 @@
     *   **Phase 4: Detailed Report Generation (English Content, Final Output Localized).**
         *   UO delegates to `@code-reviewer-assistant`. Agent drafts full English report, then translates to `currentUser.lastInteractionLanguage`.
     *   **Phase 5: Recording in `.pheromone` (English Data for Scribe, Localized Report Path).**
-        *   Scribe records report path and updates `memoryBank.technicalDebtItems` (English).
+        *   Scribe records report path and updates `memoryBank.technicalDebtItems_en` (English).
 
 ## Phase Details:
 
@@ -35,7 +35,7 @@
 *   **Actions & Tooling (UO and `@code-reviewer-assistant`):**
     1.  Define target files. `@code-reviewer-assistant` retrieves code via **Git Tools MCP**.
     2.  **onError (Git Tools MCP):** UO logs (English) via Scribe, notifies user (in `userLanguage`), stops.
-    3.  UO injects English context to `@code-reviewer-assistant`: `projectContext.codingConventionsLink` (English), existing English `technicalDebtItems`, relevant English `architecturalDecisions_en`.
+    3.  UO injects English context to `@code-reviewer-assistant`: English `coding_conventions.md`, existing English `technicalDebtItems_en`, relevant English `architecturalDecisions_en`.
 *   **Output:** Source code and injected English context ready for `@code-reviewer-assistant`.
 
 ### Phase 2: Analysis Planning and Static/Heuristic Analysis (English, with "Chain of Thought")
@@ -52,20 +52,19 @@
 *   **Responsible Agent:** `@code-reviewer-assistant`.
 *   **Inputs:** List of English code smells (Phase 2).
 *   **Actions & Tooling:**
-    1.  Group issues, evaluate impact (maintainability, bug risk, etc.). Prioritize debt (Critical, High, Medium, Low - all English terms).
+    1.  Group issues, evaluate impact. Prioritize debt (Critical, High, Medium, Low - English terms).
     2.  For priority items, suggest English refactorings/actions.
     3.  **"Chain of Thought" (English):** Document in report justification for prioritization and refactoring suggestions.
-    4.  **Ambiguity Management:** If code area too obscure: Report (English) to UO: "Cannot analyze debt for [file Z line A]. Obscure code. Suggest question for dev: 'Explain purpose/structure of this section for refactoring assessment?'". UO may use `@clarification-agent`.
+    4.  **Ambiguity Management:** If code area too obscure: Report (English) to UO for `@clarification-agent` (question to dev in their language).
 *   **Output (internal, English):** Prioritized list of English tech debt items with suggestions and justifications.
 
 ### Phase 4: Detailed Report Generation (English Content, Final Output Localized)
 *   **Responsible Agent:** `@code-reviewer-assistant`.
 *   **Inputs:** Prioritized English tech debt list, justifications. `currentUser.lastInteractionLanguage` (from UO as `userLanguageForOutput`).
 *   **Actions & Tooling:**
-    1.  **Compile English Report Content:** Full structured English Markdown report. Structure: Scope, Debt Summary, Priority Item Details (desc, location, impact, severity, English reasoning/chain of thought, refactoring suggestion), Metrics (optional).
-    2.  If sections unanalyzed due to obscurity (and no clarification), clearly state it.
-    3.  **Translate Report:** Translate entire English report content to `userLanguageForOutput`, preserving Markdown.
-    4.  Save localized report as `tech_debt_analysis_[scope]_[timestamp]_{{userLanguageForOutput}}.md` in `03_SPECS/Tech_Debt_Reports/`.
+    1.  **Compile English Report Content:** Full structured English Markdown report. Structure: Scope, Debt Summary, Priority Item Details (desc, location, impact, severity, English reasoning/chain of thought, refactoring suggestion), Metrics (optional). Note unanalyzed sections.
+    2.  **Translate Report:** Translate entire English report content to `userLanguageForOutput`.
+    3.  Save localized report as `tech_debt_analysis_[scope]_[timestamp]_{{userLanguageForOutput}}.md` in `03_SPECS/Tech_Debt_Reports/`.
 *   **Output (to Scribe, English NL Summary with path to localized report):** "Tech debt analysis '[Scope]' complete. [N_total] English issues, [N_crit] critical. Refactoring suggestions included. Report (in `{{userLanguageForOutput}}`, English reasoning available) at `{{localized_report_path}}`."
 
 ### Phase 5: Recording in `.pheromone` (English Data for Scribe, Localized Report Path)
@@ -74,7 +73,7 @@
 *   **Actions:**
     1.  Update `.pheromone`:
         *   `documentationRegistry`: Add `{{localized_report_path}}`.
-        *   `memoryBank.technicalDebtItems`: Add/Update structured English objects for each critical/high debt item (e.g., `{ id: "TD_UUID", description_en: "[English Problem]", severity: "Critical", location: "[File:Line]", status_en: "Identified", suggestedAction_en: "[English Suggestion]", linkToReportSection_localized: "{{localized_report_path}}#SectionID", dateIdentified: "{{timestamp}}", reasoningChainLink_en: "{{english_reasoning_doc_or_report_section_link}}"}`).
+        *   `memoryBank.technicalDebtItems_en`: Add/Update structured English objects for each critical/high debt item (e.g., `{ id: "TD_UUID", description_en: "[English Problem]", ..., reasoningChainLink_en: "{{english_reasoning_doc_or_report_section_link}}"}`).
         *   `memoryBank.projectContext.lastTechDebtAnalysisTimestamp_en = "{{timestamp}}"`.
 *   **Output:** `.pheromone` updated. UO informed (can notify user in `userLanguage`).
 

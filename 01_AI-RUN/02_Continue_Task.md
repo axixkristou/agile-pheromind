@@ -1,6 +1,6 @@
 # Workflow: Continue a Development Task (02_Continue_Task.md)
 
-**Objective:** Enable a developer to efficiently resume work on a specific technical task. The system loads the complete English task context (including decision history and previous English reasoning stored in the `memoryBank`), prepares the Git environment, and provides contextual assistance (potentially requiring English to `userLanguage` translation for display) during implementation. Error management and clarification mechanisms are integrated.
+**Objective:** Enable a developer to efficiently resume work on a specific technical task. The system loads the complete English task context (including decision history and previous English reasoning stored in the `memoryBank`), prepares the Git environment, and provides contextual assistance (potentially requiring English to `userLanguage` translation for display during interaction) during implementation. Error management and clarification mechanisms are integrated.
 
 **Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@devops-connector`, `@developer-agent`, `@clarification-agent`.
 
@@ -13,9 +13,9 @@
     *   **Pre-check:** UO verifies `.pheromone.onboardingComplete`.
     *   **Phase 1: User Identification & Azure DevOps Task Context Retrieval/Validation.**
         *   UO delegates to `@devops-connector`. Task details from ADO are retrieved in their original language.
-        *   **onError:** If ADO MCP fails, log, notify user (in `userLanguage`), stop.
+        *   **onError:** If ADO MCP fails, log English error, notify user (in `userLanguage`), stop.
     *   **Phase 2: Task Activation and Deep English Context Loading from `.pheromone`.**
-        *   Scribe updates `activeTask` (with `title_en`), `activeUserStory` (with `title_en`) in `.pheromone` after conceptual translation of ADO content to English if necessary.
+        *   Scribe updates `activeTask` (with `title_en`), `activeUserStory` (with `title_en`) in `.pheromone` after conceptual translation of ADO content to English if necessary by UO/Scribe.
         *   UO **injects targeted English context** from `memoryBank` to `@developer-agent`.
     *   **Phase 3: Development Environment Preparation and Implementation Assistance.**
         *   UO delegates to `@developer-agent` to check/change Git branch, open files.
@@ -39,7 +39,7 @@
 *   **Inputs:** English NL Summary from `@devops-connector`. `.pheromone` data.
 *   **Actions & Tooling (Scribe):**
     1.  Interpret summary.
-    2.  **Translate to English (Conceptual Task for Scribe/UO):** If `taskTitleFromADO_origLang`, `parentTitleFromADO_origLang` are not English, translate to English for internal Pheromind use.
+    2.  **Translate to English (Conceptual for Scribe/UO):** If `taskTitleFromADO_origLang`, `parentTitleFromADO_origLang` not English, translate for internal English storage.
     3.  Update `.pheromone`:
         *   `activeUserStory`: If parent US differs, load its English details from `memoryBank.userStories` into `activeUserStory` (e.g., `activeUserStory.title_en`).
         *   `activeTask`: { `id`, `title_en` (translated), `status`: "InProgressByPheromind", `parentId` }.
@@ -59,7 +59,7 @@
 *   **Actions & Tooling:**
     1.  **Git Branch Management (Git Tools MCP):** `get_current_branch`. Check vs expected `feature/US{{activeUserStory.id}}-{{english_us_short_title}}`. If needed, `checkout_branch` or `pull_branch` + `checkout_branch`. Report Git errors (English) to UO.
     2.  **File Opening:** (Conceptual) IDE opens relevant files.
-    3.  **Contextual Implementation Assistance (Dev codes, Agent assists):**
+    3.  **Contextual Implementation Assistance (Developer codes, Agent assists):**
         *   On request (from Dev in `userLanguage`, agent processes in English):
             *   **Context7 MCP** (`get_library_docs`): For .NET/Angular docs.
             *   **MSSQL MCP** (`get_schema_details`, `validate_sql_query`): For DB help.

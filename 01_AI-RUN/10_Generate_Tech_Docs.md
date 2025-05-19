@@ -1,6 +1,6 @@
 # Workflow: Technical Documentation Generation (10_Generate_Tech_Docs.md)
 
-**Objective:** Generate or update technical documentation (in `currentUser.lastInteractionLanguage`) for a specific project module, feature, or API. The agent analyzes source code (with English comments ideally), existing English comments, English specifications (US/tasks), and project documentation conventions. It relies on rich English context injected by the UO, documents its "chain of thought" in English for complex sections, and handles cases where source information is incomplete or ambiguous.
+**Objective:** Generate or update technical documentation (final output in `currentUser.lastInteractionLanguage`) for a specific project module, feature, or API. The agent analyzes source code (with English comments ideally), existing English comments, English specifications (US/tasks), and project documentation conventions. It relies on rich English context injected by the UO, documents its "chain of thought" in English for complex sections, and handles cases where source information is incomplete or ambiguous.
 
 **Key AI Agents:** `🧐 @uber-orchestrator` (UO), `✍️ @orchestrator-pheromone-scribe` (Scribe), `@documentation-writer-agent`, `@devops-connector` (for US/task context), `@clarification-agent`.
 
@@ -19,7 +19,7 @@
     *   **Phase 2: Source Information Analysis by Agent (English).**
         *   UO delegates to `@documentation-writer-agent`. Agent analyzes code, English comments, English specs. Uses **Context7 MCP**.
     *   **Phase 3: Technical Document Structuring and Writing (English Content, "Chain of Thought", Final Output Localized).**
-        *   UO delegates to `@documentation-writer-agent`. Agent plans sections, writes English content, includes examples, Mermaid diagrams. **Must document English "chain of thought"** for complex logic explanations. Then translates the entire document to `currentUser.lastInteractionLanguage`.
+        *   UO delegates to `@documentation-writer-agent`. Agent plans sections, writes English content, includes examples, Mermaid diagrams. **Must document English "chain of thought"**. Then translates entire document to `currentUser.lastInteractionLanguage`.
         *   **onError/Persistent Ambiguity:** If agent cannot clearly document a section, it reports (English) to UO. UO may restart clarification or ask dev (in `userLanguage`) to comment code.
     *   **Phase 4: Recording and Notification (English Data for Scribe, Localized Report Path).**
         *   Scribe records localized document path and updates `.pheromone`.
@@ -36,7 +36,7 @@
     4.  **Inject English Context to `@documentation-writer-agent`:** English US/task desc/ACs (`memoryBank`), English `coding_conventions.md`, relevant English `architecturalDecisions_en`, examples of similar English docs from `documentationRegistry`.
     5.  **Clarity Evaluation & Clarification:** If code minimally commented AND English functional specs vague: Pause workflow. Delegate to `@clarification-agent` with English context and English question (to be translated for user). Await response.
     6.  If clear, delegate to `@documentation-writer-agent` with code, injected English context, and `currentUser.lastInteractionLanguage` as `userLanguageForOutput`.
-*   **Output:** Task delegated to `@documentation-writer-agent` with rich English context and output language, or workflow paused.
+*   **Output:** Task delegated or workflow paused.
 
 ### Phase 2: Source Information Analysis by Agent (English)
 *   **Responsible Agent:** `@documentation-writer-agent`.
@@ -45,7 +45,7 @@
     1.  Analyze code (public signatures, main logic).
     2.  Extract/interpret existing English comments.
     3.  Correlate code with English functional specs.
-    4.  If code uses external APIs/libraries complexly, use **Context7 MCP** (`get_library_docs`) for precise usage understanding.
+    4.  If code uses external APIs/libraries complexly, use **Context7 MCP** (`get_library_docs`).
 *   **Output (internal, English):** In-depth understanding of code to be documented.
 
 ### Phase 3: Technical Document Structuring and Writing (English Content, "Chain of Thought", Final Output Localized)
@@ -53,23 +53,23 @@
 *   **Inputs:** English analysis (Phase 2). Expected English doc type. `userLanguageForOutput`.
 *   **Actions & Tooling:**
     1.  **Choose Template / Plan Sections (English titles).**
-    2.  **Write Content (English):** Clear, precise English. Code examples (comments in English). Mermaid diagrams (text in English).
-    3.  **"Chain of Thought" (English):** For sections explaining complex logic or key design choices, agent includes brief English explanation of *how* it understood this. Integrated into English draft.
-    4.  **Translate Content:** Translate the entire drafted English content to `userLanguageForOutput`, preserving Markdown formatting.
-    5.  **onError/Persistent Ambiguity:** If a code part remains obscure: Document what's possible in English draft. Mark ambiguous section (e.g., `<!-- AMBIGUITY (English): Logic for XYZ unclear, needs dev input -->`). Translate this note too. Report (English) to UO. UO may re-clarify or notify Tech Lead (in `userLanguage`).
+    2.  **Write Content (English):** Clear, precise English. Code examples (English comments). Mermaid diagrams (English text).
+    3.  **"Chain of Thought" (English):** For complex logic/design choices, agent includes brief English explanation of *how* it understood this. Integrated into English draft.
+    4.  **Translate Content:** Translate entire drafted English content to `userLanguageForOutput`, preserving Markdown.
+    5.  **onError/Persistent Ambiguity:** If code part obscure: Document what's possible in English draft. Mark ambiguous section (e.g., `<!-- AMBIGUITY (English): Logic for XYZ unclear, needs dev input -->`). Translate note. Report (English) to UO. UO may re-clarify or notify Tech Lead (in `userLanguage`).
     6.  Name and save localized file in `02_AI-DOCS/` (e.g., `Technical/Modules/[ModuleName_en]_{{userLanguageForOutput}}.md`).
-*   **Output (to Scribe, English NL Summary with path to localized doc):** "Technical doc for `{{TargetName_en}}` [generated/updated] at `{{LocalizedFilePath}}` (lang: `{{userLanguageForOutput}}`). Contains [English description summary]. [Optional: Section X flagged as ambiguous]. English chain of thought for key logic included in original draft and translated."
+*   **Output (to Scribe, English NL Summary with path to localized doc):** "Technical doc for `{{TargetName_en}}` [generated/updated] at `{{LocalizedFilePath}}` (lang: `{{userLanguageForOutput}}`). Contains [English description summary]. [Optional: Section X ambiguous]. English chain of thought in original draft and translated."
 
 ### Phase 4: Recording and Notification (English Data for Scribe, Localized Report Path)
 *   **Responsible Agent:** `✍️ @orchestrator-pheromone-scribe`.
-*   **Inputs:** English NL Summary from `@documentation-writer-agent`, including path to localized document.
+*   **Inputs:** English NL Summary from `@documentation-writer-agent`.
 *   **Actions:**
     1.  Interpret via `.swarmConfig`.
-    2.  Update `.pheromone`:
-        *   `documentationRegistry`: Add/Update `{{LocalizedFilePath}}` (key can be localized path or an English alias). Add language metadata if not in path.
+    2.  Update `.pheromone` (English data for `memoryBank`):
+        *   `documentationRegistry`: Add/Update `{{LocalizedFilePath}}` (key can be localized path or English alias). Add language metadata.
         *   `memoryBank.tasks.{{taskId_if_contextual}}.relatedDocumentation_localized[]`: Add `{{LocalizedFilePath}}`.
         *   `memoryBank.modules.{{ModuleName_en}}.documentationPath_localized`: Link localized doc.
-        *   `memoryBank.modules.{{ModuleName_en}}.reasoningChainLinks_en.documentation`: Could link to an English draft if agent saves one, or note that reasoning is within the localized (translated) doc.
+        *   `memoryBank.modules.{{ModuleName_en}}.reasoningChainLinks_en.documentation`: Link to English draft/summary of reasoning.
 *   **Output:** `.pheromone` updated. UO informed (can notify user in `userLanguage`).
 
 ---
